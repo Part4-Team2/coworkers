@@ -5,11 +5,77 @@
   --foreground: #171717;
 }
 
-@theme inline {
+@theme {
+  /* Spacing base unit: p-1 = 1px */
+  --spacing: 1px;
+
+  /* Map base colors to tokens */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* Font family from next/font variable in layout */
+  --font-sans: var(--font-sans);
+
+  /* Font weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Font sizes + line-heights */
+  --text-4xl: 40px;
+  --leading-4xl: 48px;
+  --text-3xl: 32px;
+  --leading-3xl: 38px;
+  --text-2xl: 24px;
+  --leading-2xl: 28px;
+  --text-xl: 20px;
+  --leading-xl: 24px;
+  --text-lg: 18px;
+  --leading-lg: 21px;
+  --text-md: 14px;
+  --leading-md: 17px;
+  --text-sm: 13px;
+  --leading-sm: 16px;
+  --text-xs: 12px;
+  --leading-xs: 14px;
+
+  /* Brand and UI colors */
+  --color-brand-primary: #10b981;
+  --color-brand-secondary: #a3e635;
+  --color-brand-tertiary: #a1dd70;
+
+  --color-point-purple: #a855f7;
+  --color-point-blue: #3b82f6;
+  --color-point-cyan: #06b6d4;
+  --color-point-pink: #ec4899;
+  --color-point-rose: #f43f5e;
+  --color-point-orange: #f97316;
+  --color-point-yellow: #eab308;
+
+  --color-background-primary: #1f2937;
+  --color-background-secondary: #374151;
+  --color-background-tertiary: #4b5563;
+  --color-background-inverse: #ffffff;
+
+  --color-interaction-inactive: #cbd5e1;
+  --color-interaction-hover: #10b981;
+  --color-interaction-pressed: #047857;
+  --color-interaction-focus: #34d399;
+
+  --color-border-primary: #d1d5db;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #9ca3af;
+  --color-text-tertiary: #e5e7eb;
+  --color-text-default: #6b7280;
+  --color-text-disabled: #6b7280;
+
+  --color-status-danger: #dc2626;
+
+  --color-icon-primary: #3b82f6;
+  --color-icon-inverse: #f3f4f6;
+  --color-icon-brand: #10b981;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +88,11 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    var(--font-sans),
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
 }
