@@ -7,7 +7,7 @@ reviews:
   request_changes_workflow: false
   high_level_summary: true
   high_level_summary_placeholder: |
-    ## 📋 WIKID 프로젝트 리뷰 요약
+    ## 📋 COWORKERS 프로젝트 리뷰 요약
 
     ### 🏗️ 적용된 컨벤션 체크사항
     - **커밋 컨벤션**: Conventional Commits (feat/fix/docs/style/refactor/test/chore)
