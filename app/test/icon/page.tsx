@@ -1,208 +1,160 @@
 "use client";
 
-import React from "react";
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
+import { IconMap, IconSizes } from "@/app/components/SVGIcon/iconMap";
+import type {
+  IconMapTypes,
+  IconSizeTypes,
+} from "@/app/components/SVGIcon/iconMap";
+import { useState } from "react";
 
-export default function TestPage() {
+type IconNameType = IconMapTypes;
+type IconSizeNameType = IconSizeTypes;
+
+const iconNames = Object.keys(IconMap) as IconNameType[];
+const sizeNames = Object.keys(IconSizes) as IconSizeNameType[];
+
+export default function IconStorybookPage() {
+  const [selectedIcon, setSelectedIcon] = useState<IconNameType>("check");
+  const [selectedSize, setSelectedSize] = useState<IconSizeNameType>("md");
+  const [customSize, setCustomSize] = useState<string>("");
+
   return (
-    <div className="p-8 bg-background-primary space-y-8">
-      <h1 className="text-2xl font-bold">SVGIcon 사용 가이드</h1>
+    <div className="min-h-screen bg-[#3f4147] px-6 py-8 text-[#e7ebf2]">
+      {/* Icon  */}
+      <section className="mb-10">
+        <h1 className="mb-6 text-2xl font-bold">SVGIcon Storybook</h1>
 
-      {/* 기본 */}
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">기본</h2>
-        <div className="flex items-center gap-3">
-          <SVGIcon icon="check" size="md" />
-          <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-            &lt;SVGIcon icon=&quot;check&quot; size=&quot;md&quot; /&gt;
-          </code>
+        <div className="grid grid-cols-3 gap-6">
+          {/* 컨트롤 패널 */}
+          <div className="col-span-1 rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-4">
+            <h3 className="mb-4 text-lg font-semibold">Props 제어</h3>
+
+            {/* Icon Name */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm text-[#a8b0c0]">Icon</label>
+              <select
+                value={selectedIcon}
+                onChange={(e) =>
+                  setSelectedIcon(e.target.value as IconNameType)
+                }
+                className="w-full rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
+              >
+                {iconNames.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Size (Named) */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm text-[#a8b0c0]">
+                Size (Named)
+              </label>
+              <select
+                value={selectedSize}
+                onChange={(e) =>
+                  setSelectedSize(e.target.value as IconSizeNameType)
+                }
+                className="w-full rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
+              >
+                {sizeNames.map((name) => (
+                  <option key={name} value={name}>
+                    {name} ({IconSizes[name]}px)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Custom Size (Numeric) */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm text-[#a8b0c0]">
+                Custom Size (숫자)
+              </label>
+              <input
+                type="number"
+                value={customSize}
+                onChange={(e) => setCustomSize(e.target.value)}
+                className="w-full rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
+                placeholder="예: 64"
+                min="8"
+                max="256"
+              />
+              {customSize && (
+                <p className="mt-1 text-xs text-brand-secondary">
+                  적용: {customSize}px
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* 미리보기 및 코드 */}
+          <div className="col-span-2 space-y-4">
+            {/* Preview */}
+            <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
+              <h3 className="mb-6 text-lg font-semibold">Preview</h3>
+              <div className="flex min-h-[200px] items-center justify-center rounded bg-[#2a2d32] p-4">
+                <SVGIcon
+                  icon={selectedIcon}
+                  size={
+                    customSize ? (Number(customSize) as number) : selectedSize
+                  }
+                />
+              </div>
+            </div>
+
+            {/* 코드 표시 */}
+            <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-4">
+              <h3 className="mb-3 text-sm font-semibold">Code</h3>
+              <pre className="overflow-auto rounded bg-[#2a2d32] p-3 text-xs text-[#a8b0c0]">
+                {`<SVGIcon
+  icon="${selectedIcon}"
+  size=${customSize ? `{${customSize}}` : `"${selectedSize}"`}
+/>`}
+              </pre>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 사이즈 (이름) */}
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">사이즈 (이름)</h2>
-        <div className="flex items-end gap-6">
-          <div className="text-center">
-            <SVGIcon icon="gear" size="xxs" />
-            <p className="text-xs mt-1">xxs</p>
-          </div>
-          <div className="text-center">
-            <SVGIcon icon="gear" size="md" />
-            <p className="text-xs mt-1">md</p>
-          </div>
-          <div className="text-center">
-            <SVGIcon icon="gear" size="xxl" />
-            <p className="text-xs mt-1">xxl</p>
-          </div>
-        </div>
-        <code className="text-sm bg-gray-100 px-2 py-1 rounded block">
-          &lt;SVGIcon icon=&quot;gear&quot; size=&quot;xxs|md|xxl&quot; /&gt;
-        </code>
-      </section>
-
-      {/* 사이즈 (숫자) */}
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">사이즈 (숫자)</h2>
-        <div className="flex items-center gap-3">
-          <SVGIcon icon="alert" size={64} />
-          <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-            &lt;SVGIcon icon=&quot;alert&quot; size={64} /&gt;
-          </code>
+      {/* 아이콘 전체 가이드 */}
+      <section className="mt-12">
+        <h2 className="mb-6 text-2xl font-bold">전체 아이콘 목록</h2>
+        <div className="grid grid-cols-4 gap-4 rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
+          {iconNames.map((name) => (
+            <div
+              key={name}
+              className="flex flex-col items-center gap-2 rounded border border-[#7b63a7]/50 bg-white/5 p-3 hover:bg-white/10 transition-colors cursor-pointer"
+              onClick={() => setSelectedIcon(name)}
+              title={`클릭하면 선택됩니다: ${name}`}
+            >
+              <SVGIcon icon={name} size="md" />
+              <span className="text-xs text-[#a8b0c0] text-center break-words">
+                {name}
+              </span>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* 색상 */}
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">색상</h2>
-        <div className="flex items-center gap-4">
-          <SVGIcon icon="user" size="lg" style={{ color: "#3b82f6" }} />
-          <SVGIcon icon="user" size="lg" className="text-red-500" />
-        </div>
-        <code className="text-sm bg-gray-100 px-2 py-1 rounded block">
-          &lt;SVGIcon icon=&quot;user&quot; size=&quot;lg&quot;
-          style=&#123;&#123; color: &quot;#3b82f6&quot; &#125;&#125; /&gt;
-        </code>
-        <code className="text-sm bg-gray-100 px-2 py-1 rounded block mt-2">
-          &lt;SVGIcon icon=&quot;user&quot; size=&quot;lg&quot;
-          className=&quot;text-red-500&quot; /&gt;
-        </code>
-      </section>
-
-      {/* 모든 아이콘 (각 1회) */}
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">모든 아이콘</h2>
-        <p className="text-sm text-gray-600">
-          각 아이콘을 최소 1회 렌더링합니다.
-        </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="alert" size="md" />
-            <span className="text-xs text-gray-600">alert</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="arrowLeft" size="md" />
-            <span className="text-xs text-gray-600">arrowLeft</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="arrowRight" size="md" />
-            <span className="text-xs text-gray-600">arrowRight</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="calendar" size="md" />
-            <span className="text-xs text-gray-600">calendar</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="check" size="md" />
-            <span className="text-xs text-gray-600">check</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="checkOne" size="md" />
-            <span className="text-xs text-gray-600">checkOne</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="checkboxActive" size="md" />
-            <span className="text-xs text-gray-600">checkboxActive</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="checkboxDefault" size="md" />
-            <span className="text-xs text-gray-600">checkboxDefault</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="comment" size="md" />
-            <span className="text-xs text-gray-600">comment</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="done" size="md" />
-            <span className="text-xs text-gray-600">done</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="gear" size="md" />
-            <span className="text-xs text-gray-600">gear</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="gnbMenu" size="md" />
-            <span className="text-xs text-gray-600">gnbMenu</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="iconCalendar" size="md" />
-            <span className="text-xs text-gray-600">iconCalendar</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="iconRepeat" size="md" />
-            <span className="text-xs text-gray-600">iconRepeat</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="iconTime" size="md" />
-            <span className="text-xs text-gray-600">iconTime</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="image" size="md" />
-            <span className="text-xs text-gray-600">image</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="img" size="md" />
-            <span className="text-xs text-gray-600">img</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="kebabLarge" size="md" />
-            <span className="text-xs text-gray-600">kebabLarge</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="kebabSmall" size="md" />
-            <span className="text-xs text-gray-600">kebabSmall</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="list" size="md" />
-            <span className="text-xs text-gray-600">list</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="plus" size="md" />
-            <span className="text-xs text-gray-600">plus</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="progressDone" size="md" />
-            <span className="text-xs text-gray-600">progressDone</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="progressOngoing" size="md" />
-            <span className="text-xs text-gray-600">progressOngoing</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="repairLarge" size="md" />
-            <span className="text-xs text-gray-600">repairLarge</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="repairMedium" size="md" />
-            <span className="text-xs text-gray-600">repairMedium</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="repairSmall" size="md" />
-            <span className="text-xs text-gray-600">repairSmall</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="time" size="md" />
-            <span className="text-xs text-gray-600">time</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="toggle" size="md" />
-            <span className="text-xs text-gray-600">toggle</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="user" size="md" />
-            <span className="text-xs text-gray-600">user</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="visibilityOff" size="md" />
-            <span className="text-xs text-gray-600">visibilityOff</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="visibilityOn" size="md" />
-            <span className="text-xs text-gray-600">visibilityOn</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-3 border rounded">
-            <SVGIcon icon="x" size="md" />
-            <span className="text-xs text-gray-600">x</span>
+      {/* 사이즈 가이드 */}
+      <section className="mt-12 mb-10">
+        <h2 className="mb-6 text-2xl font-bold">사이즈 가이드</h2>
+        <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
+            {sizeNames.map((name) => (
+              <div key={name} className="flex flex-col items-center gap-3">
+                <div className="flex items-center justify-center rounded bg-[#2a2d32] p-4">
+                  <SVGIcon icon="check" size={name} />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold">{name}</p>
+                  <p className="text-xs text-[#a8b0c0]">{IconSizes[name]}px</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
