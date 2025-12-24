@@ -16,6 +16,7 @@ export interface InputProps extends Omit<
   showError?: boolean;
   rightIcon?: IconMapTypes;
   onRightIconClick?: () => void;
+  rightElement?: React.ReactNode;
   clearable?: boolean;
   onClear?: () => void;
   allowPasswordToggle?: boolean;
@@ -40,6 +41,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     showError,
     rightIcon,
     onRightIconClick,
+    rightElement,
     clearable,
     onClear,
     allowPasswordToggle,
@@ -75,6 +77,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 
   const hasTrailing = Boolean(
     rightIcon ||
+    rightElement ||
     (type === "password" && allowPasswordToggle) ||
     clearable ||
     effectiveDropdownToggle
@@ -91,8 +94,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         ? "error"
         : "default";
 
-  const borderClass =
-    effectiveVariant === "error"
+  const borderClass = disabled
+    ? "border-border-primary"
+    : effectiveVariant === "error"
       ? "border-status-danger"
       : effectiveVariant === "toggle" && isDropdownOpen
         ? "border-interaction-focus"
@@ -105,7 +109,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       ? "hover:border-interaction-hover"
       : "";
 
-  const disabledCls = disabled ? "opacity-60 cursor-not-allowed" : "";
+  const disabledCls = disabled
+    ? "text-text-disabled bg-background-tertiary border-border-primary cursor-not-allowed"
+    : "";
   const widthCls = full ? "w-full" : "";
   const style = !full && width ? { width } : undefined;
 
@@ -140,7 +146,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           type={derivedType}
           disabled={disabled}
           readOnly={effectiveReadOnly}
-          className={`w-full bg-transparent outline-none ${isToggleVariant ? "placeholder:text-text-primary cursor-pointer" : "placeholder:text-text-default"} ${inputPaddingRight}`}
+          className={`w-full bg-transparent outline-none ${disabled ? "placeholder:text-text-disabled text-text-disabled" : ""} ${isToggleVariant ? "placeholder:text-text-primary cursor-pointer" : "placeholder:text-text-default"} ${inputPaddingRight}`}
           {...rest}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -159,8 +165,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           </button>
         )}
 
+        {/* Right element (custom component) - highest priority */}
+        {rightElement && !showPwdToggle && !showClear && !rightIcon && (
+          <div className="flex items-center justify-center">{rightElement}</div>
+        )}
+
         {/* Right icon action (if provided and no password toggle) */}
-        {rightIcon && !showPwdToggle && !showClear && (
+        {rightIcon && !showPwdToggle && !showClear && !rightElement && (
           <button
             type="button"
             aria-label="input action"
@@ -189,25 +200,29 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         )}
 
         {/* Dropdown toggle */}
-        {effectiveDropdownToggle && !showClear && !showPwdToggle && (
-          <button
-            type="button"
-            aria-label={isDropdownOpen ? "드롭다운 닫기" : "드롭다운 열기"}
-            className="flex items-center justify-center text-icon-primary hover:text-text-tertiary transition-colors"
-            onClick={onDropdownToggle}
-            tabIndex={-1}
-          >
-            <SVGIcon
-              icon={"toggle"}
-              size="md"
-              className={
-                isDropdownOpen
-                  ? "rotate-180 transition-transform"
-                  : "transition-transform"
-              }
-            />
-          </button>
-        )}
+        {effectiveDropdownToggle &&
+          !showClear &&
+          !showPwdToggle &&
+          !rightIcon &&
+          !rightElement && (
+            <button
+              type="button"
+              aria-label={isDropdownOpen ? "드롭다운 닫기" : "드롭다운 열기"}
+              className="flex items-center justify-center text-icon-primary hover:text-text-tertiary transition-colors"
+              onClick={onDropdownToggle}
+              tabIndex={-1}
+            >
+              <SVGIcon
+                icon={"toggle"}
+                size="md"
+                className={
+                  isDropdownOpen
+                    ? "rotate-180 transition-transform"
+                    : "transition-transform"
+                }
+              />
+            </button>
+          )}
       </div>
       {message && (
         <p
