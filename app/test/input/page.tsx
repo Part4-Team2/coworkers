@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Input from "@/app/components/Input/Input";
+import InputBox from "@/app/components/Input/InputBox";
 import Dropdown from "@/app/components/Dropdown/Dropdown";
 import Button from "@/app/components/Button/Button";
 import type { InputVariant, InputSize } from "@/app/components/Input/Input";
@@ -26,6 +27,20 @@ export default function InputStorybookPage() {
   const [inputWidthInput, setInputWidthInput] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  // InputBox 커스터마이징
+  const [inputBoxValue, setInputBoxValue] = useState("");
+  const [inputBoxLabel, setInputBoxLabel] = useState("");
+  const [inputBoxPlaceholder, setInputBoxPlaceholder] =
+    useState("내용을 입력하세요");
+  const [inputBoxMessage, setInputBoxMessage] = useState("");
+  const [inputBoxDisabled, setInputBoxDisabled] = useState(false);
+  const [inputBoxShowError, setInputBoxShowError] = useState(false);
+  const [inputBoxFull, setInputBoxFull] = useState(false);
+  const [inputBoxWidth, setInputBoxWidth] = useState("");
+  const [inputBoxWidthInput, setInputBoxWidthInput] = useState("");
+  const [inputBoxMinHeight, setInputBoxMinHeight] = useState("120px");
+  const [inputBoxMaxHeight, setInputBoxMaxHeight] = useState("");
+
   const dropdownItems: DropdownItem[] = [
     { id: "option1", label: "옵션 1" },
     { id: "option2", label: "옵션 2" },
@@ -35,6 +50,10 @@ export default function InputStorybookPage() {
 
   const applyInputWidth = () => {
     setInputWidth(inputWidthInput);
+  };
+
+  const applyInputBoxWidth = () => {
+    setInputBoxWidth(inputBoxWidthInput);
   };
 
   return (
@@ -320,8 +339,224 @@ export default function InputStorybookPage() {
         </div>
       </section>
 
+      {/* InputBox Storybook */}
+      <section className="mt-12 mb-10">
+        <h1 className="mb-6 text-2xl font-bold">InputBox Storybook</h1>
+
+        <div className="grid grid-cols-3 gap-6">
+          {/* 컨트롤 패널 */}
+          <div className="col-span-1 rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-4 max-h-[800px] overflow-y-auto">
+            <h3 className="mb-4 text-lg font-semibold">Props 제어</h3>
+
+            {/* Value */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm text-[#a8b0c0]">Value</label>
+              <textarea
+                value={inputBoxValue}
+                onChange={(e) => setInputBoxValue(e.target.value)}
+                className="w-full rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
+                placeholder="InputBox 값"
+                rows={3}
+              />
+            </div>
+
+            {/* Label */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm text-[#a8b0c0]">Label</label>
+              <input
+                type="text"
+                value={inputBoxLabel}
+                onChange={(e) => setInputBoxLabel(e.target.value)}
+                className="w-full rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
+                placeholder="레이블"
+              />
+            </div>
+
+            {/* Placeholder */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm text-[#a8b0c0]">
+                Placeholder
+              </label>
+              <input
+                type="text"
+                value={inputBoxPlaceholder}
+                onChange={(e) => setInputBoxPlaceholder(e.target.value)}
+                className="w-full rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
+                placeholder="플레이스홀더"
+              />
+            </div>
+
+            {/* Message */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm text-[#a8b0c0]">
+                Message
+              </label>
+              <input
+                type="text"
+                value={inputBoxMessage}
+                onChange={(e) => setInputBoxMessage(e.target.value)}
+                className="w-full rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
+                placeholder="도움말 메시지"
+              />
+            </div>
+
+            {/* Min Height */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm text-[#a8b0c0]">
+                Min Height
+              </label>
+              <input
+                type="text"
+                value={inputBoxMinHeight}
+                onChange={(e) => setInputBoxMinHeight(e.target.value)}
+                className="w-full rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
+                placeholder="예: 120px"
+              />
+            </div>
+
+            {/* Max Height */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm text-[#a8b0c0]">
+                Max Height
+              </label>
+              <input
+                type="text"
+                value={inputBoxMaxHeight}
+                onChange={(e) => setInputBoxMaxHeight(e.target.value)}
+                className="w-full rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
+                placeholder="예: 300px (비워두면 제한 없음)"
+              />
+            </div>
+
+            {/* Width */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm text-[#a8b0c0]">
+                Custom Width
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={inputBoxWidthInput}
+                  onChange={(e) => setInputBoxWidthInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      applyInputBoxWidth();
+                    }
+                  }}
+                  className="flex-1 rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
+                  placeholder="예: 400px"
+                />
+                <button
+                  onClick={applyInputBoxWidth}
+                  className="rounded bg-brand-primary px-3 py-2 text-xs font-semibold text-white hover:bg-interaction-hover transition-colors"
+                >
+                  적용
+                </button>
+              </div>
+              {inputBoxWidth && (
+                <p className="mt-1 text-xs text-brand-secondary">
+                  적용됨: {inputBoxWidth}
+                </p>
+              )}
+            </div>
+
+            {/* Full */}
+            <div className="mb-4 flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="inputBoxFull"
+                checked={inputBoxFull}
+                onChange={(e) => setInputBoxFull(e.target.checked)}
+                className="h-5 w-5 cursor-pointer accent-brand-primary"
+              />
+              <label
+                htmlFor="inputBoxFull"
+                className="cursor-pointer text-sm text-[#a8b0c0]"
+              >
+                Full Width
+              </label>
+            </div>
+
+            {/* Show Error */}
+            <div className="mb-4 flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="inputBoxShowError"
+                checked={inputBoxShowError}
+                onChange={(e) => setInputBoxShowError(e.target.checked)}
+                className="h-5 w-5 cursor-pointer accent-status-danger"
+              />
+              <label
+                htmlFor="inputBoxShowError"
+                className="cursor-pointer text-sm text-[#a8b0c0]"
+              >
+                Show Error
+              </label>
+            </div>
+
+            {/* Disabled */}
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="inputBoxDisabled"
+                checked={inputBoxDisabled}
+                onChange={(e) => setInputBoxDisabled(e.target.checked)}
+                className="h-5 w-5 cursor-pointer accent-status-danger"
+              />
+              <label
+                htmlFor="inputBoxDisabled"
+                className="cursor-pointer text-sm text-[#a8b0c0]"
+              >
+                Disabled
+              </label>
+            </div>
+          </div>
+
+          {/* 미리보기 및 코드 */}
+          <div className="col-span-2 space-y-4">
+            {/* Preview */}
+            <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
+              <h3 className="mb-6 text-lg font-semibold">Preview</h3>
+              <div className="rounded bg-[#2a2d32] p-8">
+                <div
+                  className={`relative ${inputBoxFull ? "w-full" : "inline-block"}`}
+                >
+                  <InputBox
+                    label={inputBoxLabel || undefined}
+                    placeholder={inputBoxPlaceholder}
+                    message={inputBoxMessage || undefined}
+                    value={inputBoxValue}
+                    onChange={(e) => setInputBoxValue(e.target.value)}
+                    disabled={inputBoxDisabled}
+                    showError={inputBoxShowError}
+                    full={inputBoxFull}
+                    width={inputBoxWidth}
+                    minHeight={inputBoxMinHeight}
+                    maxHeight={inputBoxMaxHeight || undefined}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 코드 표시 */}
+            <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-4">
+              <h3 className="mb-3 text-sm font-semibold">Code</h3>
+              <pre className="overflow-auto rounded bg-[#2a2d32] p-3 text-xs text-[#a8b0c0]">
+                {`<InputBox
+  ${inputBoxLabel ? `label="${inputBoxLabel}"` : ""}
+  placeholder="${inputBoxPlaceholder}"${inputBoxMessage ? `\n  message="${inputBoxMessage}"` : ""}
+  value={value}
+  onChange={(e) => setValue(e.target.value)}${inputBoxDisabled ? "\n  disabled" : ""}${inputBoxShowError ? "\n  showError" : ""}${inputBoxFull ? "\n  full" : ""}${inputBoxWidth ? `\n  width="${inputBoxWidth}"` : ""}${inputBoxMinHeight !== "120px" ? `\n  minHeight="${inputBoxMinHeight}"` : ""}${inputBoxMaxHeight ? `\n  maxHeight="${inputBoxMaxHeight}"` : ""}
+/>`}
+              </pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 전체 Variant 가이드 */}
       <section className="mt-12 mb-10">
+        <h2 className="mb-6 text-2xl font-bold">Input Guide</h2>
         <h2 className="mb-6 text-2xl font-bold">Variant Guide</h2>
         <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -438,6 +673,57 @@ export default function InputStorybookPage() {
                 disabled
                 full
               />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* InputBox 가이드 */}
+      <section className="mt-12 mb-10">
+        <h2 className="mb-6 text-2xl font-bold">InputBox 가이드</h2>
+        <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
+          <div className="space-y-6">
+            <div>
+              <p className="mb-3 text-sm text-[#a8b0c0]">
+                기본 InputBox (343px)
+              </p>
+              <InputBox placeholder="내용을 입력하세요" />
+            </div>
+            <div>
+              <p className="mb-3 text-sm text-[#a8b0c0]">긴 내용 스크롤 예시</p>
+              <InputBox
+                placeholder="내용을 입력하세요"
+                defaultValue="내용이 길면 이 영역 내부에서 스크롤이 발생합니다. 내용이 길면 이 영역 내부에서 스크롤이 발생합니다. 내용이 길면 이 영역 내부에서 스크롤이 발생합니다. 내용이 길면 이 영역 내부에서 스크롤이 발생합니다. 내용이 길면 이 영역 내부에서 스크롤이 발생합니다. 내용이 길면 이 영역 내부에서 스크롤이 발생합니다. 내용이 길면 이 영역 내부에서 스크롤이 발생합니다. 내용이 길면 이 영역 내부에서 스크롤이 발생합니다. 내용이 길면 이 영역 내부에서 스크롤이 발생합니다. 내용이 길면 이 영역 내부에서 스크롤이 발생합니다."
+                readOnly
+              />
+            </div>
+            <div>
+              <p className="mb-3 text-sm text-[#a8b0c0]">
+                커스텀 Width (더 작게: 200px)
+              </p>
+              <InputBox placeholder="내용을 입력하세요" width="200px" />
+            </div>
+            <div>
+              <p className="mb-3 text-sm text-[#a8b0c0]">
+                커스텀 Width (더 크게: 500px)
+              </p>
+              <InputBox placeholder="내용을 입력하세요" width="500px" />
+            </div>
+            <div>
+              <p className="mb-3 text-sm text-[#a8b0c0]">Full Width</p>
+              <InputBox placeholder="내용을 입력하세요" full />
+            </div>
+            <div>
+              <p className="mb-3 text-sm text-[#a8b0c0]">에러 상태</p>
+              <InputBox
+                placeholder="에러 상태"
+                message="에러 메시지입니다."
+                showError
+              />
+            </div>
+            <div>
+              <p className="mb-3 text-sm text-[#a8b0c0]">Disabled</p>
+              <InputBox placeholder="비활성화 상태" disabled />
             </div>
           </div>
         </div>
