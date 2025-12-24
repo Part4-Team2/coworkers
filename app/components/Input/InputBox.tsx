@@ -52,11 +52,12 @@ const InputBox = forwardRef<HTMLTextAreaElement, InputBoxProps>(
       : "";
 
     // 기본 width는 343px, full이면 w-full, width prop이 있으면 그 값 사용
+    // maxWidth를 100%로 설정하여 부모 영역을 벗어나지 않도록 함
     const widthStyle = full
       ? undefined
       : width
-        ? { width }
-        : { width: "343px" };
+        ? { width, maxWidth: "100%" }
+        : { width: "343px", maxWidth: "100%" };
 
     const textareaStyle = {
       minHeight,

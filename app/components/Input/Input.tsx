@@ -29,8 +29,13 @@ export interface InputProps extends Omit<
 }
 
 const sizeClass: Record<InputSize, string> = {
-  large: "h-[46px] text-md px-[16px] min-w-[460px]",
-  small: "h-[40px] text-sm px-[16px] min-w-[332px]",
+  large: "h-[46px] text-md px-[16px]",
+  small: "h-[40px] text-sm px-[16px]",
+};
+
+const defaultWidth: Record<InputSize, string> = {
+  large: "460px",
+  small: "332px",
 };
 
 // forwardRef는 ref 전달을 위해, function Input은 디버깅과 개발자 도구 표시를 위해 사용
@@ -113,8 +118,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const disabledCls = disabled
     ? "text-text-disabled bg-background-tertiary border-border-primary cursor-not-allowed"
     : "";
-  const widthCls = full ? "w-full" : "";
-  const style = !full && width ? { width } : undefined;
+
+  // 기본 width는 size에 따라, full이면 w-full, width prop이 있으면 그 값 사용
+  // maxWidth를 100%로 설정하여 부모 영역을 벗어나지 않도록 함
+  const widthStyle = full
+    ? undefined
+    : width
+      ? { width, maxWidth: "100%" }
+      : { width: defaultWidth[size], maxWidth: "100%" };
 
   const inputPaddingRight = hasTrailing ? "pr-12" : "pr-4";
 
@@ -132,7 +143,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   };
 
   return (
-    <div className={widthCls} style={style}>
+    <div className={full ? "w-full" : ""} style={widthStyle}>
       {label && (
         <label className="mb-2 block text-sm text-text-secondary">
           {label}
