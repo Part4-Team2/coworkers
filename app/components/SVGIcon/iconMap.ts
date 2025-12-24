@@ -30,6 +30,24 @@ import ToggleIcon from "@/app/assets/icon/1/toggle.svg";
 import VisibilityOffIcon from "@/app/assets/icon/1/visibility_off.svg";
 import VisibilityOnIcon from "@/app/assets/icon/1/visibility_on.svg";
 import XIcon from "@/app/assets/icon/1/x.svg";
+import BtnArrowLeftIcon from "@/app/assets/btn/arrow-left.svg";
+import BtnArrowRightIcon from "@/app/assets/btn/arrow-right.svg";
+import BtnCalendarIcon from "@/app/assets/btn/calendar.svg";
+import BtnDatepickerDefaultIcon from "@/app/assets/btn/datepicker-default.svg";
+import BtnDatepickerOnIcon from "@/app/assets/btn/datepicker-on.svg";
+import BtnEditLargeIcon from "@/app/assets/btn/edit-large.svg";
+import BtnEditSmallIcon from "@/app/assets/btn/edit-small.svg";
+import BtnEnterActiveIcon from "@/app/assets/btn/enter-active.svg";
+import BtnEnterDefaultIcon from "@/app/assets/btn/enter-default.svg";
+import BtnRadioDefaultIcon from "@/app/assets/btn/radio-default.svg";
+import BtnRadioOnIcon from "@/app/assets/btn/radio-on.svg";
+import GoogleIcon from "@/app/assets/img/google.svg";
+import ImgDoneIcon from "@/app/assets/img/img-done.svg";
+import ImgTodoIcon from "@/app/assets/img/img-todo.svg";
+import KakaotalkIcon from "@/app/assets/img/kakaotalk.svg";
+import LogoLargeIcon from "@/app/assets/img/logo_coworkers/logo-large.svg";
+import LogoSmallIcon from "@/app/assets/img/logo_coworkers/logo-small.svg";
+import ThumbnailTeamIcon from "@/app/assets/img/thumbnail-team.svg";
 
 export const IconMap = {
   alert: AlertIcon,
@@ -64,6 +82,26 @@ export const IconMap = {
   visibilityOff: VisibilityOffIcon,
   visibilityOn: VisibilityOnIcon,
   x: XIcon,
+  // btn
+  btnArrowLeft: BtnArrowLeftIcon,
+  btnArrowRight: BtnArrowRightIcon,
+  btnCalendar: BtnCalendarIcon,
+  btnDatepickerDefault: BtnDatepickerDefaultIcon,
+  btnDatepickeron: BtnDatepickerOnIcon,
+  btnEditLarge: BtnEditLargeIcon,
+  btnEditSmall: BtnEditSmallIcon,
+  btnEnterActive: BtnEnterActiveIcon,
+  btnEnterDefault: BtnEnterDefaultIcon,
+  btnRadioDefault: BtnRadioDefaultIcon,
+  btnRadio0n: BtnRadioOnIcon,
+  // img
+  google: GoogleIcon,
+  imgDone: ImgDoneIcon,
+  imgTodo: ImgTodoIcon,
+  kakaotalk: KakaotalkIcon,
+  LogoLarge: LogoLargeIcon,
+  logoSmall: LogoSmallIcon,
+  thumbnailTeam: ThumbnailTeamIcon,
 } as const;
 
 export const IconSizes = {
