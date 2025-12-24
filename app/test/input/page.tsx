@@ -60,7 +60,7 @@ export default function InputStorybookPage() {
     <div className="min-h-screen bg-[#3f4147] px-6 py-8 text-[#e7ebf2]">
       {/* Input Storybook */}
       <section className="mb-10">
-        <h1 className="mb-6 text-2xl font-bold">Input Storybook</h1>
+        <h2 className="mb-6 text-2xl font-bold">Input Storybook</h2>
 
         <div className="grid grid-cols-3 gap-6">
           {/* 컨트롤 패널 */}
@@ -227,7 +227,7 @@ export default function InputStorybookPage() {
                 htmlFor="inputClearable"
                 className="cursor-pointer text-sm text-[#a8b0c0]"
               >
-                Clearable
+                Clearable (value: not empty)
               </label>
             </div>
 
@@ -244,7 +244,7 @@ export default function InputStorybookPage() {
                 htmlFor="inputPasswordToggle"
                 className="cursor-pointer text-sm text-[#a8b0c0]"
               >
-                Password Toggle
+                Password Toggle (type: password)
               </label>
             </div>
 
@@ -556,7 +556,7 @@ export default function InputStorybookPage() {
 
       {/* 전체 Variant 가이드 */}
       <section className="mt-12 mb-10">
-        <h2 className="mb-6 text-2xl font-bold">Input Guide</h2>
+        <h1 className="mb-6 text-4xl font-bold">Input 가이드</h1>
         <h2 className="mb-6 text-2xl font-bold">Variant Guide</h2>
         <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -680,7 +680,7 @@ export default function InputStorybookPage() {
 
       {/* InputBox 가이드 */}
       <section className="mt-12 mb-10">
-        <h2 className="mb-6 text-2xl font-bold">InputBox 가이드</h2>
+        <h2 className="mb-6 text-4xl font-bold">InputBox 가이드</h2>
         <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
           <div className="space-y-6">
             <div>
