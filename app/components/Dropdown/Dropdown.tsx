@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { useState, useEffect, useRef } from "react";
 
 type DropdownSize = "md" | "sm";
@@ -57,7 +58,10 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
     <div
       ref={dropdownRef}
       onClick={toggleDropdown}
-      className={`${sizeClass[size]} rounded-xl bg-background-secondary relative`}
+      className={clsx(
+        `${sizeClass[size]}`,
+        "rounded-xl bg-background-secondary relative"
+      )}
     >
       <div className="flex justify-between">
         <span>{value}</span>
@@ -65,7 +69,11 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
       </div>
       {isOpen && (
         <ul
-          className={`${sizeListClass[size]} bg-background-secondary absolute top-full right-0 border border-border-primary rounded-xl overflow-hidden`}
+          className={clsx(
+            `${sizeListClass[size]}`,
+            "bg-background-secondary absolute top-full right-0",
+            "border border-border-primary rounded-xl overflow-hidden"
+          )}
         >
           {options.map((option) => {
             const isSelected = value === option;
@@ -77,7 +85,10 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
                   e.stopPropagation();
                   handleSelect(option);
                 }}
-                className={`cursor-pointer p-8 ${isSelected ? "bg-background-tertiary" : "bg-background-secondary hover:bg-background-primary"}`}
+                className={clsx(
+                  `${isSelected ? "bg-background-tertiary" : "bg-background-secondary hover:bg-background-primary"}`,
+                  "cursor-pointer p-8"
+                )}
               >
                 {option}
               </li>
