@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Input from "@/app/components/Input/Input";
 import Dropdown from "@/app/components/Dropdown/Dropdown";
+import Button from "@/app/components/Button/Button";
 import type { InputVariant, InputSize } from "@/app/components/Input/Input";
 import type { DropdownItem } from "@/app/components/Dropdown/Dropdown";
 
@@ -418,6 +419,25 @@ export default function InputStorybookPage() {
             <div>
               <p className="mb-3 text-sm text-[#a8b0c0]">Disabled</p>
               <Input placeholder="비활성화 상태" disabled full />
+            </div>
+            <div>
+              <p className="mb-3 text-sm text-[#a8b0c0]">
+                Right Element (Button)
+              </p>
+              <Input
+                value="test"
+                type="password"
+                rightElement={
+                  <Button
+                    label="검색"
+                    variant="solid"
+                    size="xSmall"
+                    onClick={() => alert("검색 클릭!")}
+                  />
+                }
+                disabled
+                full
+              />
             </div>
           </div>
         </div>
