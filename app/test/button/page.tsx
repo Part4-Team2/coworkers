@@ -85,7 +85,9 @@ export default function ButtonStorybookPage() {
 
             {/* Size */}
             <div className="mb-4">
-              <label className="mb-2 block text-sm text-[#a8b0c0]">Size</label>
+              <label className="mb-2 block text-sm text-[#a8b0c0]">
+                Size (large: 332px, xSmall: 74px)
+              </label>
               <select
                 value={buttonSize}
                 onChange={(e) => setButtonSize(e.target.value as ButtonSize)}

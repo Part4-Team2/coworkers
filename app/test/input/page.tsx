@@ -139,7 +139,9 @@ export default function InputStorybookPage() {
 
             {/* Size */}
             <div className="mb-4">
-              <label className="mb-2 block text-sm text-[#a8b0c0]">Size</label>
+              <label className="mb-2 block text-sm text-[#a8b0c0]">
+                Size (large: 460px, small: 332px)
+              </label>
               <select
                 value={inputSize}
                 onChange={(e) => setInputSize(e.target.value as InputSize)}
