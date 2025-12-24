@@ -33,6 +33,7 @@ const sizeClass: Record<InputSize, string> = {
   small: "h-[40px] text-sm px-[16px] min-w-[332px]",
 };
 
+// forwardRef는 ref 전달을 위해, function Input은 디버깅과 개발자 도구 표시를 위해 사용
 const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   {
     label,
@@ -138,15 +139,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         </label>
       )}
       <div
-        className={`${baseWrapper} ${sizeClass[size]} ${borderClass} ${hoverClass} ${disabledCls} ${isToggleVariant ? "cursor-pointer" : ""} ${className ?? ""}`.trim()}
-        onClick={isToggleVariant ? onDropdownToggle : undefined}
+        className={`${baseWrapper} ${sizeClass[size]} ${borderClass} ${hoverClass} ${disabledCls} ${effectiveDropdownToggle ? "cursor-pointer" : ""} ${className ?? ""}`.trim()}
+        onClick={effectiveDropdownToggle ? onDropdownToggle : undefined}
       >
         <input
           ref={ref}
           type={derivedType}
           disabled={disabled}
           readOnly={effectiveReadOnly}
-          className={`w-full bg-transparent outline-none ${disabled ? "placeholder:text-text-disabled text-text-disabled" : ""} ${isToggleVariant ? "placeholder:text-text-primary cursor-pointer" : "placeholder:text-text-default"} ${inputPaddingRight}`}
+          className={`w-full bg-transparent outline-none ${disabled ? "placeholder:text-text-disabled text-text-disabled" : ""} ${effectiveDropdownToggle ? "placeholder:text-text-primary cursor-pointer" : "placeholder:text-text-default"} ${inputPaddingRight}`}
           {...rest}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -199,18 +200,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           </button>
         )}
 
-        {/* Dropdown toggle */}
+        {/* Dropdown toggle icon (display only, click handled by wrapper) */}
         {effectiveDropdownToggle &&
           !showClear &&
           !showPwdToggle &&
           !rightIcon &&
           !rightElement && (
-            <button
-              type="button"
-              aria-label={isDropdownOpen ? "드롭다운 닫기" : "드롭다운 열기"}
-              className="flex items-center justify-center text-icon-primary hover:text-text-tertiary transition-colors"
-              onClick={onDropdownToggle}
-              tabIndex={-1}
+            <div
+              className="flex items-center justify-center text-icon-primary pointer-events-none"
+              aria-hidden="true"
             >
               <SVGIcon
                 icon={"toggle"}
@@ -221,7 +219,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
                     : "transition-transform"
                 }
               />
-            </button>
+            </div>
           )}
       </div>
       {message && (
