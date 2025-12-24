@@ -40,8 +40,8 @@ reviews:
     - "!**/*.md"
     - "!**/package-lock.json"
     - "!**/docs/**"
-    - "src/**/*.ts"
-    - "src/**/*.tsx"
+    - "app/**/*.ts"
+    - "app/**/*.tsx"
     - "*.config.ts"
 
   # 도구 설정
