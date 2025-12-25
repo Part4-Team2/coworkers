@@ -49,7 +49,7 @@ export const useFocusTrap = ({
     };
 
     // 초기 포커스 설정 (한 번만)
-    let focusTimeoutId: NodeJS.Timeout | undefined;
+    let focusTimeoutId: ReturnType<typeof setTimeout> | undefined;
     if (!initialFocusSetRef.current) {
       focusTimeoutId = setTimeout(() => {
         const focusables = getFocusableElements();
