@@ -1,55 +1,25 @@
 # CodeRabbit 자동 리뷰 설정
-language: "ko-KR"
+language: "ko"
 early_access: false
 
 reviews:
   profile: "chill"
   request_changes_workflow: false
   high_level_summary: true
-  high_level_summary_placeholder: |
-    ## 📋 COWORKERS 프로젝트 리뷰 요약
-
-    ### 🏗️ 적용된 컨벤션 체크사항
-    - **커밋 컨벤션**: Conventional Commits (feat/fix/docs/style/refactor/test/chore)
-    - **네이밍 규칙**: PascalCase(컴포넌트), camelCase(변수/함수), kebab-case(파일)
-    - **React 패턴**: tv + clsx 사용, extends HTMLAttributes, displayName 설정
-    - **Tailwind**: 클래스 순서 준수 (포지셔닝→박스모델→타이포→배경→기타)
-    - **디자인 시스템**: var(--색상) 사용, 임의 색상값 금지
-
-    ### 🔍 리뷰 중점사항
-    1. **네이밍**: 한글자/한글 변수명 금지, 명사/동사 구분
-    2. **React**: tv + clsx 패턴, Props 타입 확장, displayName
-    3. **Tailwind**: 클래스 순서, 디자인 시스템 색상 사용
-    4. **타입**: 안전성 및 Props 인터페이스 설계
-    5. **접근성**: ARIA 속성, semantic HTML 사용
-    6. **성능**: memo, useMemo, useCallback 최적화
   poem: false
   review_status: true
   collapse_walkthrough: false
-
-  # 자동 리뷰 활성화
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/.next/**"
   auto_review:
     enabled: true
     drafts: false
-    base_branches:
-      - "dev"
-      - "main"
-
-  # 리뷰 범위 설정
-  path_filters:
-    - "!**/*.md"
-    - "!**/package-lock.json"
-    - "!**/docs/**"
-    - "src/**/*.ts"
-    - "src/**/*.tsx"
-    - "*.config.ts"
-
-  # 도구 설정
   tools:
-    shellcheck:
-      enabled: false
-    biome:
-      enabled: false
+    github-checks:
+      timeout: 5
 
 chat:
   auto_reply: true

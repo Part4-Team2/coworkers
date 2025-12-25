@@ -242,7 +242,9 @@ export default function ButtonStorybookPage() {
 
             {/* Size */}
             <div className="mb-4">
-              <label className="mb-2 block text-sm text-[#a8b0c0]">Size</label>
+              <label className="mb-2 block text-sm text-[#a8b0c0]">
+                Size (large: 83px, medium: 69px)
+              </label>
               <select
                 value={floatingSize}
                 onChange={(e) =>
@@ -354,6 +356,223 @@ export default function ButtonStorybookPage() {
   onClick={handleClick}
 />`}
               </pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Button 가이드 */}
+      <section className="mt-12 mb-10">
+        <h2 className="mb-6 text-2xl font-bold">Button Guide</h2>
+
+        {/* Variant Guide */}
+        <div className="mb-10">
+          <h3 className="mb-4 text-xl font-semibold">Variant Guide</h3>
+          <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
+            {/* Large Size Variants */}
+            <div className="mb-8">
+              <h4 className="mb-4 text-lg font-medium text-[#a8b0c0]">
+                Size: large
+              </h4>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">solid</p>
+                  <Button label="Solid 버튼" variant="solid" size="large" />
+                </div>
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">outlined</p>
+                  <Button
+                    label="Outlined 버튼"
+                    variant="outlined"
+                    size="large"
+                  />
+                </div>
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">
+                    outlinedSecondary
+                  </p>
+                  <Button
+                    label="Outlined Secondary"
+                    variant="outlinedSecondary"
+                    size="large"
+                  />
+                </div>
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">danger</p>
+                  <Button label="Danger 버튼" variant="danger" size="large" />
+                </div>
+              </div>
+            </div>
+
+            {/* xSmall Size Variants */}
+            <div>
+              <h4 className="mb-4 text-lg font-medium text-[#a8b0c0]">
+                Size: xSmall
+              </h4>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">solid</p>
+                  <Button label="Solid" variant="solid" size="xSmall" />
+                </div>
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">outlined</p>
+                  <Button label="Outlined" variant="outlined" size="xSmall" />
+                </div>
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">
+                    outlinedSecondary
+                  </p>
+                  <Button
+                    label="Outlined Sec"
+                    variant="outlinedSecondary"
+                    size="xSmall"
+                  />
+                </div>
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">danger</p>
+                  <Button label="Danger" variant="danger" size="xSmall" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Size Guide */}
+        <div className="mb-10">
+          <h3 className="mb-4 text-xl font-semibold">Size Guide</h3>
+          <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
+            <div className="space-y-4">
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">
+                  large (최소 332px)
+                </p>
+                <Button label="Large 버튼" size="large" />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">
+                  xSmall (최소 74px)
+                </p>
+                <Button label="xSmall 버튼" size="xSmall" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 특수 기능 */}
+        <div className="mb-10">
+          <h3 className="mb-4 text-xl font-semibold">특수 기능</h3>
+          <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">Full Width</p>
+                <Button label="Full Width 버튼" full />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">
+                  Custom Width (더 작게: 200px)
+                </p>
+                <Button label="Custom Width" width="200px" />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">
+                  Custom Width (더 크게: 500px)
+                </p>
+                <Button label="Custom Width" width="500px" />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">Disabled</p>
+                <Button label="Disabled 버튼" disabled />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">
+                  텍스트 길이에 따른 자동 크기 조절
+                </p>
+                <Button label="짧은 텍스트" />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">긴 텍스트 예시</p>
+                <Button label="이것은 매우 긴 버튼 텍스트입니다" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ButtonFloating 가이드 */}
+      <section className="mt-12 mb-10">
+        <h2 className="mb-6 text-2xl font-bold">ButtonFloating Guide</h2>
+
+        {/* Variant Guide */}
+        <div className="mb-10">
+          <h3 className="mb-4 text-xl font-semibold">Variant Guide</h3>
+          <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">solid</p>
+                <ButtonFloating label="Solid 버튼" variant="solid" />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">outlined</p>
+                <ButtonFloating label="Outlined 버튼" variant="outlined" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Size Guide */}
+        <div className="mb-10">
+          <h3 className="mb-4 text-xl font-semibold">Size Guide</h3>
+          <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
+            <div className="space-y-4">
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">large (최소 83px)</p>
+                <ButtonFloating label="Large 버튼" size="large" />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">
+                  medium (최소 69px)
+                </p>
+                <ButtonFloating label="Medium 버튼" size="medium" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 특수 기능 */}
+        <div className="mb-10">
+          <h3 className="mb-4 text-xl font-semibold">특수 기능</h3>
+          <div className="rounded-lg border border-dashed border-[#7b63a7] bg-white/5 p-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">Full Width</p>
+                <ButtonFloating label="Full Width 버튼" full />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">
+                  Custom Width (더 작게: 100px)
+                </p>
+                <ButtonFloating label="Custom" width="100px" />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">
+                  Custom Width (더 크게: 300px)
+                </p>
+                <ButtonFloating label="Custom Width" width="300px" />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">Disabled</p>
+                <ButtonFloating label="Disabled 버튼" disabled />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">With Icon</p>
+                <ButtonFloating label="아이콘 버튼" icon="+" />
+              </div>
+              <div>
+                <p className="mb-3 text-sm text-[#a8b0c0]">
+                  텍스트 길이에 따른 자동 크기 조절
+                </p>
+                <ButtonFloating label="긴 텍스트 버튼 예시" />
+              </div>
             </div>
           </div>
         </div>

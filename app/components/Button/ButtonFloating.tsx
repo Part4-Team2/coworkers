@@ -17,8 +17,13 @@ export interface ButtonProps {
 }
 
 const sizeClass: Record<ButtonSize, string> = {
-  large: "h-[46px] text-[15px] px-[18px] min-w-[83px]",
-  medium: "h-[38px] text-[14px] px-[18px] min-w-[69px]",
+  large: "h-[46px] text-[15px] px-[18px]",
+  medium: "h-[38px] text-[14px] px-[18px]",
+};
+
+const defaultMinWidth: Record<ButtonSize, string> = {
+  large: "83px",
+  medium: "69px",
 };
 
 const variantClass: Record<ButtonVariant, string> = {
@@ -41,16 +46,23 @@ const ButtonFloating: React.FC<ButtonProps> = ({
 }) => {
   const base =
     "inline-flex items-center justify-center rounded-full font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-[1px] whitespace-nowrap";
-  const widthClass = full ? "w-full" : "";
   const disabledCls = disabled ? "cursor-not-allowed" : "cursor-pointer";
 
-  // 동적 width는 style prop으로 처리
-  const style = !full && width ? { width } : undefined;
+  // full이면 w-full, width prop이 있으면 그 값 사용 (고정 width)
+  // width prop이 없으면 min-width만 설정하여 텍스트 길이에 따라 자동으로 커지도록 함
+  // maxWidth를 100%로 설정하여 부모 영역을 벗어나지 않도록 함
+  const widthStyle = full
+    ? undefined
+    : width
+      ? { width, maxWidth: "100%" }
+      : { minWidth: defaultMinWidth[size], maxWidth: "100%" };
 
   return (
     <button
-      className={`${base} ${widthClass} ${sizeClass[size]} ${variantClass[variant]} ${disabledCls}`.trim()}
-      style={style}
+      className={`${base} ${full ? "w-full" : ""} ${sizeClass[size]} ${
+        variantClass[variant]
+      } ${disabledCls}`.trim()}
+      style={widthStyle}
       disabled={disabled}
       onClick={onClick}
       type={type}
