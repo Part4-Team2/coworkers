@@ -27,20 +27,14 @@ const Modal: React.FC<ModalProps> = ({
   const hasHeader = title || description || icon || avatar;
   const hasFooter = primaryButton || secondaryButton;
   const hasInput = Boolean(input);
+  const hasContent = hasInput || children;
 
   const paddingClass = "pt-48 px-47 lg:px-52 pb-32";
 
-  const headerToContentGap = (() => {
-    if (!hasHeader || (!hasInput && !children)) return "";
-    return description ? "mt-16" : "mt-24";
-  })();
+  const headerToContentGap =
+    hasHeader && hasContent ? (description ? "mt-16" : "mt-24") : "";
 
-  const contentToFooterGap =
-    (hasInput || children) && hasFooter
-      ? "mt-24"
-      : hasFooter && hasHeader
-        ? "mt-24"
-        : "";
+  const contentToFooterGap = hasContent && hasFooter ? "mt-24" : "mt-24";
 
   const renderInput = (inputConfig: ModalInputConfig, index?: number) => {
     const key = index !== undefined ? `input-${index}` : "input";

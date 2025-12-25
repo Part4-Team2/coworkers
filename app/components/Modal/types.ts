@@ -19,9 +19,7 @@ export interface BaseModalProps {
   className?: string;
 }
 
-export interface InputConfig extends Omit<InputProps, "ref"> {
-  type?: "input";
-}
+export type InputConfig = Omit<InputProps, "ref">;
 
 export interface InputBoxConfig extends Omit<InputBoxProps, "ref"> {
   type: "textarea";
@@ -54,7 +52,6 @@ export interface ModalFooterProps {
 }
 
 export interface ModalProps {
-  // 기본
   isOpen: boolean;
   onClose: () => void;
   showCloseButton?: boolean;
@@ -65,10 +62,10 @@ export interface ModalProps {
   icon?: ReactNode | IconConfig;
   avatar?: AvatarConfig;
 
-  // Input (단일 또는 배열)
+  // Input (
   input?: ModalInputConfig | ModalInputConfig[];
 
-  // 콘텐츠 (완전 커스텀이 필요한 경우)
+  // 콘텐츠
   children?: ReactNode;
 
   // 푸터

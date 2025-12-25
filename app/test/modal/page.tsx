@@ -12,7 +12,16 @@ export default function ModalTestPage() {
   const [todoTitle, setTodoTitle] = useState("");
   const [todoDescription, setTodoDescription] = useState("");
 
-  const handleClose = () => setOpenModal(null);
+  const handleClose = () => {
+    setOpenModal(null);
+    // 모달 닫을 때 모든 입력 값 초기화
+    setInputValue("");
+    setEmailValue("");
+    setPasswordValue("");
+    setConfirmPasswordValue("");
+    setTodoTitle("");
+    setTodoDescription("");
+  };
 
   return (
     <div className="min-h-screen bg-background-primary p-24">
@@ -194,6 +203,7 @@ export default function ModalTestPage() {
         description="비밀번호 재설정 링크를 보내드립니다."
         input={{
           placeholder: "이메일을 입력하세요.",
+          type: "email",
           value: emailValue,
           onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
             setEmailValue(e.target.value),
@@ -266,6 +276,7 @@ export default function ModalTestPage() {
         input={[
           {
             label: "새 비밀번호",
+            type: "password",
             placeholder: "새 비밀번호를 입력해주세요.",
             value: passwordValue,
             onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -274,6 +285,7 @@ export default function ModalTestPage() {
           },
           {
             label: "새 비밀번호 확인",
+            type: "password",
             placeholder: "새 비밀번호를 다시 한 번 입력해주세요.",
             value: confirmPasswordValue,
             onChange: (e: React.ChangeEvent<HTMLInputElement>) =>

@@ -9,6 +9,8 @@ const ModalHeader: React.FC<ModalHeaderProps> = ({
   icon,
   avatar,
 }) => {
+  if (!title && !description && !icon && !avatar) return null;
+
   // icon이 객체면 SVGIcon 렌더링, ReactNode면 그대로 사용
   const renderIcon = icon ? (
     typeof icon === "object" && "name" in icon ? (
@@ -31,8 +33,6 @@ const ModalHeader: React.FC<ModalHeaderProps> = ({
     />
   ) : null;
 
-  if (!title && !description && !renderIcon && !renderAvatar) return null;
-
   const descriptions = Array.isArray(description)
     ? description
     : description
@@ -41,7 +41,6 @@ const ModalHeader: React.FC<ModalHeaderProps> = ({
 
   return (
     <div className="flex flex-col items-center text-center">
-      {/* Avatar 또는 아이콘 */}
       {(renderAvatar || renderIcon) && (
         <div className="shrink-0 mb-18">{renderAvatar || renderIcon}</div>
       )}
