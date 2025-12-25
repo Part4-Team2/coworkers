@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Header from "@/app/components/Header/Header";
 
 import Dropdown from "@/app/components/Dropdown/Dropdown";
 
@@ -11,8 +12,11 @@ export default function DropdownPage() {
   const [test, setTest] = useState(TEST[0]);
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <Dropdown options={TEST} onSelect={setTest} size="md" value={test} />
+    <div>
+      <Header />
+      <div className="flex justify-center items-center min-h-screen">
+        <Dropdown options={TEST} onSelect={setTest} size="md" value={test} />
+      </div>
     </div>
   );
 }
