@@ -24,7 +24,7 @@ export default function ModalTestPage() {
           {/* 1. 멤버 초대 - 단일 버튼 */}
           <button
             onClick={() => setOpenModal("invite")}
-            className="p-20 bg-background-secondary rounded-lg hover: transition-colors"
+            className="p-20 bg-background-secondary rounded-lg hover:transition-colors"
           >
             <h3 className="text-lg font-semibold text-text-primary mb-8">
               멤버 초대
@@ -35,7 +35,7 @@ export default function ModalTestPage() {
           {/* 2. 할 일 목록 - Input + 단일 버튼 */}
           <button
             onClick={() => setOpenModal("todo-list")}
-            className="p-20 bg-background-secondary rounded-lg hover: transition-colors"
+            className="p-20 bg-background-secondary rounded-lg hover:transition-colors"
           >
             <h3 className="text-lg font-semibold text-text-primary mb-8">
               할 일 목록
@@ -46,7 +46,7 @@ export default function ModalTestPage() {
           {/* 3. 할 일 만들기 - 복잡한 폼 */}
           <button
             onClick={() => setOpenModal("todo-create")}
-            className="p-20 bg-background-secondary rounded-lg hover: transition-colors"
+            className="p-20 bg-background-secondary rounded-lg hover:transition-colors"
           >
             <h3 className="text-lg font-semibold text-text-primary mb-8">
               할 일 만들기
@@ -59,7 +59,7 @@ export default function ModalTestPage() {
           {/* 4. 비밀번호 재설정 - Input + 2버튼 */}
           <button
             onClick={() => setOpenModal("password-reset")}
-            className="p-20 bg-background-secondary rounded-lg hover: transition-colors"
+            className="p-20 bg-background-secondary rounded-lg hover:transition-colors"
           >
             <h3 className="text-lg font-semibold text-text-primary mb-8">
               비밀번호 재설정
@@ -70,7 +70,7 @@ export default function ModalTestPage() {
           {/* 5. 회원 탈퇴 - Danger 아이콘 + 여러 설명 */}
           <button
             onClick={() => setOpenModal("withdraw")}
-            className="p-20 bg-background-secondary rounded-lg hover: transition-colors"
+            className="p-20 bg-background-secondary rounded-lg hover:transition-colors"
           >
             <h3 className="text-lg font-semibold text-text-primary mb-8">
               회원 탈퇴
@@ -83,7 +83,7 @@ export default function ModalTestPage() {
           {/* 6. 로그아웃 - Danger 2버튼 */}
           <button
             onClick={() => setOpenModal("logout")}
-            className="p-20 bg-background-secondary rounded-lg hover: transition-colors"
+            className="p-20 bg-background-secondary rounded-lg hover:transition-colors"
           >
             <h3 className="text-lg font-semibold text-text-primary mb-8">
               로그아웃
@@ -94,7 +94,7 @@ export default function ModalTestPage() {
           {/* 7. 비밀번호 변경 - 2개 Input + 2버튼 */}
           <button
             onClick={() => setOpenModal("password-change")}
-            className="p-20 bg-background-secondary rounded-lg hover: transition-colors"
+            className="p-20 bg-background-secondary rounded-lg hover:transition-colors"
           >
             <h3 className="text-lg font-semibold text-text-primary mb-8">
               비밀번호 변경
@@ -105,7 +105,7 @@ export default function ModalTestPage() {
           {/* 8. 프로필 - 완전 커스텀 */}
           <button
             onClick={() => setOpenModal("profile")}
-            className="p-20 bg-background-secondary rounded-lg hover: transition-colors"
+            className="p-20 bg-background-secondary rounded-lg hover:transition-colors"
           >
             <h3 className="text-lg font-semibold text-text-primary mb-8">
               프로필

@@ -4,7 +4,12 @@ import ModalHeader from "./ModalHeader";
 import ModalFooter from "./ModalFooter";
 import Input from "../Input/Input";
 import InputBox from "../Input/InputBox";
-import { ModalProps, ModalInputConfig, InputConfig } from "./types";
+import {
+  ModalProps,
+  ModalInputConfig,
+  InputConfig,
+  InputBoxConfig,
+} from "./types";
 
 const Modal: React.FC<ModalProps> = ({
   isOpen,
@@ -40,10 +45,7 @@ const Modal: React.FC<ModalProps> = ({
   const renderInput = (inputConfig: ModalInputConfig, index?: number) => {
     const key = index !== undefined ? `input-${index}` : "input";
     const isTextarea = "type" in inputConfig && inputConfig.type === "textarea";
-    const { type, label, ...restProps } = inputConfig as InputConfig & {
-      label?: string;
-    };
-    void type;
+    const { label, ...restProps } = inputConfig;
 
     return (
       <div key={key}>
@@ -53,9 +55,9 @@ const Modal: React.FC<ModalProps> = ({
           </label>
         )}
         {isTextarea ? (
-          <InputBox full {...(restProps as typeof inputConfig)} />
+          <InputBox full {...(restProps as InputBoxConfig)} />
         ) : (
-          <Input full {...restProps} />
+          <Input full {...(restProps as InputConfig)} />
         )}
       </div>
     );

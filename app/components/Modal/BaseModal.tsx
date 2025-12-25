@@ -84,7 +84,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
       {/* 모달 카드 */}
       <div
         ref={modalRef}
-        className={`relative w-full sm:w-[374px] lg:w-[384px] sm:mx-16 mx-0 bg-background-secondary rounded-t-xl sm:rounded-xl shadow-xl ${className}`}
+        className={`relative w-full sm:w-374 lg:w-sm sm:mx-16 mx-0 bg-background-secondary rounded-t-xl sm:rounded-xl shadow-xl ${className}`}
         role="dialog"
         aria-modal="true"
       >

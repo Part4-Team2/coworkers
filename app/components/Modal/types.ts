@@ -6,7 +6,7 @@ import { InputBoxProps } from "../Input/InputBox";
 export interface ButtonConfig {
   label: string;
   onClick: () => void;
-  variant?: "primary" | "danger";
+  variant?: "danger";
   disabled?: boolean;
   loading?: boolean;
 }
