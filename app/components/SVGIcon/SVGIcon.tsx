@@ -8,16 +8,26 @@ export interface SVGIconProps extends Omit<
 > {
   icon: IconMapTypes;
   size?: IconSizeTypes | number;
+  width?: number;
+  height?: number;
 }
 
-const SVGIcon: React.FC<SVGIconProps> = ({ icon, size = "md", ...props }) => {
+const SVGIcon: React.FC<SVGIconProps> = ({
+  icon,
+  size = "md",
+  width,
+  height,
+  ...props
+}) => {
   const Icon = IconMap[icon];
 
   if (!Icon) return null;
 
   const dimension = typeof size === "number" ? size : IconSizes[size];
 
-  return <Icon {...props} width={dimension} height={dimension} />;
+  return (
+    <Icon {...props} width={width || dimension} height={height || dimension} />
+  );
 };
 
 export default SVGIcon;
