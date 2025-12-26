@@ -24,7 +24,7 @@ export default function TabContainer({
 
   return (
     <div>
-      <div className="flex gap-12">
+      <div role="tablist" className="flex gap-12">
         {tabs.map((tab) => (
           <Tab
             key={tab.id}
@@ -32,12 +32,23 @@ export default function TabContainer({
             title={tab.title}
             isActive={activeTabId === tab.id}
             onClick={setActiveTabId}
+            controlsId={`panel=${tab.id}`}
           />
         ))}
       </div>
 
       <div className="mt-16">
-        {tabs.find((tab) => tab.id === activeTabId)?.content}
+        {tabs.map((tab) => (
+          <div
+            key={tab.id}
+            role="tabpanel"
+            id={`panel-${tab.id}`}
+            aria-labelledby={`tab-${tab.id}`}
+            hidden={activeTabId !== tab.id}
+          >
+            {tab.content}
+          </div>
+        ))}
       </div>
     </div>
   );

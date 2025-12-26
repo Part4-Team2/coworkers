@@ -2,22 +2,22 @@ import TabContainer from "@/app/components/Tab/TabContainer";
 
 const tabs = [
   {
-    id: "tab1",
+    id: "1",
     title: "법인 설립",
     content: <div>법인 설립 탭 내용</div>,
   },
   {
-    id: "tab2",
+    id: "2",
     title: "법인 등록",
     content: <div>법인 등록 탭 내용</div>,
   },
   {
-    id: "tab3",
+    id: "3",
     title: "정기 주총",
     content: <div>정기 주총 탭 내용</div>,
   },
   {
-    id: "tab4",
+    id: "4",
     title: "기타",
     content: <div>기타 탭 내용</div>,
   },
@@ -26,7 +26,7 @@ const tabs = [
 export default function page() {
   return (
     <div>
-      <TabContainer tabs={tabs} defaultActiveId="tab2" />
+      <TabContainer tabs={tabs} defaultActiveId="2" />
     </div>
   );
 }
