@@ -1,6 +1,5 @@
 "use client";
 
-import { flushSync } from "react-dom";
 import clsx from "clsx";
 import { useState, useEffect, useRef } from "react";
 
@@ -30,42 +29,30 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
 
   const toggleDropdown = (): void => {
     setIsOpen((isOpen) => !isOpen);
-    console.log("Toggle 실행.");
   };
 
   const handleSelect = (option: string): void => {
     onSelect(option);
-    // setIsOpen(false);
-    flushSync(() => {
+    setIsOpen(false);
+  };
+
+  const handleClickOutside = (e: MouseEvent): void => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(e.target as Node)
+    ) {
       setIsOpen(false);
-    });
-    console.log(isOpen);
-    console.log("닫혀라.");
+    }
   };
 
   // 바깥 클릭을 하면 사라집니다.
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent): void {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-      } else {
-        console.log("else");
-      }
-    }
-
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  useEffect(() => {
-    console.log(isOpen);
-  }, [isOpen]);
 
   return (
     <div
