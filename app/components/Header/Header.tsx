@@ -41,7 +41,11 @@ function Header() {
           {isLogin && <div className="cursor-pointer">자유게시판</div>}
         </div>
         {/* 팀명 옆 토글 버튼을 누르면 사이드바가 나옵니다 */}
-        {isSideOpen && <SideHeader onClick={handleSideClick} />}
+        {/* {isSideOpen && (
+          <SideHeader isOpen={isSideOpen} onClick={handleSideClick} />
+        )} */}
+        <SideHeader isOpen={isSideOpen} onClick={handleSideClick} />
+
         {/* 로그인 상태면 아래 내용이 mount 됩니다. */}
         {isLogin && (
           <div className="cursor-pointer flex items-center gap-8">

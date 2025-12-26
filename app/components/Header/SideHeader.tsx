@@ -2,6 +2,7 @@ import clsx from "clsx";
 import SVGIcon from "../SVGIcon/SVGIcon";
 
 interface SideHeaderProps {
+  isOpen: boolean;
   onClick: () => void;
 }
 
@@ -13,7 +14,7 @@ const MOCKDATA: string[] = [
 ];
 
 // Header 컴포 요소 중 팀 옆 토글 버튼 누를사 등장하는 사이드 바입니다.
-function SideHeader({ onClick }: SideHeaderProps) {
+function SideHeader({ isOpen, onClick }: SideHeaderProps) {
   const teams: string[] = MOCKDATA; // 팀 받아올때 zustand로 받아올 것 같습니다.
 
   return (
@@ -21,7 +22,9 @@ function SideHeader({ onClick }: SideHeaderProps) {
       className={clsx(
         "min-h-screen",
         "bg-background-secondary w-204 p-16",
-        "fixed top-0 left-0"
+        "fixed top-0 left-0",
+        "transform transition-transform duration-300 ease-out",
+        isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
       )}
     >
       <div className="flex flex-col gap-35">
