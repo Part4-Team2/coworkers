@@ -2,10 +2,7 @@ import React from "react";
 import { ModalFooterProps } from "./types";
 import Button from "../Button/Button";
 
-const ModalFooter: React.FC<ModalFooterProps> = ({
-  primaryButton,
-  secondaryButton,
-}) => {
+const ModalFooter = ({ primaryButton, secondaryButton }: ModalFooterProps) => {
   if (!primaryButton && !secondaryButton) return null;
 
   const hasTwoButtons = primaryButton && secondaryButton;

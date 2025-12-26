@@ -3,12 +3,12 @@ import { ModalHeaderProps } from "./types";
 import SVGIcon from "../SVGIcon/SVGIcon";
 import Avatar from "../Avatar/Avatar";
 
-const ModalHeader: React.FC<ModalHeaderProps> = ({
+const ModalHeader = ({
   title,
   description,
   icon,
   avatar,
-}) => {
+}: ModalHeaderProps) => {
   if (!title && !description && !icon && !avatar) return null;
 
   // icon이 객체면 SVGIcon 렌더링, ReactNode면 그대로 사용

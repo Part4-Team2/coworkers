@@ -6,13 +6,13 @@ import { BaseModalProps } from "./types";
 import SVGIcon from "../SVGIcon/SVGIcon";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
-const BaseModal: React.FC<BaseModalProps> = ({
+const BaseModal = ({
   isOpen,
   onClose,
   children,
   showCloseButton = true,
   className = "",
-}) => {
+}: BaseModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   // 포커스 트랩 (ESC 키, Tab 순환, 초기 포커스)

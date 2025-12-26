@@ -11,7 +11,7 @@ import {
   InputBoxConfig,
 } from "./types";
 
-const Modal: React.FC<ModalProps> = ({
+const Modal = ({
   isOpen,
   onClose,
   showCloseButton = true,
@@ -23,7 +23,7 @@ const Modal: React.FC<ModalProps> = ({
   children,
   primaryButton,
   secondaryButton,
-}) => {
+}: ModalProps) => {
   const hasHeader = title || description || icon || avatar;
   const hasFooter = primaryButton || secondaryButton;
   const hasInput = Boolean(input);
