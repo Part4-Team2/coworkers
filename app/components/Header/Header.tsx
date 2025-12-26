@@ -7,7 +7,6 @@ import SideHeader from "./SideHeader";
 import LogoLargeIcon from "../../assets/img/logo_coworkers/logo-large.svg";
 // import LogoSmallIcon from "@/app/assets/img/logo_coworkers/logo-small.svg";
 import { useState } from "react";
-import { createPortal } from "react-dom";
 
 // 반응형 웹 개발할때 햄버거 아이콘, 작은 로고 도입 예정입니다.
 // Headers는 props를 받지 않습니다, 로그인 상태, 팀보유 상태를 zustand로 직접 받아올 예정입니다.
@@ -22,7 +21,6 @@ function Header() {
 
   const handleSideClick = () => {
     setIsSideOpen((prev) => !prev);
-    console.log(isSideOpen);
   };
 
   return (
@@ -42,9 +40,8 @@ function Header() {
           )}
           {isLogin && <div className="cursor-pointer">자유게시판</div>}
         </div>
-        {/* 팀명 옆 토글 버튼을 누르면 사이드바가 나옵니다<div className=""></div> */}
-        {isSideOpen &&
-          createPortal(<SideHeader onClick={handleSideClick} />, document.body)}
+        {/* 팀명 옆 토글 버튼을 누르면 사이드바가 나옵니다 */}
+        {isSideOpen && <SideHeader onClick={handleSideClick} />}
         {/* 로그인 상태면 아래 내용이 mount 됩니다. */}
         {isLogin && (
           <div className="cursor-pointer flex items-center gap-8">
