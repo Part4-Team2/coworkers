@@ -23,10 +23,11 @@ function SideHeader({ onClick }: SideHeaderProps) {
         "bg-background-secondary w-204 p-16",
         "fixed top-0 left-0"
       )}
-      onClick={onClick}
     >
       <div className="flex flex-col gap-35">
-        <SVGIcon icon="x" className="cursor-pointer self-end" />
+        <div onClick={onClick} className="self-end">
+          <SVGIcon icon="x" className="cursor-pointer" />
+        </div>
         <div className="flex flex-col gap-24">
           {/* 배열로 받는 방식이 아니면 과감히 변경할 예정입니다. */}
           {teams.map((team) => {
