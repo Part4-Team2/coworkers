@@ -6,7 +6,6 @@ import InputBox from "@/app/components/Input/InputBox";
 import Dropdown from "@/app/components/Dropdown/Dropdown";
 import Button from "@/app/components/Button/Button";
 import type { InputVariant, InputSize } from "@/app/components/Input/Input";
-import type { DropdownItem } from "@/app/components/Dropdown/Dropdown";
 
 export default function InputStorybookPage() {
   // Input 커스터마이징
@@ -41,12 +40,8 @@ export default function InputStorybookPage() {
   const [inputBoxMinHeight, setInputBoxMinHeight] = useState("120px");
   const [inputBoxMaxHeight, setInputBoxMaxHeight] = useState("");
 
-  const dropdownItems: DropdownItem[] = [
-    { id: "option1", label: "옵션 1" },
-    { id: "option2", label: "옵션 2" },
-    { id: "option3", label: "옵션 3" },
-    { id: "option4", label: "옵션 4" },
-  ];
+  const dropdownOptions = ["옵션 1", "옵션 2", "옵션 3", "옵션 4"];
+  const [dropdownValue, setDropdownValue] = useState(dropdownOptions[0]);
 
   const applyInputWidth = () => {
     setInputWidth(inputWidthInput);
@@ -315,7 +310,16 @@ export default function InputStorybookPage() {
                   />
                   {isDropdownOpen && inputVariant === "toggle" && (
                     <div className="absolute top-full left-0 right-0 mt-2 z-10 w-full">
-                      <Dropdown items={dropdownItems} />
+                      <Dropdown
+                        options={dropdownOptions}
+                        value={dropdownValue}
+                        size="md"
+                        onSelect={(value) => {
+                          setDropdownValue(value);
+                          setIsDropdownOpen(false);
+                          setInputValue(value); // Input에 값 반영하고 싶으면
+                        }}
+                      />
                     </div>
                   )}
                 </div>
@@ -581,7 +585,12 @@ export default function InputStorybookPage() {
                   full
                 />
                 <div className="absolute top-full left-0 right-0 mt-2 z-10 w-full">
-                  <Dropdown items={dropdownItems} />
+                  <Dropdown
+                    options={dropdownOptions}
+                    value={dropdownValue}
+                    size="md"
+                    onSelect={setDropdownValue}
+                  />
                 </div>
               </div>
             </div>
