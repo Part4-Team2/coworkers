@@ -33,20 +33,20 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
 
   const handleSelect = (option: string): void => {
     onSelect(option);
-    setIsOpen(() => false);
+    setIsOpen(false);
+  };
+
+  const handleClickOutside = (e: MouseEvent): void => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(e.target as Node)
+    ) {
+      setIsOpen(false);
+    }
   };
 
   // 바깥 클릭을 하면 사라집니다.
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent): void {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    }
-
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
@@ -57,16 +57,17 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
   return (
     <div
       ref={dropdownRef}
-      onClick={toggleDropdown}
       className={clsx(
         `${sizeClass[size]}`,
         "rounded-xl bg-background-secondary relative"
       )}
     >
-      <div className="flex justify-between">
+      <div className="flex justify-between" onClick={toggleDropdown}>
         <span>{value}</span>
+        {/* 다른 아이콘이나 버튼을 받을 수 있게 해야댐. */}
         <span className="cursor-pointer">{isOpen ? "▲" : "▼"}</span>
       </div>
+      {/* popover 형태로 짜야한다. */}
       {isOpen && (
         <ul
           className={clsx(
@@ -81,8 +82,7 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
             return (
               <li
                 key={option}
-                onClick={(e) => {
-                  e.stopPropagation();
+                onClick={() => {
                   handleSelect(option);
                 }}
                 className={clsx(
