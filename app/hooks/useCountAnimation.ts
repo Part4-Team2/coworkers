@@ -4,13 +4,12 @@ import { useEffect, useState, useRef } from "react";
 
 interface UseCountAnimationOptions {
   duration?: number;
-  frames?: number;
 }
 
 /**
  * 숫자 카운팅 애니메이션 훅
  * @param target 목표 숫자
- * @param options 애니메이션 옵션 (duration: 지속시간(ms), frames: 프레임 수)
+ * @param options 애니메이션 옵션 (duration: 지속시간(ms))
  * @returns 현재 애니메이션된 숫자 값
  */
 
@@ -18,7 +17,7 @@ export function useCountAnimation(
   target: number,
   options: UseCountAnimationOptions = {}
 ): number {
-  const { duration = 1000, frames = 60 } = options;
+  const { duration = 1000 } = options;
   const [value, setValue] = useState(0);
   const isFirstRender = useRef(true);
   const prevValueRef = useRef(0);
@@ -66,7 +65,7 @@ export function useCountAnimation(
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [target, duration, frames]);
+  }, [target, duration]);
 
   return value;
 }

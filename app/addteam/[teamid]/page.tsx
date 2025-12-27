@@ -65,7 +65,7 @@ export default function TeamPage() {
         <Report
           progressPercentage={25}
           todayTaskCount={20}
-          totalTaskCount={5}
+          completedTaskCount={5}
         />
         {/* 멤버 영역 */}
         <div className="flex items-center justify-between mb-24">

@@ -4,7 +4,7 @@ import StatCard from "./StatCard";
 interface ReportProps {
   progressPercentage: number;
   todayTaskCount: number;
-  totalTaskCount: number;
+  completedTaskCount: number;
 }
 
 // Props validation
@@ -13,11 +13,11 @@ const validateCount = (count: number): number => Math.max(0, Math.floor(count));
 export default function Report({
   progressPercentage,
   todayTaskCount,
-  totalTaskCount,
+  completedTaskCount,
 }: ReportProps) {
   // Props validation
   const validatedTodayCount = validateCount(todayTaskCount);
-  const validatedTotalCount = validateCount(totalTaskCount);
+  const validatedCompletedCount = validateCount(completedTaskCount);
   return (
     <section className="mb-65">
       <h2 className="text-lg font-medium leading-lg text-text-primary mb-24">
@@ -38,8 +38,8 @@ export default function Report({
             unit="개"
           />
           <StatCard
-            title="할 일"
-            count={validatedTotalCount}
+            title="한 일"
+            count={validatedCompletedCount}
             icon="imgDone"
             unit="개"
           />

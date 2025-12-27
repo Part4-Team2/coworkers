@@ -82,7 +82,6 @@ export default function ProgressCircle({ percentage }: ProgressCircleProps) {
 
   const animatedPercentage = useCountAnimation(validatedPercentage, {
     duration: 1000,
-    frames: 60,
   });
 
   // offset 계산
