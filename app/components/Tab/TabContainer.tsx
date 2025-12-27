@@ -32,7 +32,7 @@ export default function TabContainer({
             title={tab.title}
             isActive={activeTabId === tab.id}
             onClick={setActiveTabId}
-            controlsId={`panel=${tab.id}`}
+            controlsId={`panel-${tab.id}`}
           />
         ))}
       </div>
