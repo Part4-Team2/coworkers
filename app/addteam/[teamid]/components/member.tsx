@@ -26,9 +26,9 @@ export default function Member({
   );
 
   return (
-    <div className="flex h-auto md:min-h-73 px-24 py-20 rounded-2xl bg-background-secondary">
+    <div className="flex h-auto sm:min-h-73 px-24 py-20 rounded-2xl bg-background-secondary">
       {/* 모바일 */}
-      <div className="flex flex-col w-full md:hidden">
+      <div className="flex flex-col w-full sm:hidden">
         <div className="flex items-start gap-12">
           <div className="shrink-0">
             <Avatar imageUrl={imageUrl} altText={name} size="small" />
@@ -44,7 +44,7 @@ export default function Member({
       </div>
 
       {/* PC/태블릿 */}
-      <div className="hidden md:flex items-center gap-12 w-full">
+      <div className="hidden sm:flex items-center gap-12 w-full">
         <div className="shrink-0">
           <Avatar imageUrl={imageUrl} altText={name} size="large" />
         </div>
