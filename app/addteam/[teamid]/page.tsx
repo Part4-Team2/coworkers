@@ -60,7 +60,6 @@ export default function TeamPage() {
   return (
     <div className="w-full bg-background-primary min-h-screen py-40">
       <div className="max-w-1200 mx-auto px-16 lg:px-24">
-        {" "}
         {/* 리포트 영역 */}
         <Report
           progressPercentage={25}
