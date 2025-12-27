@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Member from "./components/member";
+import Report from "./components/Report";
 
 // 임시 데이터
 const mockMembers = [
@@ -58,7 +59,14 @@ export default function TeamPage() {
 
   return (
     <div className="w-full bg-background-primary min-h-screen py-40">
-      <div className="max-w-1200 mx-auto px-16 md:px-24">
+      <div className="max-w-1200 mx-auto px-16 lg:px-24">
+        {/* 리포트 영역 */}
+        <Report
+          progressPercentage={25}
+          todayTaskCount={20}
+          completedTaskCount={5}
+        />
+        {/* 멤버 영역 */}
         <div className="flex items-center justify-between mb-24">
           <h2 className="text-lg font-medium leading-lg text-text-primary">
             멤버{" "}
@@ -74,8 +82,7 @@ export default function TeamPage() {
             + 새로운 멤버 초대하기
           </button>
         </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-16 md:gap-24">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-16 sm:gap-24">
           {members.map((member) => (
             <Member
               key={member.id}
