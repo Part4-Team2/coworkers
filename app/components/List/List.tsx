@@ -28,17 +28,22 @@ export default function List({
 }: ListProps) {
   const formatDate = (isoDate: string) => {
     const dateObj = new Date(isoDate);
-    return `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일`;
+    return dateObj.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      timeZone: "Asia/Seoul",
+    });
   };
 
   const formatTime = (isoDate: string) => {
     const dateObj = new Date(isoDate);
-    const hours = dateObj.getHours();
-    const minutes = dateObj.getMinutes();
-    const period = hours >= 12 ? "오후" : "오전";
-    const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
-
-    return `${period} ${displayHours}:${String(minutes).padStart(2, "0")}`;
+    return dateObj.toLocaleTimeString("ko-KR", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Seoul",
+    });
   };
 
   const getFrequencyText = (freq?: string) => {
