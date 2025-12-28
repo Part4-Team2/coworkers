@@ -48,7 +48,7 @@ export default function List({
       WEEKLY: "매주 반복",
       MONTHLY: "매월 반복",
     };
-    return freq ? frequencyMap[freq as keyof typeof frequencyMap] : null;
+    return freq ? frequencyMap[freq as keyof typeof frequencyMap] : "-";
   };
 
   return (
