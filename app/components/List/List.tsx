@@ -55,7 +55,10 @@ export default function List({
     <div className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-[8px]">
       <div className="flex items-center justify-between ">
         <div className="flex items-center gap-7">
-          <button onClick={onToggle}>
+          <button
+            onClick={onToggle}
+            aria-label={isToggle ? "완료 취소" : "완료 표시"}
+          >
             <SVGIcon icon={isToggle ? "checkboxActive" : "checkboxDefault"} />
           </button>
           <span
@@ -74,7 +77,7 @@ export default function List({
             </div>
           )}
         </div>
-        <button onClick={onClickKebab}>
+        <button onClick={onClickKebab} aria-label="옵션 메뉴 열기">
           <SVGIcon icon="kebabSmall" />
         </button>
       </div>
