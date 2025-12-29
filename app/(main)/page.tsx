@@ -113,7 +113,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          {/* 이미지 부분 간격이 안 맞습니다 */}
+          {/* 이미지 부분 간격이 안 맞습니다 여려분의 의견이 필요합니다. */}
           <div
             className={clsx(
               "w-996 rounded-4xl border bg-black",

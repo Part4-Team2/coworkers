@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import SVGIcon from "../SVGIcon/SVGIcon";
 import { useState, useEffect, useRef } from "react";
 
 type DropdownSize = "md" | "sm";
@@ -65,7 +66,9 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
       <div className="flex justify-between" onClick={toggleDropdown}>
         <span>{value}</span>
         {/* 다른 아이콘이나 버튼을 받을 수 있게 해야댐. */}
-        <span className="cursor-pointer">{isOpen ? "▲" : "▼"}</span>
+        <span className="cursor-pointer">
+          <SVGIcon icon="toggle" size="md" />
+        </span>
       </div>
       {/* popover 형태로 짜야한다. */}
       {isOpen && (
@@ -87,7 +90,7 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
                 }}
                 className={clsx(
                   `${isSelected ? "bg-background-tertiary" : "bg-background-secondary hover:bg-background-primary"}`,
-                  "cursor-pointer p-8"
+                  "cursor-pointer p-8 z-50"
                 )}
               >
                 {option}
