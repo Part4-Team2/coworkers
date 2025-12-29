@@ -12,7 +12,7 @@ import { useState } from "react";
 // Headers는 props를 받지 않습니다, 로그인 상태, 팀보유 상태를 zustand로 직접 받아올 예정입니다.
 const TEAM: string = "Sales Team"; //추후에 useState 쓸듯, 배열 받아야할지도
 const NAME: string = "Doro";
-const isLogin: boolean = true; // zustand 들어오기전 임시로 사용하는 로그인 상태입니다.
+const isLogin: boolean = false; // zustand 들어오기전 임시로 사용하는 로그인 상태입니다.
 const hasTeam: boolean = isLogin && !!TEAM; // zustand 들어오기전 임시로 사용하는 팀 상태입니다.
 
 function Header() {
