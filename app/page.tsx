@@ -1,9 +1,9 @@
-import Button from "./components/Button/Button";
+import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
 
 export default function Home() {
   return (
     <div>
-      <Button label="Click Me" variant="gradient" size="large" />
+      <SVGIcon icon="toggle" size="sm" />
     </div>
   );
 }

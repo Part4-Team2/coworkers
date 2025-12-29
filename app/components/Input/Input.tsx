@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useState } from "react";
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
 import type { IconMapTypes } from "@/app/components/SVGIcon/iconMap";
@@ -80,7 +82,6 @@ export default function Input({
   const baseWrapper =
     "relative flex items-center rounded-lg transition-colors duration-200 border bg-background-secondary text-text-primary";
 
-  // variant가 toggle니면 toggle, error니면 error, 나머지는 default
   const effectiveVariant =
     variant === "error" || showError ? "error" : "default";
 

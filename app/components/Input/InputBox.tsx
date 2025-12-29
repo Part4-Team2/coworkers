@@ -5,6 +5,7 @@ export type InputBoxProps = Omit<
   "size" | "color" | "ref"
 > & {
   label?: string;
+  labelClassName?: string;
   message?: string;
   showError?: boolean;
   full?: boolean;
@@ -17,6 +18,7 @@ export type InputBoxProps = Omit<
 export default function InputBox({
   ref,
   label,
+  labelClassName,
   message,
   showError,
   disabled,
@@ -76,7 +78,9 @@ export default function InputBox({
   return (
     <div className={full ? "w-full" : ""} style={widthStyle}>
       {label && (
-        <label className="mb-2 block text-sm text-text-secondary">
+        <label
+          className={`mb-2 block text-sm text-text-secondary ${labelClassName ?? ""}`}
+        >
           {label}
         </label>
       )}
