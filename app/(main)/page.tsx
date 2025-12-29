@@ -1,11 +1,12 @@
 "use client";
 
 import clsx from "clsx";
-// import Image from "next/image";
+import Image from "next/image";
 import ButtonFloating from "../components/Button/ButtonFloating";
 import SVGIcon from "../components/SVGIcon/SVGIcon";
 
 export default function Home() {
+  // 함수는 추후 navigating으로 변경됩니다.
   const handleClick = () => {
     console.log("Button click");
   };
@@ -17,7 +18,11 @@ export default function Home() {
       <div className="max-w-1920 mx-auto">
         {/* Landing top */}
         <div
-          className={clsx("flex flex-col justify-center items-center", "py-84")}
+          className={clsx(
+            "flex flex-col justify-between items-center",
+            "py-84 h-1080",
+            "bg-[url(/landing/main/size-large.png)]"
+          )}
         >
           <div
             className={clsx("flex flex-col gap-20", "items-center", "w-612")}
@@ -37,6 +42,7 @@ export default function Home() {
               Coworkers
             </div>
           </div>
+          {/* 색상이 초록색으로 고정됩니다, 추후에 그라디언트 색상이 들어오면 변경 예정입니다. */}
           <ButtonFloating
             label="지금 시작하기"
             variant="solid"
@@ -53,10 +59,29 @@ export default function Home() {
               "shadow-lg shadow-white/25"
             )}
           >
-            그룹을 할 일을 관리해요<br></br>
-            그룹을 할 일을 관리해요<br></br>
-            그룹을 할 일을 관리해요<br></br>
-            그룹을 할 일을 관리해요<br></br>
+            <div className={clsx("flex justify-around items-center", "pt-81")}>
+              <div className={clsx("relative w-291 h-338")}>
+                <Image
+                  src={"/landing/mockup/mockup-01.svg"}
+                  fill
+                  priority
+                  alt="mockup01"
+                />
+              </div>
+              <div className="flex flex-col gap-16">
+                <div>
+                  <Image
+                    src={"/landing/mockup/mockup-sub-01.svg"}
+                    alt="mockup-sub01"
+                    width={48}
+                    height={48}
+                  />
+                </div>
+                <div className="text-2xl">
+                  그룹으로<br></br>할 일을 관리해요
+                </div>
+              </div>
+            </div>
           </div>
           <div
             className={clsx(
@@ -64,23 +89,69 @@ export default function Home() {
               "border-background-primary"
             )}
           >
-            간단하게 멤버들을 초대해요<br></br>
-            간단하게 멤버들을 초대해요<br></br>
-            간단하게 멤버들을 초대해요<br></br>
-            간단하게 멤버들을 초대해요<br></br>
+            <div className={clsx("flex justify-around items-center", "pb-81")}>
+              <div className="flex flex-col gap-16">
+                <div>
+                  <Image
+                    src={"/landing/mockup/mockup-sub-02.svg"}
+                    alt="mockup-sub01"
+                    width={48}
+                    height={48}
+                  />
+                </div>
+                <div className="text-2xl">
+                  간단하게 멤버들을<br></br>초대해요
+                </div>
+              </div>
+              <div className={clsx("relative w-291 h-338")}>
+                <Image
+                  src={"/landing/mockup/mockup-02.svg"}
+                  fill
+                  priority
+                  alt="mockup01"
+                />
+              </div>
+            </div>
           </div>
+          {/* 이미지 부분 간격이 안 맞습니다 */}
           <div
             className={clsx(
               "w-996 rounded-4xl border bg-black",
               "border-background-primary"
             )}
           >
-            할 일도 간편하게 체크해요<br></br>할 일도 간편하게 체크해요<br></br>
-            할 일도 간편하게 체크해요<br></br>할 일도 간편하게 체크해요<br></br>
+            <div className={clsx("flex justify-around items-center", "pb-81")}>
+              <div className={clsx("relative w-291 h-338")}>
+                <Image
+                  src={"/landing/mockup/mockup-03.svg"}
+                  fill
+                  priority
+                  alt="mockup01"
+                />
+              </div>
+              <div className="flex flex-col gap-16">
+                <div>
+                  <Image
+                    src={"/landing/mockup/mockup-sub-03.svg"}
+                    alt="mockup-sub01"
+                    width={48}
+                    height={48}
+                  />
+                </div>
+                <div className="text-2xl">
+                  할 일도 간편하게<br></br>체크해요
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         {/* Landing bottom */}
-        <div className="pt-230">
+        <div
+          className={clsx(
+            "pt-230 h-1080",
+            "bg-[url(/landing/bottom/size=large.png)]"
+          )}
+        >
           <div className="flex flex-col gap-24 items-center">
             <div className="text-4xl font-semibold">지금 바로 시작해보세요</div>
             <div className="text-xl font-medium">
