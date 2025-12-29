@@ -70,7 +70,7 @@ export default function Home() {
                 className={clsx(
                   "relative",
                   "w-232 h-269",
-                  "sm:w-235 sm:273",
+                  "sm:w-235 sm:h-273",
                   "lg:w-291 lg:h-338"
                 )}
               >
@@ -112,7 +112,7 @@ export default function Home() {
                 <div>
                   <Image
                     src={"/landing/mockup/mockup-sub-02.svg"}
-                    alt="mockup-sub01"
+                    alt="mockup-sub02"
                     width={48}
                     height={48}
                   />
@@ -125,7 +125,7 @@ export default function Home() {
                 className={clsx(
                   "relative",
                   "w-232 h-269",
-                  "sm:w-235 sm:273",
+                  "sm:w-235 sm:h-273",
                   "lg:w-291 lg:h-338"
                 )}
               >
@@ -155,7 +155,7 @@ export default function Home() {
                 className={clsx(
                   "relative",
                   "w-232 h-269",
-                  "sm:w-235 sm:273",
+                  "sm:w-235 sm:h-273",
                   "lg:w-291 lg:h-338"
                 )}
               >
@@ -163,14 +163,14 @@ export default function Home() {
                   src={"/landing/mockup/mockup-03.svg"}
                   fill
                   priority
-                  alt="mockup01"
+                  alt="mockup03"
                 />
               </div>
               <div className="flex flex-col gap-16">
                 <div>
                   <Image
                     src={"/landing/mockup/mockup-sub-03.svg"}
-                    alt="mockup-sub01"
+                    alt="mockup-sub03"
                     width={48}
                     height={48}
                   />
