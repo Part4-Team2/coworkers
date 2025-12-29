@@ -48,6 +48,7 @@ import KakaotalkIcon from "@/app/assets/img/kakaotalk.svg";
 import LogoLargeIcon from "@/app/assets/img/logo_coworkers/logo-large.svg";
 import LogoSmallIcon from "@/app/assets/img/logo_coworkers/logo-small.svg";
 import ThumbnailTeamIcon from "@/app/assets/img/thumbnail-team.svg";
+import SecessionIcon from "@/app/assets/icon/secession.svg";
 
 export const IconMap = {
   alert: AlertIcon,
@@ -82,6 +83,7 @@ export const IconMap = {
   visibilityOff: VisibilityOffIcon,
   visibilityOn: VisibilityOnIcon,
   x: XIcon,
+  secession: SecessionIcon,
   // btn
   btnArrowLeft: BtnArrowLeftIcon,
   btnArrowRight: BtnArrowRightIcon,
