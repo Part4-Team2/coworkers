@@ -15,20 +15,24 @@ export default function Home() {
     // Page Wrapper
     <div className="min-h-screen bg-background-primary">
       {/* Content Wrapper */}
-      <div className="max-w-1920 mx-auto">
+      <div className="max-w-639 sm:max-w-1199 lg:max-w-1920 mx-auto">
         {/* Landing top */}
         <div
           className={clsx(
             "flex flex-col justify-between items-center",
-            "py-84 h-1080",
-            "bg-[url(/landing/main/size-large.png)]"
+            "py-84 h-640 sm:h-940 lg:h-1080",
+            "bg-[url(/landing/main/size-small.png)] sm:bg-[url(/landing/main/size-medium.png)] lg:bg-[url(/landing/main/size-large.png)]"
           )}
+          style={{
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+          }}
         >
           <div
             className={clsx("flex flex-col gap-20", "items-center", "w-612")}
           >
             <div className={clsx("flex items-center gap-24")}>
-              <div className="text-5xl font-semibold leading-none">
+              <div className="text-2xl sm:text-4xl lg:text-5xl font-semibold leading-none">
                 함께 만들어가는 투두 리스트
               </div>
               <SVGIcon icon="repairLarge" size={48} />
@@ -52,15 +56,27 @@ export default function Home() {
           />
         </div>
         {/* Landing mid */}
-        <div className="flex flex-col items-center gap-80 pt-60">
+        <div className="flex flex-col items-center gap-24 lg:gap-80 pt-60">
           <div
             className={clsx(
-              "w-996 rounded-4xl border border-brand-secondary",
+              "w-343 sm:w-696 lg:w-996 rounded-4xl border border-brand-secondary",
               "shadow-lg shadow-white/25"
             )}
           >
-            <div className={clsx("flex justify-around items-center", "pt-81")}>
-              <div className={clsx("relative w-291 h-338")}>
+            <div
+              className={clsx(
+                "flex flex-col-reverse gap-40 sm:flex-row justify-around items-center",
+                "px-54 pt-48 sm:pt-81"
+              )}
+            >
+              <div
+                className={clsx(
+                  "relative",
+                  "w-232 h-269",
+                  "sm:w-235 sm:273",
+                  "lg:w-291 lg:h-338"
+                )}
+              >
                 <Image
                   src={"/landing/mockup/mockup-01.svg"}
                   fill
@@ -85,11 +101,16 @@ export default function Home() {
           </div>
           <div
             className={clsx(
-              "w-996 rounded-4xl border bg-background-secondary",
+              "w-343 sm:w-696 lg:w-996 rounded-4xl border bg-background-secondary",
               "border-background-primary"
             )}
           >
-            <div className={clsx("flex justify-around items-center", "pb-81")}>
+            <div
+              className={clsx(
+                "flex flex-col-reverse gap-40 sm:flex-row justify-around items-center",
+                "px-54 pb-48 sm:pb-81"
+              )}
+            >
               <div className="flex flex-col gap-16">
                 <div>
                   <Image
@@ -103,12 +124,19 @@ export default function Home() {
                   간단하게 멤버들을<br></br>초대해요
                 </div>
               </div>
-              <div className={clsx("relative w-291 h-338")}>
+              <div
+                className={clsx(
+                  "relative",
+                  "w-232 h-269",
+                  "sm:w-235 sm:273",
+                  "lg:w-291 lg:h-338"
+                )}
+              >
                 <Image
                   src={"/landing/mockup/mockup-02.svg"}
                   fill
                   priority
-                  alt="mockup01"
+                  alt="mockup02"
                 />
               </div>
             </div>
@@ -116,12 +144,24 @@ export default function Home() {
           {/* 이미지 부분 간격이 안 맞습니다 여려분의 의견이 필요합니다. */}
           <div
             className={clsx(
-              "w-996 rounded-4xl border bg-black",
+              "w-343 sm:w-696 lg:w-996 rounded-4xl border bg-black",
               "border-background-primary"
             )}
           >
-            <div className={clsx("flex justify-around items-center", "pb-81")}>
-              <div className={clsx("relative w-291 h-338")}>
+            <div
+              className={clsx(
+                "flex flex-col gap-40 sm:flex-row justify-around items-center",
+                "pb-81"
+              )}
+            >
+              <div
+                className={clsx(
+                  "relative",
+                  "w-232 h-269",
+                  "sm:w-235 sm:273",
+                  "lg:w-291 lg:h-338"
+                )}
+              >
                 <Image
                   src={"/landing/mockup/mockup-03.svg"}
                   fill
@@ -149,8 +189,12 @@ export default function Home() {
         <div
           className={clsx(
             "pt-230 h-1080",
-            "bg-[url(/landing/bottom/size=large.png)]"
+            "bg-[url(/landing/bottom/size=small.png)] sm:bg-[url(/landing/bottom/size=medium.png)] lg:bg-[url(/landing/bottom/size=large.png)]"
           )}
+          style={{
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+          }}
         >
           <div className="flex flex-col gap-24 items-center">
             <div className="text-4xl font-semibold">지금 바로 시작해보세요</div>
