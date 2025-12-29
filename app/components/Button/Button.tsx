@@ -17,6 +17,7 @@ export interface ButtonProps {
   width?: string;
   disabled?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  onSubmit?: React.FormEventHandler<HTMLButtonElement>;
   type?: "button" | "submit" | "reset";
 }
 
