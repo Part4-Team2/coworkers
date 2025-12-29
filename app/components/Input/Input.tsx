@@ -8,7 +8,7 @@ export type InputSize = "large" | "small";
 
 export type InputProps = Omit<
   React.ComponentPropsWithRef<"input">,
-  "size" | "prefix" | "color"
+  "size" | "prefix" | "color" | "ref"
 > & {
   label?: string;
   labelClassName?: string;
@@ -24,6 +24,7 @@ export type InputProps = Omit<
   size?: InputSize;
   full?: boolean;
   width?: string;
+  ref?: React.Ref<HTMLInputElement>;
 };
 
 const sizeClass: Record<InputSize, string> = {

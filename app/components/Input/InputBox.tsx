@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 export type InputBoxProps = Omit<
   React.ComponentPropsWithRef<"textarea">,
-  "size" | "color"
+  "size" | "color" | "ref"
 > & {
   label?: string;
   message?: string;
@@ -11,6 +11,7 @@ export type InputBoxProps = Omit<
   width?: string;
   minHeight?: string;
   maxHeight?: string;
+  ref?: React.Ref<HTMLTextAreaElement>;
 };
 
 export default function InputBox({
