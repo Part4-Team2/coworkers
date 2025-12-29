@@ -15,20 +15,17 @@ export default function Home() {
     // Page Wrapper
     <div className="min-h-screen bg-background-primary">
       {/* Content Wrapper */}
-      <div className="max-w-639 sm:max-w-1199 lg:max-w-1920 mx-auto">
+      <main className="max-w-639 sm:max-w-1199 lg:max-w-1920 mx-auto">
         {/* Landing top */}
-        <div
+        <section
           className={clsx(
             "flex flex-col justify-between items-center",
             "py-84 h-640 sm:h-940 lg:h-1080",
-            "bg-[url(/landing/main/size-small.png)] sm:bg-[url(/landing/main/size-medium.png)] lg:bg-[url(/landing/main/size-large.png)]"
+            "bg-[url(/landing/main/size-small.png)] sm:bg-[url(/landing/main/size-medium.png)] lg:bg-[url(/landing/main/size-large.png)]",
+            "bg-no-repeat bg-center"
           )}
-          style={{
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center",
-          }}
         >
-          <div
+          <article
             className={clsx("flex flex-col gap-20", "items-center", "w-612")}
           >
             <div className={clsx("flex items-center gap-24")}>
@@ -45,7 +42,7 @@ export default function Home() {
             >
               Coworkers
             </div>
-          </div>
+          </article>
           {/* 색상이 초록색으로 고정됩니다, 추후에 그라디언트 색상이 들어오면 변경 예정입니다. */}
           <ButtonFloating
             label="지금 시작하기"
@@ -54,10 +51,10 @@ export default function Home() {
             width="373px"
             onClick={handleClick}
           />
-        </div>
+        </section>
         {/* Landing mid */}
-        <div className="flex flex-col items-center gap-24 lg:gap-80 pt-60">
-          <div
+        <section className="flex flex-col items-center gap-24 lg:gap-80 pt-60">
+          <article
             className={clsx(
               "w-343 sm:w-696 lg:w-996 rounded-4xl border border-brand-secondary",
               "shadow-lg shadow-white/25"
@@ -98,8 +95,8 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-          <div
+          </article>
+          <article
             className={clsx(
               "w-343 sm:w-696 lg:w-996 rounded-4xl border bg-background-secondary",
               "border-background-primary"
@@ -140,9 +137,9 @@ export default function Home() {
                 />
               </div>
             </div>
-          </div>
+          </article>
           {/* 이미지 부분 간격이 안 맞습니다 여려분의 의견이 필요합니다. */}
-          <div
+          <article
             className={clsx(
               "w-343 sm:w-696 lg:w-996 rounded-4xl border bg-black",
               "border-background-primary"
@@ -183,18 +180,15 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </article>
+        </section>
         {/* Landing bottom */}
-        <div
+        <section
           className={clsx(
             "pt-230 h-1080",
-            "bg-[url(/landing/bottom/size=small.png)] sm:bg-[url(/landing/bottom/size=medium.png)] lg:bg-[url(/landing/bottom/size=large.png)]"
+            "bg-[url(/landing/bottom/size=small.png)] sm:bg-[url(/landing/bottom/size=medium.png)] lg:bg-[url(/landing/bottom/size=large.png)]",
+            "bg-no-repeat bg-center"
           )}
-          style={{
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center",
-          }}
         >
           <div className="flex flex-col gap-24 items-center">
             <div className="text-4xl font-semibold">지금 바로 시작해보세요</div>
@@ -202,8 +196,8 @@ export default function Home() {
               팀원 모두와 같은 방향, 같은 속도로 나아가는 가장 쉬운 방법
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }
