@@ -8,7 +8,6 @@ interface StatCardProps {
   unit?: string;
 }
 
-// Props validation 헬퍼
 const validateCount = (count: number): number => Math.max(0, Math.floor(count));
 
 export default function StatCard({
@@ -17,7 +16,6 @@ export default function StatCard({
   icon,
   unit = "개",
 }: StatCardProps) {
-  // Props validation
   const validatedCount = validateCount(count);
   return (
     <div className="flex items-center justify-between rounded-xl p-16 w-full min-h-80 bg-background-tertiary">
