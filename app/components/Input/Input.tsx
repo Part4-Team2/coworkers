@@ -1,16 +1,19 @@
-import React, { forwardRef, useMemo, useState } from "react";
+"use client";
+
+import React, { useMemo, useState } from "react";
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
 import type { IconMapTypes } from "@/app/components/SVGIcon/iconMap";
 
-export type InputVariant = "default" | "toggle" | "error";
+export type InputVariant = "default" | "error";
 
 export type InputSize = "large" | "small";
 
-export interface InputProps extends Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "size" | "prefix" | "color"
-> {
+export type InputProps = Omit<
+  React.ComponentPropsWithRef<"input">,
+  "size" | "prefix" | "color" | "ref"
+> & {
   label?: string;
+  labelClassName?: string;
   message?: string;
   variant?: InputVariant;
   showError?: boolean;
@@ -20,17 +23,15 @@ export interface InputProps extends Omit<
   clearable?: boolean;
   onClear?: () => void;
   allowPasswordToggle?: boolean;
-  allowDropdownToggle?: boolean;
-  onDropdownToggle?: () => void;
-  isDropdownOpen?: boolean;
   size?: InputSize;
   full?: boolean;
   width?: string;
-}
+  ref?: React.Ref<HTMLInputElement>;
+};
 
 const sizeClass: Record<InputSize, string> = {
-  large: "h-[46px] text-md px-[16px]",
-  small: "h-[40px] text-sm px-[16px]",
+  large: "h-46 text-md px-16",
+  small: "h-40 text-sm px-16",
 };
 
 const defaultWidth: Record<InputSize, string> = {
@@ -38,41 +39,31 @@ const defaultWidth: Record<InputSize, string> = {
   small: "332px",
 };
 
-// forwardRef는 ref 전달을 위해, function Input은 디버깅과 개발자 도구 표시를 위해 사용
-const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  {
-    label,
-    message,
-    variant,
-    showError,
-    rightIcon,
-    onRightIconClick,
-    rightElement,
-    clearable,
-    onClear,
-    allowPasswordToggle,
-    allowDropdownToggle,
-    onDropdownToggle,
-    isDropdownOpen,
-    size = "large",
-    disabled,
-    className,
-    full,
-    width,
-    type = "text",
-    onFocus,
-    onBlur,
-    ...rest
-  },
-  ref
-) {
+export default function Input({
+  ref,
+  label,
+  labelClassName,
+  message,
+  variant,
+  showError,
+  rightIcon,
+  onRightIconClick,
+  rightElement,
+  clearable,
+  onClear,
+  allowPasswordToggle,
+  size = "large",
+  disabled,
+  className,
+  full,
+  width,
+  type = "text",
+  onFocus,
+  onBlur,
+  ...rest
+}: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-
-  // variant가 toggle이면 자동으로 dropdown 기능 활성화
-  const isToggleVariant = variant === "toggle";
-  const effectiveDropdownToggle = isToggleVariant || allowDropdownToggle;
-  const effectiveReadOnly = isToggleVariant ? true : rest.readOnly;
 
   const derivedType = useMemo(() => {
     if (type === "password" && allowPasswordToggle) {
@@ -85,30 +76,22 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     rightIcon ||
     rightElement ||
     (type === "password" && allowPasswordToggle) ||
-    clearable ||
-    effectiveDropdownToggle
+    clearable
   );
 
   const baseWrapper =
-    "relative flex items-center rounded-[10px] transition-colors duration-200 border bg-background-secondary text-text-primary";
+    "relative flex items-center rounded-lg transition-colors duration-200 border bg-background-secondary text-text-primary";
 
-  // variant가 toggle니면 toggle, error니면 error, 나머지는 default
   const effectiveVariant =
-    variant === "toggle"
-      ? "toggle"
-      : variant === "error" || showError
-        ? "error"
-        : "default";
+    variant === "error" || showError ? "error" : "default";
 
   const borderClass = disabled
     ? "border-border-primary"
     : effectiveVariant === "error"
       ? "border-status-danger"
-      : effectiveVariant === "toggle" && isDropdownOpen
+      : isFocused
         ? "border-interaction-focus"
-        : isFocused
-          ? "border-interaction-focus"
-          : "border-border-primary";
+        : "border-border-primary";
 
   const hoverClass =
     effectiveVariant !== "error" && !disabled
@@ -145,20 +128,20 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className={full ? "w-full" : ""} style={widthStyle}>
       {label && (
-        <label className="mb-2 block text-sm text-text-secondary">
+        <label
+          className={`mb-2 block text-md text-text-primary pb-3 ${labelClassName ?? ""}`}
+        >
           {label}
         </label>
       )}
       <div
-        className={`${baseWrapper} ${sizeClass[size]} ${borderClass} ${hoverClass} ${disabledCls} ${effectiveDropdownToggle ? "cursor-pointer" : ""} ${className ?? ""}`.trim()}
-        onClick={effectiveDropdownToggle ? onDropdownToggle : undefined}
+        className={`${baseWrapper} ${sizeClass[size]} ${borderClass} ${hoverClass} ${disabledCls} ${className ?? ""}`.trim()}
       >
         <input
           ref={ref}
           type={derivedType}
           disabled={disabled}
-          readOnly={effectiveReadOnly}
-          className={`w-full bg-transparent outline-none ${disabled ? "placeholder:text-text-disabled text-text-disabled" : ""} ${effectiveDropdownToggle ? "placeholder:text-text-primary cursor-pointer" : "placeholder:text-text-default"} ${inputPaddingRight}`}
+          className={`w-full bg-transparent outline-none ${disabled ? "placeholder:text-text-disabled text-text-disabled" : ""} "placeholder:text-text-default" ${inputPaddingRight}`}
           {...rest}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -210,28 +193,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             />
           </button>
         )}
-
-        {/* Dropdown toggle icon (display only, click handled by wrapper) */}
-        {effectiveDropdownToggle &&
-          !showClear &&
-          !showPwdToggle &&
-          !rightIcon &&
-          !rightElement && (
-            <div
-              className="flex items-center justify-center text-icon-primary pointer-events-none"
-              aria-hidden="true"
-            >
-              <SVGIcon
-                icon={"toggle"}
-                size="md"
-                className={
-                  isDropdownOpen
-                    ? "rotate-180 transition-transform"
-                    : "transition-transform"
-                }
-              />
-            </div>
-          )}
       </div>
       {message && (
         <p
@@ -244,6 +205,4 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       )}
     </div>
   );
-});
-
-export default Input;
+}

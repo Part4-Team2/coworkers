@@ -68,8 +68,7 @@
   --color-interaction-pressed: #047857;
   --color-interaction-focus: #10b981;
 
-  /* Border uses 50% opacity of F8FAFC */
-  --color-border-primary: rgba(248, 250, 252, 0.5);
+  --color-border-primary: #f8fafc32;
 
   --color-text-primary: #f8fafc;
   --color-text-secondary: #cbd5e1;
@@ -142,7 +141,7 @@ body {
   --color-interaction-pressed: #047857;
   --color-interaction-focus: #10b981;
 
-  --color-border-primary: rgba(248, 250, 252, 0.5);
+  --color-border-primary: #f8fafc32;
 
   --color-text-primary: #f8fafc;
   --color-text-secondary: #cbd5e1;

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Input from "@/app/components/Input/Input";
 import InputBox from "@/app/components/Input/InputBox";
-import Dropdown from "@/app/components/Dropdown/Dropdown";
 import Button from "@/app/components/Button/Button";
 import type { InputVariant, InputSize } from "@/app/components/Input/Input";
 
@@ -24,7 +23,6 @@ export default function InputStorybookPage() {
   const [inputFull, setInputFull] = useState(false);
   const [inputWidth, setInputWidth] = useState("");
   const [inputWidthInput, setInputWidthInput] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // InputBox 커스터마이징
   const [inputBoxValue, setInputBoxValue] = useState("");
@@ -39,9 +37,6 @@ export default function InputStorybookPage() {
   const [inputBoxWidthInput, setInputBoxWidthInput] = useState("");
   const [inputBoxMinHeight, setInputBoxMinHeight] = useState("120px");
   const [inputBoxMaxHeight, setInputBoxMaxHeight] = useState("");
-
-  const dropdownOptions = ["옵션 1", "옵션 2", "옵션 3", "옵션 4"];
-  const [dropdownValue, setDropdownValue] = useState(dropdownOptions[0]);
 
   const applyInputWidth = () => {
     setInputWidth(inputWidthInput);
@@ -127,7 +122,6 @@ export default function InputStorybookPage() {
                 className="w-full rounded bg-[#2a2d32] px-3 py-2 text-sm text-white outline-none"
               >
                 <option value="default">default</option>
-                <option value="toggle">toggle</option>
                 <option value="error">error</option>
               </select>
             </div>
@@ -303,25 +297,9 @@ export default function InputStorybookPage() {
                     clearable={inputClearable}
                     onClear={() => setInputValue("")}
                     allowPasswordToggle={inputPasswordToggle}
-                    isDropdownOpen={isDropdownOpen}
-                    onDropdownToggle={() => setIsDropdownOpen(!isDropdownOpen)}
                     full={inputFull}
                     width={inputWidth}
                   />
-                  {isDropdownOpen && inputVariant === "toggle" && (
-                    <div className="absolute top-full left-0 right-0 mt-2 z-10 w-full">
-                      <Dropdown
-                        options={dropdownOptions}
-                        value={dropdownValue}
-                        size="md"
-                        onSelect={(value) => {
-                          setDropdownValue(value);
-                          setIsDropdownOpen(false);
-                          setInputValue(value); // Input에 값 반영하고 싶으면
-                        }}
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -337,7 +315,7 @@ export default function InputStorybookPage() {
   size="${inputSize}"
   type="${inputType}"
   value={value}
-  onChange={(e) => setValue(e.target.value)}${inputDisabled ? "\n  disabled" : ""}${inputShowError ? "\n  showError" : ""}${inputClearable ? `\n  clearable\n  onClear={() => setValue("")}` : ""}${inputPasswordToggle ? "\n  allowPasswordToggle" : ""}${inputVariant === "toggle" ? `\n  isDropdownOpen={isOpen}\n  onDropdownToggle={() => setIsOpen(!isOpen)}` : ""}${inputFull ? "\n  full" : ""}${inputWidth ? `\n  width="${inputWidth}"` : ""}
+  onChange={(e) => setValue(e.target.value)}${inputDisabled ? "\n  disabled" : ""}${inputShowError ? "\n  showError" : ""}${inputClearable ? `\n  clearable\n  onClear={() => setValue("")}` : ""}${inputPasswordToggle ? "\n  allowPasswordToggle" : ""}${inputFull ? "\n  full" : ""}${inputWidth ? `\n  width="${inputWidth}"` : ""}
 />`}
               </pre>
             </div>
@@ -575,26 +553,6 @@ export default function InputStorybookPage() {
               />
             </div>
             <div>
-              <p className="mb-3 text-sm text-[#a8b0c0]">toggle</p>
-              <div className="relative">
-                <Input
-                  placeholder="토글 상태"
-                  variant="toggle"
-                  isDropdownOpen
-                  onDropdownToggle={() => {}}
-                  full
-                />
-                <div className="absolute top-full left-0 right-0 mt-2 z-10 w-full">
-                  <Dropdown
-                    options={dropdownOptions}
-                    value={dropdownValue}
-                    size="md"
-                    onSelect={setDropdownValue}
-                  />
-                </div>
-              </div>
-            </div>
-            <div>
               <p className="mb-3 text-sm text-[#a8b0c0]">error</p>
               <Input
                 placeholder="에러 상태"
@@ -647,18 +605,6 @@ export default function InputStorybookPage() {
                 type="password"
                 allowPasswordToggle
                 defaultValue="password123"
-                full
-              />
-            </div>
-            <div>
-              <p className="mb-3 text-sm text-[#a8b0c0]">
-                Dropdown Toggle (variant=&quot;toggle&quot;)
-              </p>
-              <Input
-                placeholder="드롭다운 열기"
-                variant="toggle"
-                isDropdownOpen={false}
-                onDropdownToggle={() => {}}
                 full
               />
             </div>
