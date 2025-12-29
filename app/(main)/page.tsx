@@ -132,7 +132,6 @@ export default function Home() {
                 <Image
                   src={"/landing/mockup/mockup-02.svg"}
                   fill
-                  priority
                   alt="mockup02"
                 />
               </div>
@@ -162,7 +161,6 @@ export default function Home() {
                 <Image
                   src={"/landing/mockup/mockup-03.svg"}
                   fill
-                  priority
                   alt="mockup03"
                 />
               </div>
