@@ -75,7 +75,7 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
         <ul
           className={clsx(
             `${sizeListClass[size]}`,
-            "bg-background-secondary absolute top-full right-0",
+            "bg-background-secondary absolute top-full right-0 z-50",
             "border border-border-primary rounded-xl overflow-hidden"
           )}
         >
@@ -90,7 +90,7 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
                 }}
                 className={clsx(
                   `${isSelected ? "bg-background-tertiary" : "bg-background-secondary hover:bg-background-primary"}`,
-                  "cursor-pointer p-8 z-50"
+                  "cursor-pointer p-8"
                 )}
               >
                 {option}
