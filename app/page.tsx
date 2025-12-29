@@ -1,3 +1,9 @@
+import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
+
 export default function Home() {
-  return <div>Welcome to the Home Page</div>;
+  return (
+    <div>
+      <SVGIcon icon="toggle" size="sm" />
+    </div>
+  );
 }
