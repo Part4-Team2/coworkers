@@ -9,8 +9,8 @@ interface TodoListProps {
 export default function TodoList({ todos, onMenuClick }: TodoListProps) {
   if (todos.length === 0) {
     return (
-      <div className="text-center py-40 text-text-secondary text-md">
-        할 일 목록이 없습니다
+      <div className="text-center pt-48 lg:pt-64 text-text-default text-md font-medium">
+        아직 할 일 목록이 없습니다.
       </div>
     );
   }
