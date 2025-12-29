@@ -1,23 +1,31 @@
-import React from "react";
-
+import { forwardRef, ComponentPropsWithoutRef } from "react";
 import { IconMap, IconMapTypes, IconSizeTypes, IconSizes } from "./iconMap";
 
-export interface SVGIconProps extends Omit<
-  React.SVGProps<SVGSVGElement>,
-  "width" | "height" | "viewBox"
-> {
+type SVGIconProps = Omit<
+  ComponentPropsWithoutRef<"svg">,
+  "width" | "height" | "viewBox" | "children"
+> & {
   icon: IconMapTypes;
   size?: IconSizeTypes | number;
-}
-
-const SVGIcon: React.FC<SVGIconProps> = ({ icon, size = "md", ...props }) => {
-  const Icon = IconMap[icon];
-
-  if (!Icon) return null;
-
-  const dimension = typeof size === "number" ? size : IconSizes[size];
-
-  return <Icon {...props} width={dimension} height={dimension} />;
+  width?: number;
+  height?: number;
 };
+
+const SVGIcon = forwardRef<SVGSVGElement, SVGIconProps>(function SVGIcon(
+  { icon, size = "md", width, height, ...props },
+  ref
+) {
+  const Icon = IconMap[icon];
+  if (!Icon) return null;
+  const dimension = typeof size === "number" ? size : IconSizes[size];
+  return (
+    <Icon
+      ref={ref}
+      width={width ?? dimension}
+      height={height ?? dimension}
+      {...props}
+    />
+  );
+});
 
 export default SVGIcon;
