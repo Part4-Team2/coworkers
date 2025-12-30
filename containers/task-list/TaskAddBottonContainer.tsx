@@ -5,7 +5,7 @@ import ButtonFloating from "@/app/components/Button/ButtonFloating";
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
 import { useState } from "react";
 
-const TaskListContainer = () => {
+const TaskAddButtonContainer = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleAddTaskButton = () => {
@@ -20,7 +20,7 @@ const TaskListContainer = () => {
     <>
       <ButtonFloating
         label="할일 추가"
-        icon={<SVGIcon icon="plus" size="xxs" />}
+        icon={<SVGIcon icon="plus" size="xxs" className="" />}
         variant="solid"
         size="large"
         onClick={handleAddTaskButton}
@@ -30,4 +30,4 @@ const TaskListContainer = () => {
   );
 };
 
-export default TaskListContainer;
+export default TaskAddButtonContainer;
