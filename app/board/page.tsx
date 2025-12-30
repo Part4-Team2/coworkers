@@ -3,8 +3,12 @@
 import clsx from "clsx";
 import { ChangeEvent, useState } from "react";
 import Article from "./components/Article";
+import SVGIcon from "../components/SVGIcon/SVGIcon";
+import Dropdown from "../components/Dropdown/Dropdown";
 import BoardInput from "./components/BoardInput";
 import BestArticle from "./components/BestArticle";
+
+const ARRANGE: string[] = ["최신순", "좋아요 많은순"];
 
 const MOCKDATA01 = {
   id: 1,
@@ -37,43 +41,80 @@ const MOCKMEMBERS = [MOCKDATA01, MOCKDATA02, MOCKDATA03];
 
 function BoardPage() {
   const [inputVal, setInputVal] = useState("");
+  const [arrange, setArrange] = useState(ARRANGE[0]);
   const members = MOCKMEMBERS;
 
   return (
+    // Page Wrapper
     <div
       className={clsx(
-        "min-h-screen flex flex-col gap-20 justify-center items-center"
+        "min-h-screen bg-background-primary",
+        "px-16 sm:px-24 lg:px-0"
       )}
     >
-      <BoardInput
-        value={inputVal}
-        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          setInputVal(e.target.value)
-        }
-      />
-      <div
-        className={clsx(
-          "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-17"
-        )}
-      >
-        {members.map((member) => (
-          <BestArticle
-            key={member.id}
-            title={member.title}
-            nickname={member.nickname}
-            createdAt={member.createdAt}
-            imageUrl={member.imageUrl}
-            likeCount={member.likeCount}
+      {/* content wrapper */}
+      <main className="max-w-1200 mx-auto py-40">
+        <section className="flex flex-col gap-24 sm:gap-32 lg:gap-40">
+          <div className="text-text-primary text-2xl">자유게시판</div>
+          <BoardInput
+            value={inputVal}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setInputVal(e.target.value)
+            }
           />
-        ))}
-      </div>
-      <Article
-        title={MOCKDATA01.title}
-        nickname={MOCKDATA01.nickname}
-        createdAt={MOCKDATA01.createdAt}
-        imageUrl={MOCKDATA01.imageUrl}
-        likeCount={MOCKDATA01.likeCount}
-      />
+          <article className="flex flex-col gap-56">
+            <div className="flex justify-between items-center">
+              <span className="text-text-primary text-xl">베스트 게시글</span>
+              <div className="flex items-center cursor-pointer">
+                <span className="text-sm text-slate-400 hover:text-slate-200">
+                  더보기
+                </span>
+                <SVGIcon icon="arrowRight" size="xxs" />
+              </div>
+            </div>
+            <div
+              className={clsx(
+                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-21"
+              )}
+            >
+              {members.map((member) => (
+                <BestArticle
+                  key={member.id}
+                  title={member.title}
+                  nickname={member.nickname}
+                  createdAt={member.createdAt}
+                  imageUrl={member.imageUrl}
+                  likeCount={member.likeCount}
+                />
+              ))}
+            </div>
+          </article>
+          <div className="border-b border-b-border-primary/10"></div>
+          <article className="flex flex-col gap-32">
+            <div className="flex items-center justify-between">
+              <span className="text-text-primary text-2xl">게시글</span>
+              <Dropdown
+                options={ARRANGE}
+                onSelect={setArrange}
+                size="md"
+                value={arrange}
+              />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 gap-21">
+              {members.map((member) => (
+                <Article
+                  key={member.id}
+                  title={member.title}
+                  nickname={member.nickname}
+                  createdAt={member.createdAt}
+                  imageUrl={member.imageUrl}
+                  likeCount={member.likeCount}
+                />
+              ))}
+            </div>
+          </article>
+        </section>
+      </main>
     </div>
   );
 }

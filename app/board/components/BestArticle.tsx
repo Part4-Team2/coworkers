@@ -21,7 +21,7 @@ function BestArticle({
   return (
     <div
       className={clsx(
-        "w-387 h-220 bg-background-secondary",
+        "w-387 h-220 bg-background-secondary hover:bg-background-tertiary",
         "pt-12 px-24 pb-16",
         "border border-text-primary/10 rounded-xl"
       )}

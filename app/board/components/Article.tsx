@@ -20,8 +20,8 @@ function Article({
   return (
     <div
       className={clsx(
-        "w-343 h-162 sm:w-696 sm:h-176",
-        "bg-background-secondary px-32 py-24",
+        "w-343 h-162 sm:w-696 sm:h-176 lg:w-590",
+        "bg-background-secondary hover:bg-background-tertiary px-32 py-24",
         "rounded-xl border border-text-primary/10"
       )}
     >
@@ -34,7 +34,7 @@ function Article({
         >
           {title}
         </div>
-        <div className="absolute top-0 right-0">
+        <div className="absolute top-0 right-0 cursor-pointer">
           <SVGIcon icon="kebabLarge" />
         </div>
         <div className="flex gap-16 items-center text-slate-400 text-md">
