@@ -1,3 +1,5 @@
+"use client";
+
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
 import clsx from "clsx";
 
@@ -5,9 +7,9 @@ import clsx from "clsx";
 interface ListProps {
   id: string;
   isToggle?: boolean;
-  onToggle: () => void;
+  onToggle: (id: string) => void;
   content: string;
-  onClickKebab: () => void;
+  onClickKebab: (id: string) => void;
   variant: "simple" | "detailed";
   // Metadata (tasklist 페이지용)
   commentCount?: number;
@@ -61,7 +63,7 @@ export default function List({
       <div className="flex items-center justify-between ">
         <div className="flex items-center gap-7">
           <button
-            onClick={onToggle}
+            onClick={() => onToggle(id)}
             aria-label={isToggle ? "완료 취소" : "완료 표시"}
           >
             <SVGIcon icon={isToggle ? "checkboxActive" : "checkboxDefault"} />
@@ -82,7 +84,7 @@ export default function List({
             </div>
           )}
         </div>
-        <button onClick={onClickKebab} aria-label="옵션 메뉴 열기">
+        <button onClick={() => onClickKebab(id)} aria-label="옵션 메뉴 열기">
           <SVGIcon icon="kebabSmall" />
         </button>
       </div>
