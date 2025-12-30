@@ -76,7 +76,7 @@ export default function TaskCreateModal({
           {/* input 컴포넌트 라벨 관련 의견조율 후 수정할 것 */}
           <Input
             label="할 일 제목"
-            labelClassName="mb-16"
+            labelClassName="text-lg font-medium text-text-primary mb-16"
             placeholder="할 일 제목을 입력해주세요."
             variant="default"
             size="large"
@@ -241,10 +241,9 @@ export default function TaskCreateModal({
           />
         </section>
         <section>
-          <h3 className="text-lg font-medium text-text-primary mb-16">
-            할 일 메모
-          </h3>
           <InputBox
+            label="할 일 메모"
+            labelClassName="text-lg font-medium text-text-primary mb-16"
             placeholder="메모를 입력해주세요."
             value={taskMemo}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
