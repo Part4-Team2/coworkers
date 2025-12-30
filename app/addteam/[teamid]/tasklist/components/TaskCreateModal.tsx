@@ -3,15 +3,12 @@ import Input from "@/app/components/Input/Input";
 import Dropdown from "@/app/components/Dropdown/Dropdown";
 import InputBox from "@/app/components/Input/InputBox";
 import clsx from "clsx";
-import DatePicker, { registerLocale } from "react-datepicker";
-import { ko } from "date-fns/locale";
+import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Button from "@/app/components/Button/Button";
 import { BaseModal } from "@/app/components/Modal";
 import ModalHeader from "@/app/components/Modal/ModalHeader";
 import ModalFooter from "@/app/components/Modal/ModalFooter";
-
-registerLocale("ko", ko);
 
 interface TaskCreateModalProps {
   isOpen: boolean;
