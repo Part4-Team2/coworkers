@@ -49,6 +49,9 @@ import LogoLargeIcon from "@/app/assets/img/logo_coworkers/logo-large.svg";
 import LogoSmallIcon from "@/app/assets/img/logo_coworkers/logo-small.svg";
 import ThumbnailTeamIcon from "@/app/assets/img/thumbnail-team.svg";
 import SecessionIcon from "@/app/assets/icon/secession.svg";
+import MedalIcon from "@/app/assets/icon/medal.svg";
+import SearchIcon from "@/app/assets/icon/search.svg";
+import HeartIcon from "@/app/assets/icon/heart.svg";
 
 export const IconMap = {
   alert: AlertIcon,
@@ -84,6 +87,9 @@ export const IconMap = {
   visibilityOn: VisibilityOnIcon,
   x: XIcon,
   secession: SecessionIcon,
+  medal: MedalIcon,
+  search: SearchIcon,
+  heart: HeartIcon,
   // btn
   btnArrowLeft: BtnArrowLeftIcon,
   btnArrowRight: BtnArrowRightIcon,
