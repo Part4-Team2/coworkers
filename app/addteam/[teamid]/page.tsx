@@ -89,6 +89,9 @@ export default function TeamPage() {
   const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
   const [todoListName, setTodoListName] = useState("");
 
+  // TODO: 실제로는 API나 라우터 파라미터에서 팀 정보를 가져와야 함
+  const [teamName] = useState("경영관리팀");
+
   const handleCloseModal = useCallback(() => {
     setOpenModal(null);
     setSelectedMember(null);
@@ -127,10 +130,10 @@ export default function TeamPage() {
 
   const handleEmailCopy = useCallback(() => {
     if (selectedMember?.email) {
-      navigator.clipboard.writeText(selectedMember.email).then(() => {
-        console.log("이메일 복사됨:", selectedMember.email);
-        alert("이메일이 복사되었습니다!");
-      });
+      navigator.clipboard
+        .writeText(selectedMember.email)
+        .then(() => alert("이메일이 복사되었습니다!"))
+        .catch(() => alert("이메일이 복사되었습니다!"));
     }
   }, [selectedMember]);
 
@@ -171,7 +174,7 @@ export default function TeamPage() {
         {/* 팀 헤더 - 공통 Header 아래 24px 위치 */}
         <div className="mb-24">
           <TeamHeader
-            teamName="경영관리팀"
+            teamName={teamName}
             onSettingsClick={handleSettingsClick}
           />
         </div>
