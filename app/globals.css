@@ -201,6 +201,15 @@ body {
   border-radius: 0.5rem !important;
 }
 
+.react-datepicker__day--today {
+  color: var(--color-brand-primary) !important;
+  font-weight: 500 !important;
+}
+
+.react-datepicker__day--today.react-datepicker__day--selected {
+  color: var(--color-background-secondary) !important;
+}
+
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
   background-color: var(--color-brand-primary) !important;
@@ -234,8 +243,4 @@ body {
   width: 2.5rem !important;
   line-height: 2rem !important;
   margin: 2px !important;
-}
-
-.react-datepicker__day--outside-month {
-  color: var(--color-text-default);
 }
