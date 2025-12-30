@@ -1,4 +1,4 @@
-import React from "react";
+import clsx from "clsx";
 import { ModalFooterProps } from "./types";
 import Button from "../Button/Button";
 
@@ -10,7 +10,10 @@ const ModalFooter = ({ primaryButton, secondaryButton }: ModalFooterProps) => {
 
   return (
     <div
-      className={`flex sm:justify-start justify-center ${hasTwoButtons ? "gap-8" : ""}`}
+      className={clsx(
+        "flex sm:justify-start justify-center",
+        hasTwoButtons && "gap-8"
+      )}
     >
       {/* Secondary 버튼 (왼쪽) */}
       {secondaryButton && (

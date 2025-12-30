@@ -5,6 +5,7 @@ import Member from "./components/Member";
 import Report from "./components/Report";
 import TodoList from "./components/TodoList";
 import TeamHeader from "./components/TeamHeader";
+import Modal from "@/app/components/Modal/Modal";
 import { Todo, Member as MemberType } from "./types";
 
 // 임시 데이터
@@ -81,21 +82,67 @@ const mockTodos: Todo[] = [
 export default function TeamPage() {
   const [members] = useState(mockMembers);
   const [todos] = useState(mockTodos);
+  const [openModal, setOpenModal] = useState<string | null>(null);
+  const [selectedMember, setSelectedMember] = useState<MemberType | null>(null);
+  const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
+  const [todoListName, setTodoListName] = useState("");
+
+  const handleCloseModal = useCallback(() => {
+    setOpenModal(null);
+    setSelectedMember(null);
+    setMemberToDelete(null);
+    setTodoListName("");
+  }, []);
 
   const handleInviteMember = useCallback(() => {
-    // 멤버 초대
-    console.log("새로운 멤버 초대하기");
+    setOpenModal("invite");
   }, []);
 
   const handleAddTodo = useCallback(() => {
-    // 할 일 목록 추가
-    console.log("새로운 목록 추가하기");
+    setOpenModal("todo-list");
   }, []);
 
-  const handleMemberMenuClick = useCallback((memberId: number) => {
-    // 멤버 메뉴 클릭
-    console.log("Member menu clicked:", memberId);
+  const handleMemberDelete = useCallback((memberId: number) => {
+    setMemberToDelete(memberId);
+    setOpenModal("member-delete");
   }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (memberToDelete !== null) {
+      console.log("멤버 삭제:", memberToDelete);
+      // 실제 삭제 로직
+      handleCloseModal();
+    }
+  }, [memberToDelete, handleCloseModal]);
+
+  const handleMemberNameClick = useCallback((member: MemberType) => {
+    setSelectedMember(member);
+    setOpenModal("profile");
+  }, []);
+
+  const handleEmailCopy = useCallback(() => {
+    if (selectedMember?.email) {
+      navigator.clipboard.writeText(selectedMember.email).then(() => {
+        console.log("이메일 복사됨:", selectedMember.email);
+        alert("이메일이 복사되었습니다!");
+      });
+    }
+  }, [selectedMember]);
+
+  const handleInviteLinkCopy = useCallback(() => {
+    // 실제로는 서버에서 받은 초대 링크를 복사
+    const inviteLink = "https://coworkers.com/invite/team-id";
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      console.log("초대 링크 복사됨");
+      alert("초대 링크가 복사되었습니다!");
+      handleCloseModal();
+    });
+  }, [handleCloseModal]);
+
+  const handleCreateTodoList = useCallback(() => {
+    console.log("목록 만들기:", todoListName);
+    handleCloseModal();
+  }, [todoListName, handleCloseModal]);
 
   const handleTodoMenuClick = useCallback((todoId: number) => {
     // 할 일 메뉴 클릭
@@ -165,11 +212,76 @@ export default function TeamPage() {
               name={member.name}
               email={member.email}
               imageUrl={member.imageUrl}
-              onMenuClick={() => handleMemberMenuClick(member.id)}
+              isAdmin={true}
+              onDeleteClick={() => handleMemberDelete(member.id)}
+              onNameClick={() => handleMemberNameClick(member)}
             />
           ))}
         </div>
       </div>
+
+      {/* 1. 멤버 초대 모달 */}
+      <Modal
+        isOpen={openModal === "invite"}
+        onClose={handleCloseModal}
+        title="멤버 초대"
+        description="그룹에 참여할 수 있는 링크를 복사합니다."
+        primaryButton={{
+          label: "링크 복사하기",
+          onClick: handleInviteLinkCopy,
+        }}
+      />
+
+      {/* 2. 할 일 목록 모달 */}
+      <Modal
+        isOpen={openModal === "todo-list"}
+        onClose={handleCloseModal}
+        title="할 일 목록"
+        input={{
+          placeholder: "목록 명을 입력해주세요.",
+          value: todoListName,
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+            setTodoListName(e.target.value),
+        }}
+        primaryButton={{
+          label: "만들기",
+          onClick: handleCreateTodoList,
+        }}
+      />
+
+      {/* 3. 프로필 모달 */}
+      <Modal
+        isOpen={openModal === "profile"}
+        onClose={handleCloseModal}
+        avatar={{
+          imageUrl: selectedMember?.imageUrl,
+          altText: selectedMember?.name || "",
+          size: "xlarge",
+        }}
+        title={selectedMember?.name || ""}
+        description={selectedMember?.email || ""}
+        primaryButton={{
+          label: "이메일 복사하기",
+          onClick: handleEmailCopy,
+        }}
+      />
+
+      {/* 4. 멤버 삭제 확인 모달 */}
+      <Modal
+        isOpen={openModal === "member-delete"}
+        onClose={handleCloseModal}
+        title="멤버를 삭제하시겠습니까?"
+        description="삭제한 멤버는 팀에서 완전히 제외됩니다."
+        primaryButton={{
+          label: "삭제",
+          onClick: handleConfirmDelete,
+          variant: "danger",
+        }}
+        secondaryButton={{
+          label: "닫기",
+          onClick: handleCloseModal,
+        }}
+      />
     </div>
   );
 }
