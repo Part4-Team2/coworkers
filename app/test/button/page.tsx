@@ -4,7 +4,12 @@ import Button from "@/app/components/Button/Button";
 import ButtonFloating from "@/app/components/Button/ButtonFloating";
 import { useState } from "react";
 
-type ButtonVariant = "solid" | "outlined" | "outlinedSecondary" | "danger";
+type ButtonVariant =
+  | "solid"
+  | "outlined"
+  | "outlinedSecondary"
+  | "danger"
+  | "gradient";
 type ButtonSize = "large" | "xSmall";
 type ButtonFloatingVariant = "solid" | "outlined";
 type ButtonFloatingSize = "large" | "medium";
@@ -80,6 +85,7 @@ export default function ButtonStorybookPage() {
                 <option value="outlined">outlined</option>
                 <option value="outlinedSecondary">outlinedSecondary</option>
                 <option value="danger">danger</option>
+                <option value="gradient">gradient</option>
               </select>
             </div>
 
@@ -374,7 +380,7 @@ export default function ButtonStorybookPage() {
               <h4 className="mb-4 text-lg font-medium text-[#a8b0c0]">
                 Size: large
               </h4>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
                 <div>
                   <p className="mb-3 text-sm text-[#a8b0c0]">solid</p>
                   <Button label="Solid 버튼" variant="solid" size="large" />
@@ -401,6 +407,14 @@ export default function ButtonStorybookPage() {
                   <p className="mb-3 text-sm text-[#a8b0c0]">danger</p>
                   <Button label="Danger 버튼" variant="danger" size="large" />
                 </div>
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">gradient</p>
+                  <Button
+                    label="Gradient 버튼"
+                    variant="gradient"
+                    size="large"
+                  />
+                </div>
               </div>
             </div>
 
@@ -409,7 +423,7 @@ export default function ButtonStorybookPage() {
               <h4 className="mb-4 text-lg font-medium text-[#a8b0c0]">
                 Size: xSmall
               </h4>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
                 <div>
                   <p className="mb-3 text-sm text-[#a8b0c0]">solid</p>
                   <Button label="Solid" variant="solid" size="xSmall" />
@@ -431,6 +445,10 @@ export default function ButtonStorybookPage() {
                 <div>
                   <p className="mb-3 text-sm text-[#a8b0c0]">danger</p>
                   <Button label="Danger" variant="danger" size="xSmall" />
+                </div>
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">gradient</p>
+                  <Button label="Gradient" variant="gradient" size="xSmall" />
                 </div>
               </div>
             </div>

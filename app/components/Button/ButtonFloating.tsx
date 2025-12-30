@@ -17,8 +17,8 @@ export interface ButtonProps {
 }
 
 const sizeClass: Record<ButtonSize, string> = {
-  large: "h-[46px] text-[15px] px-[18px]",
-  medium: "h-[38px] text-[14px] px-[18px]",
+  large: "h-46 text-15 px-18",
+  medium: "h-38 text-14 px-18",
 };
 
 const defaultMinWidth: Record<ButtonSize, string> = {
@@ -45,7 +45,7 @@ const ButtonFloating: React.FC<ButtonProps> = ({
   type = "button",
 }) => {
   const base =
-    "inline-flex items-center justify-center rounded-full font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-[1px] whitespace-nowrap";
+    "inline-flex items-center justify-center rounded-full font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-1 whitespace-nowrap";
   const disabledCls = disabled ? "cursor-not-allowed" : "cursor-pointer";
 
   // full이면 w-full, width prop이 있으면 그 값 사용 (고정 width)
@@ -69,7 +69,7 @@ const ButtonFloating: React.FC<ButtonProps> = ({
     >
       {icon ? (
         <span
-          className={`mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full text-[12px] font-bold`}
+          className={`mr-2 inline-flex items-center justify-center rounded-full text-[12px] font-bold`}
         >
           {icon}
         </span>
