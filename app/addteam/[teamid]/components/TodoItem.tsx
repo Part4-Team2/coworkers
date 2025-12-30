@@ -1,5 +1,4 @@
 import { memo } from "react";
-import clsx from "clsx";
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
 
 interface TodoItemProps {
@@ -86,9 +85,7 @@ const TodoItem = memo(function TodoItem({
               <SVGIcon
                 icon="done"
                 size={14}
-                className={clsx(
-                  "text-brand-primary transition-all duration-300"
-                )}
+                className="text-brand-primary transition-all duration-300"
               />
             ) : (
               <SmallProgressCircle percentage={percentage} />

@@ -10,6 +10,42 @@ interface MemberProps {
   onNameClick?: () => void;
 }
 
+interface MemberNameButtonProps {
+  name: string;
+  onClick?: () => void;
+  className?: string;
+}
+
+interface DeleteButtonProps {
+  onClick?: () => void;
+}
+
+const MemberNameButton = ({
+  name,
+  onClick,
+  className,
+}: MemberNameButtonProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={className}
+    aria-label={`${name} 프로필 보기`}
+  >
+    {name}
+  </button>
+);
+
+const DeleteButton = ({ onClick }: DeleteButtonProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex items-center justify-center cursor-pointer shrink-0"
+    aria-label="멤버 삭제"
+  >
+    <SVGIcon icon="x" size={24} />
+  </button>
+);
+
 export default function Member({
   name,
   email,
@@ -18,17 +54,6 @@ export default function Member({
   onDeleteClick,
   onNameClick,
 }: MemberProps) {
-  const deleteButton = isAdmin ? (
-    <button
-      type="button"
-      onClick={onDeleteClick}
-      className="flex items-center justify-center cursor-pointer shrink-0"
-      aria-label="멤버 삭제"
-    >
-      <SVGIcon icon="x" size={24} />
-    </button>
-  ) : null;
-
   return (
     <div className="flex h-auto sm:min-h-73 px-24 py-20 rounded-2xl bg-background-secondary">
       {/* 모바일 */}
@@ -37,14 +62,12 @@ export default function Member({
           <div className="shrink-0">
             <Avatar imageUrl={imageUrl} altText={name} size="small" />
           </div>
-          <button
-            type="button"
+          <MemberNameButton
+            name={name}
             onClick={onNameClick}
             className="text-md font-medium leading-20 text-text-primary truncate flex-1 py-1 text-left hover:underline cursor-pointer"
-          >
-            {name}
-          </button>
-          {deleteButton}
+          />
+          {isAdmin && <DeleteButton onClick={onDeleteClick} />}
         </div>
         <p className="text-xs font-regular leading-16 text-text-secondary truncate">
           {email}
@@ -57,18 +80,16 @@ export default function Member({
           <Avatar imageUrl={imageUrl} altText={name} size="large" />
         </div>
         <div className="flex flex-col justify-center flex-1 min-w-0">
-          <button
-            type="button"
+          <MemberNameButton
+            name={name}
             onClick={onNameClick}
             className="text-md font-medium leading-20 text-text-primary truncate text-left hover:underline cursor-pointer"
-          >
-            {name}
-          </button>
+          />
           <p className="text-xs font-regular leading-16 text-text-secondary overflow-visible whitespace-normal wrap-break-word">
             {email}
           </p>
         </div>
-        {deleteButton}
+        {isAdmin && <DeleteButton onClick={onDeleteClick} />}
       </div>
     </div>
   );

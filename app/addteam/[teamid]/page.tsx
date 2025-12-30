@@ -8,6 +8,8 @@ import TeamHeader from "./components/TeamHeader";
 import Modal from "@/app/components/Modal/Modal";
 import { Todo, Member as MemberType } from "./types";
 
+type ModalType = "invite" | "todo-list" | "profile" | "member-delete" | null;
+
 // 임시 데이터
 const mockMembers: MemberType[] = [
   {
@@ -82,7 +84,7 @@ const mockTodos: Todo[] = [
 export default function TeamPage() {
   const [members] = useState(mockMembers);
   const [todos] = useState(mockTodos);
-  const [openModal, setOpenModal] = useState<string | null>(null);
+  const [openModal, setOpenModal] = useState<ModalType>(null);
   const [selectedMember, setSelectedMember] = useState<MemberType | null>(null);
   const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
   const [todoListName, setTodoListName] = useState("");
@@ -111,9 +113,12 @@ export default function TeamPage() {
     if (memberToDelete !== null) {
       console.log("멤버 삭제:", memberToDelete);
       // 실제 삭제 로직
-      handleCloseModal();
+      setOpenModal(null);
+      setSelectedMember(null);
+      setMemberToDelete(null);
+      setTodoListName("");
     }
-  }, [memberToDelete, handleCloseModal]);
+  }, [memberToDelete]);
 
   const handleMemberNameClick = useCallback((member: MemberType) => {
     setSelectedMember(member);
@@ -135,14 +140,20 @@ export default function TeamPage() {
     navigator.clipboard.writeText(inviteLink).then(() => {
       console.log("초대 링크 복사됨");
       alert("초대 링크가 복사되었습니다!");
-      handleCloseModal();
+      setOpenModal(null);
+      setSelectedMember(null);
+      setMemberToDelete(null);
+      setTodoListName("");
     });
-  }, [handleCloseModal]);
+  }, []);
 
   const handleCreateTodoList = useCallback(() => {
     console.log("목록 만들기:", todoListName);
-    handleCloseModal();
-  }, [todoListName, handleCloseModal]);
+    setOpenModal(null);
+    setSelectedMember(null);
+    setMemberToDelete(null);
+    setTodoListName("");
+  }, [todoListName]);
 
   const handleTodoMenuClick = useCallback((todoId: number) => {
     // 할 일 메뉴 클릭
