@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import Member from "./components/Member";
 import Report from "./components/Report";
 import TodoList from "./components/TodoList";
+import TeamHeader from "./components/TeamHeader";
 import { Todo, Member as MemberType } from "./types";
 
 // 임시 데이터
@@ -101,9 +102,22 @@ export default function TeamPage() {
     console.log("Todo menu clicked:", todoId);
   }, []);
 
+  const handleSettingsClick = useCallback(() => {
+    // 팀 설정
+    console.log("팀 설정하기");
+  }, []);
+
   return (
     <div className="w-full bg-background-primary min-h-screen py-40">
       <div className="max-w-1200 mx-auto px-16 lg:px-24">
+        {/* 팀 헤더 - 공통 Header 아래 24px 위치 */}
+        <div className="mb-24">
+          <TeamHeader
+            teamName="경영관리팀"
+            onSettingsClick={handleSettingsClick}
+          />
+        </div>
+
         <div className="flex items-center justify-between mb-16">
           <h2 className="text-lg font-medium leading-lg text-text-primary">
             할 일 목록{" "}
