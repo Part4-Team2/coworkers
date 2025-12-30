@@ -36,7 +36,7 @@ export default function TaskCreateModal({
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [dropdownOption, setDropdownOption] = useState(FREQ_OPTION[0]);
   const [taskMemo, setTaskMemo] = useState("");
-
+  // const selectedStartDate = useMemo(() => isDateTouched ? format(startDate) : "",[startDate, isDateTouched])
   // 리스트에서 쓰는 로직이랑 비교
   const formatDate = (date: Date | null) => {
     if (!date) return "";
@@ -71,7 +71,6 @@ export default function TaskCreateModal({
       {/* 커스텀 콘텐츠 영역 */}
       <form className="flex flex-col gap-24 mb-32">
         <section>
-          {/* input 컴포넌트 라벨 관련 의견조율 후 수정할 것 */}
           <Input
             label="할 일 제목"
             labelClassName="text-lg font-medium text-text-primary mb-16"
