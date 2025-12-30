@@ -18,16 +18,17 @@ interface TaskCreateModalProps {
   onClose: () => void;
 }
 
+const FREQ_OPTION: string[] = ["한 번", "매일", "주 반복", "월 반복"];
+
+const today = new Date();
+const defaultTime = new Date();
+defaultTime.setHours(15, 0, 0, 0); // fix
+
 export default function TaskCreateModal({
   isOpen,
   onClose,
 }: TaskCreateModalProps) {
   // list 컴포넌트 frequency 타입 재사용 가능한지 확인
-  const FREQ_OPTION: string[] = ["한 번", "매일", "주 반복", "월 반복"];
-
-  const today = new Date();
-  const defaultTime = new Date();
-  defaultTime.setHours(15, 0, 0, 0);
 
   const [taskTitle, setTaskTitle] = useState("");
   const [startDate, setStartDate] = useState<Date>(today);
