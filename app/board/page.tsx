@@ -100,7 +100,7 @@ function BoardPage() {
                 value={arrange}
               />
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 gap-21">
+            <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 gap-21 max-w-1200 mx-auto">
               {members.map((member) => (
                 <Article
                   key={member.id}
