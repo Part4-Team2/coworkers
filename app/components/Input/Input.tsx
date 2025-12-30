@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
 import type { IconMapTypes } from "@/app/components/SVGIcon/iconMap";
+import clsx from "clsx";
 
 export type InputVariant = "default" | "error";
 
@@ -129,7 +130,10 @@ export default function Input({
     <div className={full ? "w-full" : ""} style={widthStyle}>
       {label && (
         <label
-          className={`mb-2 block text-md text-text-primary pb-3 ${labelClassName ?? ""}`}
+          className={clsx(
+            "block",
+            labelClassName ?? "mb-2 text-sm text-text-secondary"
+          )}
         >
           {label}
         </label>
