@@ -7,7 +7,6 @@ interface ReportProps {
   completedTaskCount: number;
 }
 
-// Props validation
 const validateCount = (count: number): number => Math.max(0, Math.floor(count));
 
 export default function Report({
@@ -15,7 +14,6 @@ export default function Report({
   todayTaskCount,
   completedTaskCount,
 }: ReportProps) {
-  // Props validation
   const validatedTodayCount = validateCount(todayTaskCount);
   const validatedCompletedCount = validateCount(completedTaskCount);
   return (

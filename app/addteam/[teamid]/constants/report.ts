@@ -1,4 +1,3 @@
-// CircleConfig 타입 정의
 export interface CircleConfig {
   size: number;
   viewBox: string;
@@ -31,7 +30,6 @@ export const MOBILE_CONFIG: CircleConfig = {
 // Circumference 계산
 export const calculateCircumference = (radius: number) => 2 * Math.PI * radius;
 
-// 미리 계산된 값
 export const DESKTOP_CIRCUMFERENCE = calculateCircumference(
   DESKTOP_CONFIG.radius
 );

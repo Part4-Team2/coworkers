@@ -29,7 +29,7 @@ export default function Member({
     <div className="flex h-auto sm:min-h-73 px-24 py-20 rounded-2xl bg-background-secondary">
       {/* 모바일 */}
       <div className="flex flex-col w-full sm:hidden">
-        <div className="flex items-start gap-12">
+        <div className="flex items-start gap-8">
           <div className="shrink-0">
             <Avatar imageUrl={imageUrl} altText={name} size="small" />
           </div>
