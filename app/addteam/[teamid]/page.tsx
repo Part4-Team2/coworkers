@@ -133,7 +133,7 @@ export default function TeamPage() {
       navigator.clipboard
         .writeText(selectedMember.email)
         .then(() => alert("이메일이 복사되었습니다!"))
-        .catch(() => alert("이메일이 복사되었습니다!"));
+        .catch(() => alert("이메일 복사에 실패했습니다. 다시 시도해주세요."));
     }
   }, [selectedMember]);
 

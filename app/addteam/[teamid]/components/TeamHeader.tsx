@@ -11,7 +11,7 @@ export default function TeamHeader({
 }: TeamHeaderProps) {
   return (
     <div className="relative w-full h-64 rounded-xl border border-border-primary bg-[rgba(248,250,252,0.10)] flex items-center overflow-hidden">
-      <h1 className="ml-24 font-medium text-xl leading-xl text-white text-center">
+      <h1 className="ml-24 font-medium text-xl leading-xl text-text-primary text-center">
         {teamName}
       </h1>
 
