@@ -15,6 +15,7 @@ export interface ButtonProps {
   size?: ButtonSize;
   full?: boolean;
   width?: string;
+  className?: string;
   disabled?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   onSubmit?: React.FormEventHandler<HTMLButtonElement>;
@@ -50,11 +51,12 @@ const Button: React.FC<ButtonProps> = ({
   size = "large",
   full,
   width,
+  className,
   disabled,
   onClick,
   type = "button",
 }) => {
-  const base = `inline-flex ${variant === "gradient" ? "rounded-[32px]" : "rounded-[12px]"} items-center justify-center font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-[1px] whitespace-nowrap`;
+  const base = `inline-flex ${className} ${variant === "gradient" ? "rounded-[32px]" : "rounded-[12px]"} items-center justify-center font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-[1px] whitespace-nowrap`;
   const disabledCls = disabled ? "cursor-not-allowed" : "cursor-pointer";
 
   // full이면 w-full, width prop이 있으면 그 값 사용 (고정 width)
