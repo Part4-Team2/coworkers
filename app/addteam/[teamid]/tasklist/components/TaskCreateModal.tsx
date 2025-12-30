@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Input from "@/app/components/Input/Input";
-import Modal from "@/app/components/Modal/Modal";
 import Dropdown from "@/app/components/Dropdown/Dropdown";
 import InputBox from "@/app/components/Input/InputBox";
 import clsx from "clsx";
@@ -8,6 +7,9 @@ import DatePicker, { registerLocale } from "react-datepicker";
 import { ko } from "date-fns/locale";
 import "react-datepicker/dist/react-datepicker.css";
 import Button from "@/app/components/Button/Button";
+import { BaseModal } from "@/app/components/Modal";
+import ModalHeader from "@/app/components/Modal/ModalHeader";
+import ModalFooter from "@/app/components/Modal/ModalFooter";
 
 registerLocale("ko", ko);
 
@@ -62,28 +64,19 @@ export default function TaskCreateModal({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="할 일 만들기"
-      description={[
-        "할 일은 실제로 행동 가능한 작업 중심으로",
-        "작성해주시면 좋습니다.",
-      ]}
-      primaryButton={{
-        label: "만들기",
-        onClick: handleCreateButton,
-      }}
-    >
+    <BaseModal isOpen={isOpen} onClose={onClose} className="px-16 py-32">
+      <ModalHeader title="할 일 만들기" />
+      <div className="text-center text-text-default text-md font-medium pt-16 pb-24">
+        할 일은 실제로 행동 가능한 작업 중심으로 <br /> 작성해주시면 좋습니다.
+      </div>
+
       {/* 커스텀 콘텐츠 영역 */}
-      <form className="flex flex-col gap-24">
+      <form className="flex flex-col gap-24 mb-32">
         <section>
           {/* input 컴포넌트 라벨 관련 의견조율 후 수정할 것 */}
-          <h3 className="text-lg font-medium text-text-primary mb-16">
-            할 일 제목
-          </h3>
           <Input
             label="할 일 제목"
+            labelClassName="mb-16"
             placeholder="할 일 제목을 입력해주세요."
             variant="default"
             size="large"
@@ -260,6 +253,9 @@ export default function TaskCreateModal({
           />
         </section>
       </form>
-    </Modal>
+      <ModalFooter
+        primaryButton={{ label: "만들기", onClick: handleCreateButton }}
+      />
+    </BaseModal>
   );
 }
