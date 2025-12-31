@@ -1,4 +1,4 @@
-import TabContainer from "@/app/components/Tab/TabContainer";
+import TabContainer from "@/app/components/task-list/Tab/TabContainer";
 
 const tabs = [
   {
