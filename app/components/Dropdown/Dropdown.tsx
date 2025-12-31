@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import SVGIcon from "../SVGIcon/SVGIcon";
+import { IconMapTypes } from "../SVGIcon/iconMap";
 import { useState, useEffect, useRef } from "react";
 
 type DropdownSize = "md" | "sm";
@@ -12,6 +13,7 @@ interface DropdownProps {
   onSelect: (value: string) => void;
   size: DropdownSize;
   value: string;
+  icon?: IconMapTypes;
 }
 
 const sizeClass: Record<DropdownSize, string> = {
@@ -24,7 +26,13 @@ const sizeListClass: Record<DropdownSize, string> = {
   md: "w-120 text-md",
 };
 
-function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
+function Dropdown({
+  options,
+  onSelect,
+  size = "md",
+  value,
+  icon = "toggle",
+}: DropdownProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -63,11 +71,11 @@ function Dropdown({ options, onSelect, size = "md", value }: DropdownProps) {
         "rounded-xl bg-background-secondary relative"
       )}
     >
-      <div className="flex justify-between" onClick={toggleDropdown}>
+      <div className="flex justify-between">
         <span>{value}</span>
         {/* 다른 아이콘이나 버튼을 받을 수 있게 해야댐. */}
-        <span className="cursor-pointer">
-          <SVGIcon icon="toggle" size="md" />
+        <span className="cursor-pointer" onClick={toggleDropdown}>
+          <SVGIcon icon={icon} size="md" />
         </span>
       </div>
       {/* popover 형태로 짜야한다. */}
