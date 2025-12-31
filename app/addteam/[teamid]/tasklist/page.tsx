@@ -1,9 +1,11 @@
-import TaskListContainer from "@/containers/task-list/TaskListContainer";
+import ListAddButtonContainer from "@/containers/task-list/ListAddButtonContainer";
+import TaskAddButtonContainer from "@/containers/task-list/TaskAddBottonContainer";
 
 export default function TaskListPage() {
   return (
-    <div>
-      <TaskListContainer />
-    </div>
+    <>
+      <ListAddButtonContainer />
+      <TaskAddButtonContainer />
+    </>
   );
 }
