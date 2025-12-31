@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import clsx from "clsx";
 import { BaseModalProps } from "./types";
 import SVGIcon from "../SVGIcon/SVGIcon";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
@@ -55,7 +56,10 @@ const BaseModal = ({
       {/* 모달 카드 */}
       <div
         ref={modalRef}
-        className={`relative w-full sm:w-374 lg:w-sm sm:mx-16 mx-0 bg-background-secondary rounded-t-xl sm:rounded-xl shadow-xl ${className}`}
+        className={clsx(
+          "relative w-full sm:w-374 lg:w-sm sm:mx-16 mx-0 bg-background-secondary rounded-t-xl sm:rounded-xl shadow-xl",
+          className
+        )}
         role="dialog"
         aria-modal="true"
       >
