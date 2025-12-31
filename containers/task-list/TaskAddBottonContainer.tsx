@@ -20,7 +20,7 @@ const TaskAddButtonContainer = () => {
     <>
       <ButtonFloating
         label="할일 추가"
-        icon={<SVGIcon icon="plus" size="xxs" className="" />}
+        icon={<SVGIcon icon="plus" size="xxs" />}
         variant="solid"
         size="large"
         onClick={handleAddTaskButton}
