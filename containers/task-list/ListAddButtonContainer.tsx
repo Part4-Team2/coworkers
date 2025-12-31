@@ -1,6 +1,6 @@
 "use client";
 
-import ListCreateModal from "@/app/addteam/[teamid]/tasklist/components/ListCreateModal";
+import ListCreateModal from "@/app/components/task-list/ListCreateModal";
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
 import { useState } from "react";
 
