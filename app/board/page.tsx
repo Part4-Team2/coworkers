@@ -12,7 +12,16 @@ import BestArticle from "./components/BestArticle";
 const ARRANGE: string[] = ["최신순", "좋아요 많은순"];
 
 // mockdata는 추후에 api 들어오면 삭제 예정입니다.
-const MOCKDATA01 = {
+type Mockdata = {
+  id: number;
+  nickname: string;
+  title: string;
+  createdAt: string;
+  avatarImageUrl?: string;
+  likeCount: number;
+};
+
+const MOCKDATA01: Mockdata = {
   id: 1,
   nickname: "우지은",
   title: "게시글 제목입니다.",
@@ -21,7 +30,7 @@ const MOCKDATA01 = {
   likeCount: 10000,
 };
 
-const MOCKDATA02 = {
+const MOCKDATA02: Mockdata = {
   id: 2,
   nickname: "우지우",
   title: "게시글 제목입니다.",
@@ -30,7 +39,7 @@ const MOCKDATA02 = {
   likeCount: 9998,
 };
 
-const MOCKDATA03 = {
+const MOCKDATA03: Mockdata = {
   id: 3,
   nickname: "우지호",
   title: "게시글 제목입니다.",
