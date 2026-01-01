@@ -130,6 +130,7 @@ function BoardPage() {
                 options={ARRANGE}
                 onSelect={setArrange}
                 size="md"
+                trigger="text"
                 value={arrange}
               />
             </div>
