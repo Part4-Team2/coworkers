@@ -16,22 +16,19 @@ export default function ListAddButtonContainer() {
   };
 
   return (
-    <>
-      {" "}
-      <div>
-        <button
-          onClick={handleAddListButton}
-          className="text-brand-primary flex items-center gap-5"
-        >
-          <SVGIcon
-            icon="plus"
-            size="xxs"
-            className="[--icon-stroke:theme(colors.brand.primary)]"
-          />
-          새로운 목록 추가하기
-        </button>
-        <ListCreateModal isOpen={isModalOpen} onClose={handleModalClose} />
-      </div>
-    </>
+    <div>
+      <button
+        onClick={handleAddListButton}
+        className="text-brand-primary flex items-center gap-5"
+      >
+        <SVGIcon
+          icon="plus"
+          size="xxs"
+          className="[--icon-stroke:theme(colors.brand.primary)]"
+        />
+        새로운 목록 추가하기
+      </button>
+      <ListCreateModal isOpen={isModalOpen} onClose={handleModalClose} />
+    </div>
   );
 }
