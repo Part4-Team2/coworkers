@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import { ChangeEvent, useState } from "react";
 import Article from "./components/Article";
+import ButtonFloating from "../components/Button/ButtonFloating";
 import SVGIcon from "../components/SVGIcon/SVGIcon";
 import Dropdown from "../components/Dropdown/Dropdown";
 import BoardInput from "./components/BoardInput";
@@ -43,6 +44,11 @@ function BoardPage() {
   const [inputVal, setInputVal] = useState("");
   const [arrange, setArrange] = useState(ARRANGE[0]);
   const members = MOCKMEMBERS;
+
+  // 추후 함수는 글쓰기 페이지로 이동할 예정입니다.
+  const handleWriteClick = () => {
+    console.log("Write Button Click.");
+  };
 
   return (
     // Page Wrapper
@@ -122,6 +128,13 @@ function BoardPage() {
             </div>
           </article>
         </section>
+        <div className="fixed right-24 bottom-61 z-30">
+          <ButtonFloating
+            label="+ 글쓰기"
+            size="large"
+            onClick={handleWriteClick}
+          />
+        </div>
       </main>
     </div>
   );
