@@ -29,6 +29,7 @@ function BoardInput({ value, onChange }: BoardInputProps) {
           type="text"
           className="flex-1 bg-transparent outline-0"
           placeholder="검색어를 입력해주세요"
+          aria-label="게시글 검색"
           value={value}
           onChange={onChange}
           maxLength={50}
