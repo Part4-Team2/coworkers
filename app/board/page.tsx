@@ -50,6 +50,11 @@ function BoardPage() {
     console.log("Write Button Click.");
   };
 
+  // 더보기 문구 클릭시 작동하는 함수입니다.
+  const handleMoreClick = () => {
+    console.log("더보기 클릭.");
+  };
+
   return (
     // Page Wrapper
     <div
@@ -71,7 +76,11 @@ function BoardPage() {
           <article className="flex flex-col gap-56">
             <div className="flex justify-between items-center">
               <span className="text-text-primary text-xl">베스트 게시글</span>
-              <div className="flex items-center cursor-pointer">
+              {/* 더보기 버튼 */}
+              <div
+                className="flex items-center cursor-pointer"
+                onClick={handleMoreClick}
+              >
                 <span className="text-sm text-slate-400 hover:text-slate-200">
                   더보기
                 </span>
