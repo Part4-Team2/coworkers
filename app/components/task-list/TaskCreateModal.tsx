@@ -133,6 +133,7 @@ export default function TaskCreateModal({
                   setShowTimePicker(!showTimePicker);
                   setShowDatePicker(false);
                 }}
+                className="cursor-pointer"
               />
 
               {showTimePicker && (
