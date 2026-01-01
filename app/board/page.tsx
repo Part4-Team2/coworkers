@@ -111,6 +111,7 @@ function BoardPage() {
                   )}
                 >
                   <BestArticle
+                    id={member.id}
                     title={member.title}
                     nickname={member.nickname}
                     createdAt={member.createdAt}
@@ -135,6 +136,7 @@ function BoardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 gap-21 max-w-1200 mx-auto">
               {members.map((member) => (
                 <Article
+                  id={member.id}
                   key={member.id}
                   title={member.title}
                   nickname={member.nickname}
