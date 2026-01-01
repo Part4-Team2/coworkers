@@ -254,7 +254,7 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: var(--color-background-tertiary);
   width: 3px;
   border-radius: 2px;
 }
