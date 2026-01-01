@@ -9,7 +9,8 @@ type ButtonVariant =
   | "outlined"
   | "outlinedSecondary"
   | "danger"
-  | "gradient";
+  | "gradient"
+  | "unselected";
 type ButtonSize = "large" | "xSmall";
 type ButtonFloatingVariant = "solid" | "outlined";
 type ButtonFloatingSize = "large" | "medium";
@@ -86,6 +87,7 @@ export default function ButtonStorybookPage() {
                 <option value="outlinedSecondary">outlinedSecondary</option>
                 <option value="danger">danger</option>
                 <option value="gradient">gradient</option>
+                <option value="unselected">unselected</option>
               </select>
             </div>
 
@@ -380,7 +382,7 @@ export default function ButtonStorybookPage() {
               <h4 className="mb-4 text-lg font-medium text-[#a8b0c0]">
                 Size: large
               </h4>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
                 <div>
                   <p className="mb-3 text-sm text-[#a8b0c0]">solid</p>
                   <Button label="Solid 버튼" variant="solid" size="large" />
@@ -415,6 +417,14 @@ export default function ButtonStorybookPage() {
                     size="large"
                   />
                 </div>
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">unselected</p>
+                  <Button
+                    label="Unselected 버튼"
+                    variant="unselected"
+                    size="large"
+                  />
+                </div>
               </div>
             </div>
 
@@ -423,7 +433,7 @@ export default function ButtonStorybookPage() {
               <h4 className="mb-4 text-lg font-medium text-[#a8b0c0]">
                 Size: xSmall
               </h4>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
                 <div>
                   <p className="mb-3 text-sm text-[#a8b0c0]">solid</p>
                   <Button label="Solid" variant="solid" size="xSmall" />
@@ -449,6 +459,14 @@ export default function ButtonStorybookPage() {
                 <div>
                   <p className="mb-3 text-sm text-[#a8b0c0]">gradient</p>
                   <Button label="Gradient" variant="gradient" size="xSmall" />
+                </div>
+                <div>
+                  <p className="mb-3 text-sm text-[#a8b0c0]">unselected</p>
+                  <Button
+                    label="Unselected"
+                    variant="unselected"
+                    size="xSmall"
+                  />
                 </div>
               </div>
             </div>
