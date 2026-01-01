@@ -13,6 +13,9 @@ export default function Form({
   centered = true,
   topOffsetClassName = "",
   optionAlign = "center",
+  register,
+  errors,
+  trigger,
 }: FormProps) {
   const hasProfile = Boolean(profile);
   const hasInput = Boolean(input);
@@ -21,10 +24,49 @@ export default function Form({
 
   const renderInput = (inputConfig: InputConfig, index?: number) => {
     const key = index !== undefined ? `input-${index}` : "input";
+    const fieldName = inputConfig.name;
+
+    // react-hook-form이 제공된 경우 register와 errors를 적용
+    // registerOptions는 DOM 속성이 아니므로 제거
+    const { registerOptions, ...restInputConfig } = inputConfig;
+    let inputProps = { ...restInputConfig };
+
+    // name이 있고 register가 제공된 경우에만 register 적용
+    if (register && fieldName) {
+      const registered = register(fieldName, registerOptions || {});
+      inputProps = { ...inputProps, ...registered };
+
+      // onBlur에 trigger 추가
+      const originalOnBlur = inputProps.onBlur;
+      inputProps.onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        originalOnBlur?.(e);
+        if (trigger && fieldName) {
+          trigger(fieldName);
+        }
+      };
+    }
+
+    // errors가 있고 fieldName이 있는 경우에만 에러 적용
+    if (errors && fieldName && errors[fieldName]) {
+      const error = errors[fieldName];
+      // 이미 variant가 설정되어 있지 않은 경우에만 error로 설정
+      if (!inputProps.variant || inputProps.variant === "default") {
+        inputProps.variant = "error";
+      }
+      inputProps.showError = true;
+      // message가 이미 설정되어 있지 않은 경우에만 에러 메시지 설정
+      if (
+        error?.message &&
+        typeof error.message === "string" &&
+        !inputProps.message
+      ) {
+        inputProps.message = error.message;
+      }
+    }
 
     return (
       <div key={key} className="w-full">
-        <Input full {...(inputConfig as InputConfig)} />
+        <Input full {...(inputProps as InputConfig)} />
       </div>
     );
   };
@@ -71,7 +113,7 @@ export default function Form({
 
         {button && (
           <div className="mt-40 w-full flex justify-center">
-            <Button full {...button} onSubmit={onSubmit} />
+            <Button full {...button} type="submit" />
           </div>
         )}
       </form>
