@@ -72,7 +72,9 @@ function Dropdown({
       )}
     >
       <div className="flex justify-between">
-        <span>{value}</span>
+        <span className="overflow-hidden text-ellipsis line-clamp-1">
+          {value}
+        </span>
         {/* 다른 아이콘이나 버튼을 받을 수 있게 해야댐. */}
         <span className="cursor-pointer" onClick={toggleDropdown}>
           <SVGIcon icon={icon} size="md" />
