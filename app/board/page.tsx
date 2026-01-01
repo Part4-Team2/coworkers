@@ -103,12 +103,11 @@ function BoardPage() {
               )}
             >
               {members.map((member, index) => (
+                //
                 <div
                   key={member.id}
                   className={clsx(
-                    index === 0 && "block",
-                    index === 1 && "sm:block hidden",
-                    index === 2 && "hidden lg:block"
+                    ["block", "sm:block hidden", "hidden lg:block"][index]
                   )}
                 >
                   <BestArticle
