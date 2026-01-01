@@ -1,5 +1,5 @@
-import ProgressCircle from "./ProgressCircle";
-import StatCard from "./StatCard";
+import ProgressCircle from "@/app/components/Team/ProgressCircle";
+import StatCard from "@/app/components/Team/StatCard";
 
 interface ReportProps {
   progressPercentage: number;

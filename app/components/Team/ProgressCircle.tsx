@@ -9,7 +9,7 @@ import {
   MOBILE_CIRCUMFERENCE,
   calculateOffset,
   type CircleConfig,
-} from "../constants/report";
+} from "@/app/constants/report";
 
 interface ProgressCircleProps {
   percentage: number;
