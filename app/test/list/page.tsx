@@ -8,18 +8,18 @@ export default function ListTestPage() {
       <List
         id="1"
         isToggle={false}
-        onToggle={() => {}}
+        onToggle={(id) => console.log(id)}
         content="회의 준비하기"
-        onClickKebab={() => {}}
+        onClickKebab={(id) => console.log(id)}
         variant="simple"
       />
       <br />
       <List
-        id="1"
+        id="2"
         isToggle={false}
-        onToggle={() => {}}
+        onToggle={(id) => console.log(id)}
         content="회의 준비하기 테스트"
-        onClickKebab={() => {}}
+        onClickKebab={(id) => console.log(id)}
         variant="detailed"
         commentCount={3}
         frequency="DAILY"
