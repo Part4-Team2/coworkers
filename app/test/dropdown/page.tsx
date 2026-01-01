@@ -16,7 +16,13 @@ export default function DropdownPage() {
     <div>
       <Header />
       <div className="flex flex-col justify-center items-center min-h-screen">
-        <Dropdown options={TEST} onSelect={setTest} size="md" value={test} />
+        <Dropdown
+          options={TEST}
+          onSelect={setTest}
+          size="md"
+          value={test}
+          icon="check"
+        />
         <Button label="z-index test" />
       </div>
     </div>
