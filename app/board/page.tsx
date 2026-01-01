@@ -74,18 +74,26 @@ function BoardPage() {
             </div>
             <div
               className={clsx(
-                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-21"
+                "grid grid-cols-1 grid-rows-1 sm:grid-cols-2 lg:grid-cols-3 gap-21 max-w-1200 mx-auto"
               )}
             >
-              {members.map((member) => (
-                <BestArticle
+              {members.map((member, index) => (
+                <div
                   key={member.id}
-                  title={member.title}
-                  nickname={member.nickname}
-                  createdAt={member.createdAt}
-                  imageUrl={member.imageUrl}
-                  likeCount={member.likeCount}
-                />
+                  className={clsx(
+                    index === 0 && "block",
+                    index === 1 && "sm:block hidden",
+                    index === 2 && "hidden lg:block"
+                  )}
+                >
+                  <BestArticle
+                    title={member.title}
+                    nickname={member.nickname}
+                    createdAt={member.createdAt}
+                    imageUrl={member.imageUrl}
+                    likeCount={member.likeCount}
+                  />
+                </div>
               ))}
             </div>
           </article>
