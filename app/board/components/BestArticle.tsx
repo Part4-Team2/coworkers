@@ -6,7 +6,7 @@ interface BestArticleProps {
   title: string;
   createdAt: string;
   nickname: string;
-  imageUrl?: string;
+  avatarImageUrl?: string;
   likeCount: number;
 }
 
@@ -15,7 +15,7 @@ function BestArticle({
   title,
   createdAt,
   nickname,
-  imageUrl,
+  avatarImageUrl,
   likeCount,
 }: BestArticleProps) {
   return (
@@ -46,13 +46,18 @@ function BestArticle({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-12">
               <Avatar
-                imageUrl={imageUrl}
+                imageUrl={avatarImageUrl}
                 altText={`${nickname} 프로필`}
                 size="large"
               />
               <span>{nickname}</span>
             </div>
-            <div>{likeCount > 9999 ? "9999+" : likeCount}</div>
+            <div className={clsx("flex gap-4 items-center")}>
+              <span>
+                <SVGIcon icon="done" size="xxs" />
+              </span>
+              <span>{likeCount > 9999 ? "9999+" : likeCount}</span>
+            </div>
           </div>
         </div>
       </div>

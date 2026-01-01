@@ -11,12 +11,13 @@ import BestArticle from "./components/BestArticle";
 
 const ARRANGE: string[] = ["최신순", "좋아요 많은순"];
 
+// mockdata는 추후에 api 들어오면 삭제 예정입니다.
 const MOCKDATA01 = {
   id: 1,
   nickname: "우지은",
   title: "게시글 제목입니다.",
   createdAt: "2025.12.29",
-  imageUrl: undefined,
+  avatarImageUrl: undefined,
   likeCount: 10000,
 };
 
@@ -25,7 +26,7 @@ const MOCKDATA02 = {
   nickname: "우지우",
   title: "게시글 제목입니다.",
   createdAt: "2025.12.29",
-  imageUrl: undefined,
+  avatarImageUrl: undefined,
   likeCount: 9998,
 };
 
@@ -34,7 +35,7 @@ const MOCKDATA03 = {
   nickname: "우지호",
   title: "게시글 제목입니다.",
   createdAt: "2025.12.29",
-  imageUrl: undefined,
+  avatarImageUrl: undefined,
   likeCount: 9997,
 };
 
@@ -105,7 +106,7 @@ function BoardPage() {
                     title={member.title}
                     nickname={member.nickname}
                     createdAt={member.createdAt}
-                    imageUrl={member.imageUrl}
+                    avatarImageUrl={member.avatarImageUrl}
                     likeCount={member.likeCount}
                   />
                 </div>
@@ -130,7 +131,7 @@ function BoardPage() {
                   title={member.title}
                   nickname={member.nickname}
                   createdAt={member.createdAt}
-                  imageUrl={member.imageUrl}
+                  avatarImageUrl={member.avatarImageUrl}
                   likeCount={member.likeCount}
                 />
               ))}

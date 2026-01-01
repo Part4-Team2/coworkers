@@ -6,7 +6,7 @@ interface ArticleProps {
   title: string;
   nickname: string;
   createdAt: string;
-  imageUrl?: string;
+  avatarImageUrl?: string;
   likeCount: number;
 }
 
@@ -14,7 +14,7 @@ function Article({
   title,
   nickname,
   createdAt,
-  imageUrl,
+  avatarImageUrl,
   likeCount,
 }: ArticleProps) {
   const handleKebabClick = () => {
@@ -47,7 +47,7 @@ function Article({
         <div className="flex gap-16 items-center text-slate-400 text-md">
           <div className="flex gap-12 items-center text-text-primary">
             <Avatar
-              imageUrl={imageUrl}
+              imageUrl={avatarImageUrl}
               altText={`${nickname} 프로필`}
               size="large"
             />
@@ -56,7 +56,12 @@ function Article({
           <span>|</span>
           <div className="flex flex-1 justify-between">
             <span>{createdAt}</span>
-            <div>{likeCount > 9999 ? "9999+" : likeCount}</div>
+            <div className={clsx("flex gap-4 items-center")}>
+              <span>
+                <SVGIcon icon="done" size="xxs" />
+              </span>
+              <span>{likeCount > 9999 ? "9999+" : likeCount}</span>
+            </div>
           </div>
         </div>
       </div>
