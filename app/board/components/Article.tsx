@@ -17,6 +17,10 @@ function Article({
   imageUrl,
   likeCount,
 }: ArticleProps) {
+  const handleKebabClick = () => {
+    console.log("kebab click");
+  };
+
   return (
     <div
       className={clsx(
@@ -34,7 +38,10 @@ function Article({
         >
           {title}
         </div>
-        <div className="absolute top-0 right-0 cursor-pointer">
+        <div
+          className="absolute top-0 right-0 cursor-pointer"
+          onClick={handleKebabClick}
+        >
           <SVGIcon icon="kebabLarge" />
         </div>
         <div className="flex gap-16 items-center text-slate-400 text-md">
