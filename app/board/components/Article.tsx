@@ -44,7 +44,11 @@ function Article({
           </div>
           <div
             className="absolute top-0 right-0 cursor-pointer"
-            onClick={handleKebabClick}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleKebabClick();
+            }}
           >
             <SVGIcon icon="kebabLarge" />
           </div>
