@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import EditTeamContainer from "@/containers/teamid-edit/EditTeamContainer";
 
 interface PageProps {
@@ -8,6 +9,26 @@ interface PageProps {
 interface TeamData {
   teamName: string;
   profileImage?: string;
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { teamid } = await params;
+
+  try {
+    const teamData = await getTeamData(teamid);
+
+    return {
+      title: `${teamData.teamName} 팀 수정`,
+      description: `${teamData.teamName} 팀의 정보를 수정합니다.`,
+    };
+  } catch {
+    return {
+      title: "팀 수정",
+      description: "팀 정보를 수정합니다.",
+    };
+  }
 }
 
 async function getTeamData(teamId: string): Promise<TeamData> {
