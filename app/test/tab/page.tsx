@@ -23,7 +23,7 @@ const tabs = [
   },
 ];
 
-export default function page() {
+export default function TabTestPage() {
   return (
     <div>
       <TabContainer tabs={tabs} defaultActiveId="2" />
