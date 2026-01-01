@@ -31,7 +31,7 @@ export default function ListCreateModal({ isOpen, onClose }: HandleModalProps) {
         <br />
         목록별 할 일을 만들 수 있습니다.
       </div>
-      <form className="flex felx-col mb-24">
+      <form className="flex flex-col mb-24">
         <Input
           label="목록 이름"
           labelClassName="mb-0 pb-8 text-lg font-medium text-text-primary"
