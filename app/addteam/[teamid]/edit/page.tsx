@@ -33,7 +33,7 @@ export async function generateMetadata({
 
 async function getTeamData(teamId: string): Promise<TeamData> {
   // teamId 유효성 검증
-  if (!teamId || typeof teamId !== "string" || teamId.trim() === "") {
+  if (!teamId || teamId.trim() === "") {
     notFound();
   }
 

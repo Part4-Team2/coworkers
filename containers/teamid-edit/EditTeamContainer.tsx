@@ -66,7 +66,10 @@ export default function EditTeamContainer({
         // 개발 환경: API 미구현 시 blob URL 사용
         if (response.status === 404) {
           console.warn("API가 구현되지 않아 미리보기 URL을 사용합니다.");
-          return previewUrl!; // 훅에서 이미 생성한 blob URL 재사용
+          if (!previewUrl) {
+            throw new Error("미리보기 이미지를 사용할 수 없습니다.");
+          }
+          return previewUrl;
         }
         throw new Error(`이미지 업로드 실패: ${response.status}`);
       }
@@ -83,7 +86,10 @@ export default function EditTeamContainer({
         error.message.includes("Failed to fetch")
       ) {
         console.warn("API 서버에 연결할 수 없어 미리보기 URL을 사용합니다.");
-        return previewUrl!; // 훅에서 이미 생성한 blob URL 재사용
+        if (!previewUrl) {
+          throw new Error("미리보기 이미지를 사용할 수 없습니다.");
+        }
+        return previewUrl;
       }
       throw error;
     }

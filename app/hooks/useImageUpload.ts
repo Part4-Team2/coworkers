@@ -14,7 +14,7 @@ export function useImageUpload(initialImageUrl?: string): UseImageUploadReturn {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previousBlobUrlRef = useRef<string | null>(null);
 
-  // initialImageUrl이 변경되면 자동으로 업데이트
+  // 초기 이미지 URL 설정
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(
     () => initialImageUrl
   );
@@ -67,6 +67,14 @@ export function useImageUpload(initialImageUrl?: string): UseImageUploadReturn {
       fileInputRef.current.value = "";
     }
   };
+
+  // initialImageUrl 변경 시 동기화 (사용자가 새 이미지를 선택하지 않은 경우에만)
+  useEffect(() => {
+    if (!selectedFile) {
+      setPreviewUrl(initialImageUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialImageUrl]);
 
   // cleanup: 컴포넌트 언마운트 시 메모리 해제
   useEffect(() => {
