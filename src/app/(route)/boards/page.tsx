@@ -2,12 +2,12 @@
 
 import clsx from "clsx";
 import { ChangeEvent, useState } from "react";
-import Article from "../../components/Boards/Article";
-import ButtonFloating from "../../components/Common/Button/ButtonFloating";
-import SVGIcon from "../../components/Common/SVGIcon/SVGIcon";
-import Dropdown from "../../components/Common/Dropdown/Dropdown";
-import BoardInput from "../../components/Boards/BoardInput";
-import BestArticle from "../../components/Boards/BestArticle";
+import Article from "../../../components/Boards/Article";
+import ButtonFloating from "../../../components/Common/Button/ButtonFloating";
+import SVGIcon from "../../../components/Common/SVGIcon/SVGIcon";
+import Dropdown from "../../../components/Common/Dropdown/Dropdown";
+import BoardInput from "../../../components/Boards/BoardInput";
+import BestArticle from "../../../components/Boards/BestArticle";
 
 const ARRANGE: string[] = ["최신순", "좋아요 많은순"];
 
