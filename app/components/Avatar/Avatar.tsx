@@ -34,6 +34,8 @@ export default function Avatar({
           <Image
             src={imageUrl}
             alt={altText}
+            width={pixelSize}
+            height={pixelSize}
             className="w-full h-full object-cover"
           />
         ) : (
