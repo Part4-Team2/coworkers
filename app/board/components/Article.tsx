@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import Link from "next/link";
 import Avatar from "@/app/components/Avatar/Avatar";
+import Dropdown from "@/app/components/Dropdown/Dropdown";
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
 
 interface ArticleProps {
@@ -11,6 +12,8 @@ interface ArticleProps {
   avatarImageUrl?: string;
   likeCount: number;
 }
+
+const WRITEOPTIONS = ["수정하기", "삭제하기"];
 
 function Article({
   id,
@@ -50,7 +53,14 @@ function Article({
               handleKebabClick();
             }}
           >
-            <SVGIcon icon="kebabLarge" />
+            <Dropdown
+              options={WRITEOPTIONS}
+              onSelect={handleKebabClick}
+              size="md"
+              trigger="icon"
+              value={WRITEOPTIONS[0]}
+              icon="kebabLarge"
+            />
           </div>
           <div className="flex gap-16 items-center text-slate-400 text-md">
             <div className="flex gap-12 items-center text-text-primary">
