@@ -1,4 +1,5 @@
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
+import Image from "next/image";
 
 const AVATAR_SIZE_MAP = {
   small: 24,
@@ -30,7 +31,7 @@ export default function Avatar({
         style={{ width: pixelSize, height: pixelSize }}
       >
         {imageUrl ? (
-          <img
+          <Image
             src={imageUrl}
             alt={altText}
             className="w-full h-full object-cover"
@@ -53,6 +54,7 @@ export default function Avatar({
   if (isEditable) {
     return (
       <button
+        type="button" // 기본값 type="submit" 방지
         onClick={onEditClick}
         aria-label="아바타 편집"
         className="relative inline-block cursor-pointer hover:opacity-80"

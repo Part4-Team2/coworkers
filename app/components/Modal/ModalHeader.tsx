@@ -1,4 +1,4 @@
-import React from "react";
+import clsx from "clsx";
 import { ModalHeaderProps } from "./types";
 import SVGIcon from "../SVGIcon/SVGIcon";
 import Avatar from "../Avatar/Avatar";
@@ -17,7 +17,7 @@ const ModalHeader = ({
       <SVGIcon
         icon={icon.name}
         size={icon.size || 20}
-        className={icon.className || ""}
+        className={clsx(icon.className)}
       />
     ) : (
       icon
@@ -52,7 +52,7 @@ const ModalHeader = ({
       )}
 
       {descriptions.length > 0 && (
-        <div className={`flex flex-col gap-8 ${title ? "mt-8" : ""}`}>
+        <div className={clsx("flex flex-col gap-8", title && "mt-8")}>
           {descriptions.map((desc, index) => (
             <p
               key={index}

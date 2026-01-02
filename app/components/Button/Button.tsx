@@ -1,11 +1,13 @@
 import React from "react";
+import clsx from "clsx";
 
 export type ButtonVariant =
   | "solid"
   | "outlined"
   | "outlinedSecondary"
   | "danger"
-  | "gradient";
+  | "gradient"
+  | "unselected";
 
 export type ButtonSize = "large" | "xSmall";
 
@@ -15,6 +17,7 @@ export interface ButtonProps {
   size?: ButtonSize;
   full?: boolean;
   width?: string;
+  className?: string;
   disabled?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   type?: "button" | "submit" | "reset";
@@ -41,6 +44,8 @@ const variantClass: Record<ButtonVariant, string> = {
     "bg-status-danger text-text-inverse transition-colors duration-200 hover:bg-red-700 active:bg-red-800 disabled:bg-interaction-inactive",
   gradient:
     "bg-gradient-to-r from-brand-primary to-brand-tertiary text-text-inverse transition-all duration-200 hover:opacity-90 active:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed",
+  unselected:
+    "bg-[#18212f] text-text-default transition-colors duration-200 disabled:text-text-disabled",
 };
 
 const Button: React.FC<ButtonProps> = ({
@@ -49,12 +54,18 @@ const Button: React.FC<ButtonProps> = ({
   size = "large",
   full,
   width,
+  className,
   disabled,
   onClick,
   type = "button",
 }) => {
-  const base = `inline-flex ${variant === "gradient" ? "rounded-[32px]" : "rounded-[12px]"} items-center justify-center font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-[1px] whitespace-nowrap`;
-  const disabledCls = disabled ? "cursor-not-allowed" : "cursor-pointer";
+  const base = clsx(
+    "inline-flex items-center justify-center font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-[1px] whitespace-nowrap",
+    variant === "gradient" ? "rounded-[32px]" : "rounded-[12px]",
+    variant === "unselected" && "border border-[#303d54]",
+    className
+  );
+  const disabledCls = clsx(disabled ? "cursor-not-allowed" : "cursor-pointer");
 
   // full이면 w-full, width prop이 있으면 그 값 사용 (고정 width)
   // width prop이 없으면 min-width만 설정하여 텍스트 길이에 따라 자동으로 커지도록 함
@@ -71,9 +82,14 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`${base} ${full ? "w-full" : ""} ${sizeClass[size]} ${
-        variantClass[variant]
-      } ${bgOverride} ${disabledCls}`.trim()}
+      className={clsx(
+        base,
+        full && "w-full",
+        sizeClass[size],
+        variantClass[variant],
+        bgOverride,
+        disabledCls
+      )}
       style={widthStyle}
       disabled={disabled}
       onClick={onClick}

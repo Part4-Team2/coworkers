@@ -57,3 +57,11 @@ const 사용자이름 = 'john';    // 한글 변수명
 const user = () => {};       // 함수명에 명사 사용
 <div className="bg-[#ff5733]">  // 임의 색상값 사용
 ```
+
+### clsx 컨벤션
+
+non-interactive 페이지는 clsx 적용 X
+non-interactive 페이지는 불필요한 함수 호출로 인해 사용 안하는 것이 선호됨
+
+interactive 페이지는 clsx로 적용
+(코드 통일성을 위함)

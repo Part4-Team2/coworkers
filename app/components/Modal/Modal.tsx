@@ -1,4 +1,4 @@
-import React from "react";
+import clsx from "clsx";
 import BaseModal from "./BaseModal";
 import ModalHeader from "./ModalHeader";
 import ModalFooter from "./ModalFooter";
@@ -63,7 +63,7 @@ const Modal = ({
       onClose={onClose}
       showCloseButton={showCloseButton}
     >
-      <div className={`flex flex-col ${paddingClass}`}>
+      <div className={clsx("flex flex-col", paddingClass)}>
         {/* Header */}
         {hasHeader && (
           <ModalHeader
@@ -76,7 +76,7 @@ const Modal = ({
 
         {/* Input */}
         {hasInput && (
-          <div className={`flex flex-col gap-16 ${headerToContentGap}`}>
+          <div className={clsx("flex flex-col gap-16", headerToContentGap)}>
             {Array.isArray(input)
               ? input.map((inp, idx) => renderInput(inp, idx))
               : input && renderInput(input)}
@@ -85,7 +85,7 @@ const Modal = ({
 
         {/* Contents - Custom */}
         {children && (
-          <div className={!hasInput ? headerToContentGap : "mt-16"}>
+          <div className={clsx(!hasInput ? headerToContentGap : "mt-16")}>
             {children}
           </div>
         )}

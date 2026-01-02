@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import SVGIcon from "@/app/components/SVGIcon/SVGIcon";
 import type { IconMapTypes } from "@/app/components/SVGIcon/iconMap";
+import clsx from "clsx";
 
 export type InputVariant = "default" | "error";
 
@@ -85,22 +86,26 @@ export default function Input({
   const effectiveVariant =
     variant === "error" || showError ? "error" : "default";
 
-  const borderClass = disabled
-    ? "border-border-primary"
-    : effectiveVariant === "error"
-      ? "border-status-danger"
-      : isFocused
-        ? "border-interaction-focus"
-        : "border-border-primary";
+  const borderClass = clsx(
+    disabled
+      ? "border-border-primary"
+      : effectiveVariant === "error"
+        ? "border-status-danger"
+        : isFocused
+          ? "border-interaction-focus"
+          : "border-border-primary"
+  );
 
-  const hoverClass =
-    effectiveVariant !== "error" && !disabled
-      ? "hover:border-interaction-hover"
-      : "";
+  const hoverClass = clsx(
+    effectiveVariant !== "error" &&
+      !disabled &&
+      "hover:border-interaction-hover"
+  );
 
-  const disabledCls = disabled
-    ? "text-text-disabled bg-background-tertiary border-border-primary cursor-not-allowed"
-    : "";
+  const disabledCls = clsx(
+    disabled &&
+      "text-text-disabled bg-background-tertiary border-border-primary cursor-not-allowed"
+  );
 
   // 기본 width는 size에 따라, full이면 w-full, width prop이 있으면 그 값 사용
   // maxWidth를 100%로 설정하여 부모 영역을 벗어나지 않도록 함
@@ -110,7 +115,7 @@ export default function Input({
       ? { width, maxWidth: "100%" }
       : { width: defaultWidth[size], maxWidth: "100%" };
 
-  const inputPaddingRight = hasTrailing ? "pr-12" : "pr-4";
+  const inputPaddingRight = clsx(hasTrailing ? "pr-12" : "pr-4");
 
   const showClear = Boolean(clearable && !disabled && rest.value);
   const showPwdToggle = Boolean(type === "password" && allowPasswordToggle);
@@ -126,22 +131,38 @@ export default function Input({
   };
 
   return (
-    <div className={full ? "w-full" : ""} style={widthStyle}>
+    <div className={clsx(full && "w-full")} style={widthStyle}>
       {label && (
         <label
-          className={`mb-2 block text-md text-text-primary pb-3 ${labelClassName ?? ""}`}
+          className={clsx(
+            "block",
+            labelClassName ?? "mb-2 text-sm text-text-secondary"
+          )}
         >
           {label}
         </label>
       )}
       <div
-        className={`${baseWrapper} ${sizeClass[size]} ${borderClass} ${hoverClass} ${disabledCls} ${className ?? ""}`.trim()}
+        className={clsx(
+          baseWrapper,
+          sizeClass[size],
+          borderClass,
+          hoverClass,
+          disabledCls,
+          className
+        )}
       >
         <input
           ref={ref}
           type={derivedType}
           disabled={disabled}
-          className={`w-full bg-transparent outline-none ${disabled ? "placeholder:text-text-disabled text-text-disabled" : ""} "placeholder:text-text-default" ${inputPaddingRight}`}
+          className={clsx(
+            "w-full bg-transparent outline-none",
+            disabled
+              ? "placeholder:text-text-disabled text-text-disabled"
+              : "placeholder:text-text-default",
+            inputPaddingRight
+          )}
           {...rest}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -196,9 +217,10 @@ export default function Input({
       </div>
       {message && (
         <p
-          className={`mt-2 text-xs ${
+          className={clsx(
+            "mt-2 text-xs",
             showError ? "text-status-danger" : "text-text-default"
-          }`}
+          )}
         >
           {message}
         </p>

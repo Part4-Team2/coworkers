@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 
 export type ButtonVariant = "solid" | "outlined";
 
@@ -9,6 +10,7 @@ export interface ButtonProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
   full?: boolean;
+  className?: string;
   width?: string;
   icon?: React.ReactNode; // Changed to React.ReactNode to allow more flexible icon content
   disabled?: boolean;
@@ -39,14 +41,17 @@ const ButtonFloating: React.FC<ButtonProps> = ({
   size = "medium",
   full,
   width,
+  className,
   icon,
   disabled,
   onClick,
   type = "button",
 }) => {
-  const base =
-    "inline-flex items-center justify-center rounded-full font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-1 whitespace-nowrap";
-  const disabledCls = disabled ? "cursor-not-allowed" : "cursor-pointer";
+  const base = clsx(
+    "inline-flex items-center justify-center rounded-full font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-1 whitespace-nowrap",
+    className
+  );
+  const disabledCls = clsx(disabled ? "cursor-not-allowed" : "cursor-pointer");
 
   // full이면 w-full, width prop이 있으면 그 값 사용 (고정 width)
   // width prop이 없으면 min-width만 설정하여 텍스트 길이에 따라 자동으로 커지도록 함
@@ -59,9 +64,13 @@ const ButtonFloating: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`${base} ${full ? "w-full" : ""} ${sizeClass[size]} ${
-        variantClass[variant]
-      } ${disabledCls}`.trim()}
+      className={clsx(
+        base,
+        full && "w-full",
+        sizeClass[size],
+        variantClass[variant],
+        disabledCls
+      )}
       style={widthStyle}
       disabled={disabled}
       onClick={onClick}
@@ -69,7 +78,9 @@ const ButtonFloating: React.FC<ButtonProps> = ({
     >
       {icon ? (
         <span
-          className={`mr-2 inline-flex items-center justify-center rounded-full text-[12px] font-bold`}
+          className={clsx(
+            "mr-2 inline-flex items-center justify-center rounded-full text-[12px] font-bold"
+          )}
         >
           {icon}
         </span>
