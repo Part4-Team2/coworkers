@@ -22,7 +22,7 @@ function BestArticle({
   likeCount,
 }: BestArticleProps) {
   return (
-    <Link href={`/board/${id}`}>
+    <Link href={`/boards/${id}`}>
       <div
         className={clsx(
           "bg-background-secondary hover:bg-background-tertiary",

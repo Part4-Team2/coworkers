@@ -28,7 +28,7 @@ function Article({
   };
 
   return (
-    <Link href={`/board/${id}`}>
+    <Link href={`/boards/${id}`}>
       <div
         className={clsx(
           "w-343 h-162 sm:w-696 sm:h-176 lg:w-590",
