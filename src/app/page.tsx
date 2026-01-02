@@ -2,8 +2,8 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-import ButtonFloating from "../components/Common/Button/ButtonFloating";
-import SVGIcon from "../components/Common/SVGIcon/SVGIcon";
+import ButtonFloating from "@/components/Common/Button/ButtonFloating";
+import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 
 export default function Home() {
   // 함수는 추후 navigating으로 변경됩니다.

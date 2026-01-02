@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import Header from "../components/Common/Header/Header";
+import Header from "@/components/Common/Header/Header";
 
 // metadataBase는 상대 경로를 절대 URL로 변환하기 위한 기본 URL 설정
 export const metadata: Metadata = {
