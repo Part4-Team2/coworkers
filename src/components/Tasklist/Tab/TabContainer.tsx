@@ -46,7 +46,7 @@ export default function TabContainer({
             aria-labelledby={`tab-${tab.id}`}
             hidden={activeTabId !== tab.id}
           >
-            {tab.content}
+            {activeTabId === tab.id && tab.content}
           </div>
         ))}
       </div>
