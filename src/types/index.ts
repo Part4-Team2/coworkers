@@ -12,3 +12,9 @@ export interface Member {
   email: string;
   imageUrl?: string;
 }
+
+export interface TabItem {
+  id: string;
+  title: string;
+  content: React.ReactNode;
+}
