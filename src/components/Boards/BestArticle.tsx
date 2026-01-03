@@ -22,7 +22,7 @@ function BestArticle({
   likeCount,
 }: BestArticleProps) {
   return (
-    <Link href={`/board/${id}`}>
+    <Link href={`/boards/${id}`}>
       <div
         className={clsx(
           "bg-background-secondary hover:bg-background-tertiary",
@@ -35,7 +35,7 @@ function BestArticle({
           {/* 제목, 날짜 영역 */}
           <div className="flex flex-col gap-14">
             <div className="flex gap-4">
-              <SVGIcon icon="progressDone" />
+              <SVGIcon icon="medal" />
               <span className="text-white">Best</span>
             </div>
             <div className="flex flex-col gap-12">
@@ -58,7 +58,7 @@ function BestArticle({
               </div>
               <div className={clsx("flex gap-4 items-center")}>
                 <span>
-                  <SVGIcon icon="done" size="xxs" />
+                  <SVGIcon icon="heart" size="xxs" />
                 </span>
                 <span>{likeCount > 9999 ? "9999+" : likeCount}</span>
               </div>

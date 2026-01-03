@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Header from "@/components/Common/Header/Header";
-
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import Button from "@/components/Common/Button/Button";
 
@@ -12,11 +10,13 @@ const TEST2: string[] = ["수정하기", "삭제하기"];
 
 export default function DropdownPage() {
   const [test, setTest] = useState(TEST[0]);
-  const [test2, setTest2] = useState(TEST2[0]);
+
+  const handleListClick = (value: string) => {
+    console.log(value);
+  };
 
   return (
     <div>
-      <Header />
       <div className="flex flex-col justify-center gap-20 items-center min-h-screen">
         <Dropdown
           options={TEST}
@@ -29,11 +29,11 @@ export default function DropdownPage() {
         <Button label="z-index test" />
         <Dropdown
           options={TEST2}
-          onSelect={setTest2}
+          onSelect={handleListClick}
           size="md"
           trigger="icon"
-          value={test2}
-          icon="kebabLarge"
+          icon="gear"
+          listPosition="top-full right-0"
         />
       </div>
     </div>
