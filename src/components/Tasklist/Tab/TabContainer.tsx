@@ -2,12 +2,7 @@
 
 import { useState } from "react";
 import Tab from "./Tab";
-
-interface TabItem {
-  id: string;
-  title: string;
-  content: React.ReactNode;
-}
+import { TabItem } from "@/types";
 
 interface TabContainerProps {
   tabs: TabItem[];
