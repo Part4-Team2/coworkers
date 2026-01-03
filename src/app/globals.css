@@ -84,13 +84,6 @@
   --color-icon-brand: #10b981;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 @layer utilities {
   .font-regular {
     font-family: "Pretendard", sans-serif;
