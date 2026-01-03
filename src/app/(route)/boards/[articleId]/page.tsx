@@ -3,8 +3,9 @@
 import clsx from "clsx";
 import Avatar from "@/components/Common/Avatar/Avatar";
 import Button from "@/components/Common/Button/Button";
-import InputBox from "@/components/Common/Input/InputBox";
+import Comment from "@/components/Boards/Comment";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
+import InputBox from "@/components/Common/Input/InputBox";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 
 const ARTICLEDATA = ["수정하기", "삭제하기"];
@@ -21,7 +22,16 @@ type AtricleMockdata = {
   isLiked: boolean;
 };
 
-const MOCKDATA01: AtricleMockdata = {
+// 댓글 목데이터입니다.
+type CommentMockdata = {
+  commentId: number;
+  content: string;
+  createdAt: string;
+  nickname: string;
+  avatarImageUrl?: string;
+};
+
+const ARTICLE: AtricleMockdata = {
   id: 1,
   nickname: "우지은",
   title: "게시글 제목입니다.",
@@ -32,8 +42,35 @@ const MOCKDATA01: AtricleMockdata = {
   isLiked: false,
 };
 
+const COMMENT01: CommentMockdata = {
+  commentId: 1,
+  content: "This is comment section",
+  createdAt: "2025.12.30",
+  nickname: "우지우",
+  avatarImageUrl: undefined,
+};
+
+const COMMENT02: CommentMockdata = {
+  commentId: 2,
+  content: "This is comment section",
+  createdAt: "2025.12.30",
+  nickname: "우지박",
+  avatarImageUrl: undefined,
+};
+
+const COMMENT03: CommentMockdata = {
+  commentId: 3,
+  content: "This is comment section",
+  createdAt: "2025.12.30",
+  nickname: "우지호우",
+  avatarImageUrl: undefined,
+};
+
+const COMMENTLISTS = [COMMENT01, COMMENT02, COMMENT03];
+
 function ArticlePage() {
-  const article = MOCKDATA01;
+  const article = ARTICLE;
+  const comments = COMMENTLISTS;
 
   // 게시글 수정하기 삭제하기를 다루는 임시함수 입니다.
   const handleArticleClick = () => {
@@ -53,9 +90,13 @@ function ArticlePage() {
   const renderComment = () => {
     if (article.commentCount > 0) {
       return (
-        <div className={clsx("mt-158 text-base text-text-default")}>
-          아직 작성된 댓글이 없습니다.
-        </div>
+        <>
+          {comments.map((comment) => (
+            <div className="pb-16" key={comment.commentId}>
+              <Comment />
+            </div>
+          ))}
+        </>
       );
     }
 
