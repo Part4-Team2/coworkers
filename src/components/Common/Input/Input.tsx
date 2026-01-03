@@ -86,15 +86,13 @@ export default function Input({
   const effectiveVariant =
     variant === "error" || showError ? "error" : "default";
 
-  const borderClass = clsx(
-    disabled
-      ? "border-border-primary"
-      : effectiveVariant === "error"
-        ? "border-status-danger"
-        : isFocused
-          ? "border-interaction-focus"
-          : "border-border-primary"
-  );
+  const borderClass = clsx({
+    "border-border-primary":
+      disabled || (!isFocused && effectiveVariant !== "error"),
+    "border-status-danger": !disabled && effectiveVariant === "error",
+    "border-interaction-focus":
+      !disabled && isFocused && effectiveVariant !== "error",
+  });
 
   const hoverClass = clsx(
     effectiveVariant !== "error" &&
