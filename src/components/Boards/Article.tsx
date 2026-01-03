@@ -23,8 +23,9 @@ function Article({
   avatarImageUrl,
   likeCount,
 }: ArticleProps) {
-  const handleKebabClick = () => {
-    console.log("kebab click");
+  const handleKebabClick = (value: string) => {
+    if (value === WRITEOPTIONS[0]) console.log("수정하기 누름");
+    else console.log("삭제하기 누름");
   };
 
   return (
@@ -50,7 +51,6 @@ function Article({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              handleKebabClick();
             }}
           >
             <Dropdown

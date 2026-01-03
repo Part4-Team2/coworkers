@@ -15,7 +15,7 @@ const WRITEOPTIONS = ["삭제하기"];
 
 function Comment() {
   const handleEditClick = () => {
-    console.log("수정하기");
+    console.log("삭제하기");
   };
 
   return (

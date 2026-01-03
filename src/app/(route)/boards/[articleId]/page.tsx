@@ -73,12 +73,8 @@ function ArticlePage() {
   const comments = COMMENTLISTS;
 
   // 게시글 수정하기 삭제하기를 다루는 임시함수 입니다.
-  const handleArticleClick = () => {
-    if (ARTICLEDATA[0]) {
-      console.log("수정하기");
-    } else {
-      console.log("삭제하기");
-    }
+  const handleArticleClick = (value: string) => {
+    console.log(value);
   };
 
   // 댓글 작성 후 버튼을 누르면 처리되는 함수입니다.
@@ -131,6 +127,7 @@ function ArticlePage() {
                 size="md"
                 trigger="icon"
                 icon="kebabLarge"
+                listPosition="top-full right-0"
               />
             </span>
           </div>
