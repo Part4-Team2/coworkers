@@ -23,7 +23,7 @@ function BoardInput({ value, onChange }: BoardInputProps) {
       <div className="flex gap-12">
         {/* 아이콘은 추후에 돋보기 모양으로 변경 예정 */}
         <div>
-          <SVGIcon icon="comment" />
+          <SVGIcon icon="search" />
         </div>
         <input
           type="text"

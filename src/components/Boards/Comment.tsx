@@ -13,7 +13,13 @@ interface CommentProps {
 
 const WRITEOPTIONS = ["삭제하기"];
 
-function Comment() {
+function Comment({
+  commentId,
+  content,
+  createdAt,
+  nickname,
+  avatarImageUrl,
+}: CommentProps) {
   const handleEditClick = () => {
     console.log("삭제하기");
   };
@@ -35,7 +41,7 @@ function Comment() {
               "overflow-hidden text-ellipsis line-clamp-1"
             )}
           >
-            This is comment section.
+            {content}
           </span>
           <Dropdown
             options={WRITEOPTIONS}
@@ -47,10 +53,10 @@ function Comment() {
           />
         </div>
         <div className="flex items-center gap-16 text-sm">
-          <Avatar imageUrl={undefined} altText="profile" size="large" />
-          <span className="text-text-primary">우지은</span>
+          <Avatar imageUrl={avatarImageUrl} altText="profile" size="large" />
+          <span className="text-text-primary">{nickname}</span>
           <span className="text-slate-700">|</span>
-          <span className="text-slate-400">2025.12.29</span>
+          <span className="text-slate-400">{createdAt}</span>
         </div>
       </div>
     </div>

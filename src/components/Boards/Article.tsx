@@ -76,7 +76,7 @@ function Article({
               <span>{createdAt}</span>
               <div className={clsx("flex gap-4 items-center")}>
                 <span>
-                  <SVGIcon icon="done" size="xxs" />
+                  <SVGIcon icon="heart" size="xxs" />
                 </span>
                 <span>{likeCount > 9999 ? "9999+" : likeCount}</span>
               </div>

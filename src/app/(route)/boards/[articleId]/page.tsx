@@ -38,7 +38,7 @@ const ARTICLE: AtricleMockdata = {
   content: "본문에 들어가는 영역입니다.",
   createdAt: "2025.12.29",
   likeCount: 10000,
-  commentCount: 0,
+  commentCount: 3,
   isLiked: false,
 };
 
@@ -89,7 +89,13 @@ function ArticlePage() {
         <>
           {comments.map((comment) => (
             <div className="pb-16" key={comment.commentId}>
-              <Comment />
+              <Comment
+                commentId={comment.commentId}
+                content={comment.content}
+                createdAt={comment.createdAt}
+                nickname={comment.nickname}
+                avatarImageUrl={comment.avatarImageUrl}
+              />
             </div>
           ))}
         </>
