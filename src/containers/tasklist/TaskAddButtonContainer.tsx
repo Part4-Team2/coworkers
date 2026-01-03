@@ -5,7 +5,7 @@ import ButtonFloating from "@/components/Common/Button/ButtonFloating";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { useState } from "react";
 
-const TaskAddButtonContainer = () => {
+export default function TaskAddButtonContainer() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleAddTaskButton = () => {
@@ -28,6 +28,4 @@ const TaskAddButtonContainer = () => {
       <TaskCreateModal isOpen={isModalOpen} onClose={handleModalClose} />
     </>
   );
-};
-
-export default TaskAddButtonContainer;
+}
