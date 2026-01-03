@@ -65,7 +65,7 @@ export default function TaskListPage() {
         </div>
         <TabContainer tabs={tabsMock} defaultActiveId="2" />
       </div>
-      <div className="fixed bottom-50 right-50 z-50 right-[max(1.5rem,calc(50%-600px+1.5rem))]">
+      <div className="fixed bottom-50 z-50 right-[max(1.5rem,calc(50%-600px+1.5rem))]">
         <TaskAddButtonContainer />
       </div>
     </div>
