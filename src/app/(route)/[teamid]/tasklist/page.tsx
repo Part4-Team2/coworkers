@@ -2,27 +2,29 @@ import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import TabContainer from "@/components/Tasklist/Tab/TabContainer";
 import ListAddButtonContainer from "@/containers/tasklist/ListAddButtonContainer";
 import TaskAddButtonContainer from "@/containers/tasklist/TaskAddButtonContainer";
+import TaskListContainer from "@/containers/tasklist/TaskListContainer";
+import { TabItem } from "@/types";
 
-const tabsMock = [
+const tabsMock: TabItem[] = [
   {
     id: "1",
     title: "법인 설립",
-    content: <div>법인 설립 탭 내용</div>,
+    content: <TaskListContainer tabId={1} />,
   },
   {
     id: "2",
     title: "법인 등록",
-    content: <div>법인 등록 탭 내용</div>,
+    content: <TaskListContainer tabId={2} />,
   },
   {
     id: "3",
     title: "정기 주총",
-    content: <div>정기 주총 탭 내용</div>,
+    content: <TaskListContainer tabId={3} />,
   },
   {
     id: "4",
     title: "기타",
-    content: <div>기타 탭 내용</div>,
+    content: <TaskListContainer tabId={4} />,
   },
 ];
 
