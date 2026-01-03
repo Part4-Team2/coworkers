@@ -21,7 +21,7 @@ function Comment({
   avatarImageUrl,
 }: CommentProps) {
   const handleEditClick = () => {
-    console.log("삭제하기");
+    console.log(`${commentId} 댓글 삭제하기`);
   };
 
   return (

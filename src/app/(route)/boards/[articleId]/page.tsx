@@ -11,7 +11,7 @@ import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 const ARTICLEDATA = ["수정하기", "삭제하기"];
 
 // 게시글에 있는 데이터와 상세 게시글에 받는 데이터가 다릅니다.
-type AtricleMockdata = {
+type ArticleMockdata = {
   id: number;
   nickname: string;
   title: string;
@@ -31,7 +31,7 @@ type CommentMockdata = {
   avatarImageUrl?: string;
 };
 
-const ARTICLE: AtricleMockdata = {
+const ARTICLE: ArticleMockdata = {
   id: 1,
   nickname: "우지은",
   title: "게시글 제목입니다.",
