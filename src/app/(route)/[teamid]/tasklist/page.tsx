@@ -49,7 +49,7 @@ const tabsMock: TabItem[] = [
 
 export default function TaskListPage() {
   return (
-    <div className="relative max-w-[1200px] mx-auto my-0 sm: px-24">
+    <div className="relative max-w-[1200px] mx-auto my-0 sm:px-24">
       <div className="flex flex-col gap-24">
         <div className="text-xl font-bold mt-40">할 일</div>
         <div className="flex justify-between">
