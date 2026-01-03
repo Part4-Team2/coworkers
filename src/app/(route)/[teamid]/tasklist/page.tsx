@@ -7,21 +7,21 @@ import { TabItem } from "@/types";
 import { Metadata } from "next";
 
 // api 연동 이후 수정될 수 있습니다.
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ groupId?: string }>;
-}): Promise<Metadata> {
-  const { groupId } = await params;
-  return {
-    title: `Coworkers : ${groupId}팀 리스트 페이지`,
-    description: `${groupId}팀의 할 일 리스트를 확인할 수 있는 페이지입니다.`,
-    openGraph: {
-      title: `Coworkers : ${groupId}팀 리스트 페이지`,
-      description: `${groupId}팀의 할 일 리스트를 확인할 수 있는 페이지입니다.`,
-    },
-  };
-}
+// export async function generateMetadata({
+//   params,
+// }: {
+//   params: Promise<{ groupId?: string }>;
+// }): Promise<Metadata> {
+//   const { groupId } = await params;
+//   return {
+//     title: `Coworkers : ${groupId}팀 리스트 페이지`,
+//     description: `${groupId}팀의 할 일 리스트를 확인할 수 있는 페이지입니다.`,
+//     openGraph: {
+//       title: `Coworkers : ${groupId}팀 리스트 페이지`,
+//       description: `${groupId}팀의 할 일 리스트를 확인할 수 있는 페이지입니다.`,
+//     },
+//   };
+// }
 
 const tabsMock: TabItem[] = [
   {
