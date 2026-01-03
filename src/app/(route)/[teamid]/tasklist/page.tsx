@@ -28,22 +28,22 @@ const tabsMock: TabItem[] = [
   {
     id: "1",
     title: "법인 설립",
-    content: <TaskListContainer tabId={1} />,
+    content: <TaskListContainer tabId="1" />,
   },
   {
     id: "2",
     title: "법인 등록",
-    content: <TaskListContainer tabId={2} />,
+    content: <TaskListContainer tabId="2" />,
   },
   {
     id: "3",
     title: "정기 주총",
-    content: <TaskListContainer tabId={3} />,
+    content: <TaskListContainer tabId="3" />,
   },
   {
     id: "4",
     title: "기타",
-    content: <TaskListContainer tabId={4} />,
+    content: <TaskListContainer tabId="4" />,
   },
 ];
 

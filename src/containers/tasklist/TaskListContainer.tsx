@@ -7,7 +7,7 @@ interface Task {
   id: string;
   content: string;
   isToggle: boolean;
-  tabId: number;
+  tabId: string;
 }
 
 interface TaskMetadata extends Task {
@@ -17,14 +17,14 @@ interface TaskMetadata extends Task {
 }
 
 interface TaskListProps {
-  tabId: number;
+  tabId: string;
   initialTasks?: TaskMetadata[];
 }
 
 const MOCK_TASKS: TaskMetadata[] = [
   {
     id: "1",
-    tabId: 2,
+    tabId: "2",
     content: "법인 설립 안내 드리기",
     isToggle: true,
     commentCount: 3,
@@ -33,7 +33,7 @@ const MOCK_TASKS: TaskMetadata[] = [
   },
   {
     id: "2",
-    tabId: 2,
+    tabId: "2",
     content: "법인 설립 혹은 변경 등기 비용 안내 드리기",
     isToggle: false,
     commentCount: 3,
@@ -42,7 +42,7 @@ const MOCK_TASKS: TaskMetadata[] = [
   },
   {
     id: "3",
-    tabId: 2,
+    tabId: "2",
     content: "입력해주신 정보를 바탕으로 등기신청서 제출하기",
     isToggle: false,
     commentCount: 3,
