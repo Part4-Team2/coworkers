@@ -145,9 +145,7 @@ export default function TaskCreateModal({
                           label="오전"
                           width="78px"
                           variant={
-                            startTime.getHours() < 12
-                              ? "solid"
-                              : "outlinedSecondary"
+                            startTime.getHours() < 12 ? "solid" : "unselected"
                           }
                           onClick={() => {
                             const newTime = new Date(startTime);
@@ -162,9 +160,7 @@ export default function TaskCreateModal({
                           label="오후"
                           width="78px"
                           variant={
-                            startTime.getHours() >= 12
-                              ? "solid"
-                              : "outlinedSecondary"
+                            startTime.getHours() >= 12 ? "solid" : "unselected"
                           }
                           onClick={() => {
                             const newTime = new Date(startTime);
