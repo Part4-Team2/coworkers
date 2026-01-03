@@ -22,6 +22,14 @@ export default function TabContainer({
     defaultActiveId || tabs[0]?.id
   );
 
+  if (!tabs || tabs.length === 0) {
+    return (
+      <div className="text-text-default text-center mx-auto my-0 p-100">
+        아직 할 일 목록이 없습니다. <br /> 새로운 목록을 추가해주세요.
+      </div>
+    );
+  }
+
   return (
     <div>
       <div role="tablist" className="flex gap-12">
