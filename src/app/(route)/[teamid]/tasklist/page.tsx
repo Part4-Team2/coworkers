@@ -19,7 +19,6 @@ export async function generateMetadata({
     openGraph: {
       title: `Coworkers : ${groupId}팀 리스트 페이지`,
       description: `${groupId}팀의 할 일 리스트를 확인할 수 있는 페이지입니다.`,
-      images: ["@/opengraph-image.png"],
     },
   };
 }
