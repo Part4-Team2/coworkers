@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import Avatar from "../Common/Avatar/Avatar";
 import SVGIcon from "../Common/SVGIcon/SVGIcon";
