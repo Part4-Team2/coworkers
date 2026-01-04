@@ -48,7 +48,9 @@ function Header() {
             </div>
           )}
           {isLogin && (
-            <div className="hidden sm:block cursor-pointer">자유게시판</div>
+            <Link href="/boards" className="hidden sm:block cursor-pointer">
+              자유게시판
+            </Link>
           )}
         </div>
         {/* 팀명 옆 토글 버튼을 누르면 사이드바가 나옵니다 */}

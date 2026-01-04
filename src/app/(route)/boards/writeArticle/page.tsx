@@ -4,12 +4,14 @@ import clsx from "clsx";
 import Button from "@/components/Common/Button/Button";
 import Input from "@/components/Common/Input/Input";
 import InputBox from "@/components/Common/Input/InputBox";
+import ArticleImageUpload from "@/components/Boards/ArticleImageUpload";
 import { useState } from "react";
 
+// 게시글을 작성할 수 있는 페이지입니다. (이미 작성된 페이지의 경우 수정할 수 있습니다...)
 function WriteArticle() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  // const [articleImage, setArticleImage] = useState("");
+  const [articleImage, setArticleImage] = useState<File | string | null>(null);
 
   // 게시글 작성하고 등록하면 작동하는 함수입니다.
   const handleSubmitClick = () => {
@@ -58,8 +60,12 @@ function WriteArticle() {
             />
           </section>
           {/* 이미지 영역 */}
-          <section>
+          <section className="flex flex-col gap-16">
             <div>이미지</div>
+            <ArticleImageUpload
+              image={typeof articleImage === "string" ? articleImage : null}
+              onChange={(file) => setArticleImage(file)}
+            />
           </section>
         </main>
       </div>
