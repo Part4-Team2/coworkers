@@ -1,12 +1,15 @@
 import { memo } from "react";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+import Dropdown from "@/components/Common/Dropdown/Dropdown";
+import { useBlurActiveElement } from "@/hooks/useBlurActiveElement";
 
 interface TodoItemProps {
   name: string;
   completedCount: number;
   totalCount: number;
   color: string;
-  onMenuClick?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 const PROGRESS_CIRCLE_SIZE = 14;
@@ -55,18 +58,30 @@ const TodoItem = memo(function TodoItem({
   completedCount,
   totalCount,
   color,
-  onMenuClick,
+  onEdit,
+  onDelete,
 }: TodoItemProps) {
+  const blurActiveElement = useBlurActiveElement();
   const isCompleted = completedCount === totalCount;
   const percentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
+  const handleSelect = (value: string) => {
+    blurActiveElement();
+
+    if (value === "수정하기" && onEdit) {
+      onEdit();
+    } else if (value === "삭제하기" && onDelete) {
+      onDelete();
+    }
+  };
+
   return (
     <div
-      className="flex items-center h-40 rounded-xl bg-background-secondary overflow-hidden"
+      className="flex items-center h-40 rounded-xl bg-background-secondary"
       role="listitem"
     >
       <div
-        className="w-12 h-full shrink-0"
+        className="w-12 h-full shrink-0 rounded-l-xl overflow-hidden"
         style={{ backgroundColor: color || FALLBACK_COLOR }}
       />
 
@@ -96,14 +111,14 @@ const TodoItem = memo(function TodoItem({
           </div>
 
           {/* 케밥 메뉴 */}
-          <button
-            type="button"
-            onClick={onMenuClick}
-            className="flex items-center justify-center cursor-pointer"
-            aria-label="할 일 메뉴"
-          >
-            <SVGIcon icon="kebabSmall" />
-          </button>
+          <Dropdown
+            options={["수정하기", "삭제하기"]}
+            onSelect={handleSelect}
+            size="md"
+            trigger="icon"
+            icon="kebabSmall"
+            listPosition="top-[calc(100%+8px)] right-0"
+          />
         </div>
       </div>
     </div>

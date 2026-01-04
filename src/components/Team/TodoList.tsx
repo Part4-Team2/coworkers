@@ -3,10 +3,11 @@ import { Todo } from "@/types";
 
 interface TodoListProps {
   todos: Todo[];
-  onMenuClick?: (todoId: number) => void;
+  onEdit?: (todoId: number) => void;
+  onDelete?: (todoId: number) => void;
 }
 
-export default function TodoList({ todos, onMenuClick }: TodoListProps) {
+export default function TodoList({ todos, onEdit, onDelete }: TodoListProps) {
   if (todos.length === 0) {
     return (
       <div className="text-center pt-48 lg:pt-64 text-text-default text-md font-medium">
@@ -24,7 +25,8 @@ export default function TodoList({ todos, onMenuClick }: TodoListProps) {
           completedCount={todo.completedCount}
           totalCount={todo.totalCount}
           color={todo.color}
-          onMenuClick={() => onMenuClick?.(todo.id)}
+          onEdit={() => onEdit?.(todo.id)}
+          onDelete={() => onDelete?.(todo.id)}
         />
       ))}
     </div>

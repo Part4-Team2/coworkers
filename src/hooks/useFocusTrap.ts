@@ -8,7 +8,6 @@ interface UseFocusTrapOptions {
   isActive: boolean;
   containerRef: React.RefObject<HTMLElement | null>;
   onEscape?: () => void;
-  excludeInitialFocusSelector?: string;
 }
 
 /**
@@ -17,13 +16,11 @@ interface UseFocusTrapOptions {
  * @param isActive
  * @param containerRef - 포커스를 가둘 컨테이너 요소의 ref
  * @param onEscape - ESC 키 누를 때 콜백
- * @param excludeInitialFocusSelector - 초기 포커스에서 제외할 요소의 선택자 (예: [aria-label="닫기"])
  */
 export const useFocusTrap = ({
   isActive,
   containerRef,
   onEscape,
-  excludeInitialFocusSelector,
 }: UseFocusTrapOptions) => {
   const initialFocusSetRef = useRef(false);
 
@@ -55,15 +52,18 @@ export const useFocusTrap = ({
         const focusables = getFocusableElements();
         if (!focusables) return;
 
-        // 제외할 요소가 아닌 첫 번째 요소 찾기
-        const targetElement = excludeInitialFocusSelector
-          ? (Array.from(focusables.all).find(
-              (el) => !el.matches(excludeInitialFocusSelector)
-            ) as HTMLElement | undefined)
-          : undefined;
+        // input, select, textarea가 있으면 그것에 포커스 (버튼만 있으면 포커스 안 함)
+        const inputElement = Array.from(focusables.all).find(
+          (el) =>
+            el.tagName === "INPUT" ||
+            el.tagName === "TEXTAREA" ||
+            el.tagName === "SELECT"
+        ) as HTMLElement | undefined;
 
-        const elementToFocus = targetElement || focusables.first;
-        elementToFocus?.focus();
+        if (inputElement) {
+          inputElement.focus();
+        }
+
         initialFocusSetRef.current = true;
       }, 0);
     }
@@ -105,5 +105,5 @@ export const useFocusTrap = ({
       if (focusTimeoutId) clearTimeout(focusTimeoutId);
       document.removeEventListener("keydown", handleKeydown);
     };
-  }, [isActive, containerRef, onEscape, excludeInitialFocusSelector]);
+  }, [isActive, containerRef, onEscape]);
 };

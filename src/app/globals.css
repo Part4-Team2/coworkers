@@ -258,3 +258,23 @@ body {
   width: 3px;
   border-radius: 2px;
 }
+
+/* TeamId 페이지 전용 드롭다운 스타일 */
+.teamid-page .relative > ul.absolute {
+  width: 120px;
+  height: 80px;
+  border: 1px solid var(--color-border-primary);
+}
+
+.teamid-page .relative > ul.absolute li {
+  cursor: pointer;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 16px;
+  padding-right: 16px;
+  font-size: 14px;
+  line-height: 17px;
+  color: var(--color-text-primary);
+}

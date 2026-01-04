@@ -6,7 +6,12 @@ import Header from "@/components/Common/Header/Header";
 
 // metadataBase는 상대 경로를 절대 URL로 변환하기 위한 기본 URL 설정
 export const metadata: Metadata = {
-  metadataBase: new URL("https://coworkers.com"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : "https://coworkers-eight.vercel.app")
+  ),
   title: {
     default: "Coworkers - 팀 협업 관리 서비스",
     template: "%s | Coworkers", // 하위 페이지에서 %s가 title로 대체됨

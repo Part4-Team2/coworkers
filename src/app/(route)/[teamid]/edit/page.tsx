@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import EditTeamContainer from "@/containers/teamid-edit/EditTeamContainer";
+import EditTeamContainer from "@/containers/editteam/EditTeamContainer";
 
 interface PageProps {
   params: Promise<{ teamid: string }>;

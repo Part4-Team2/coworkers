@@ -115,7 +115,7 @@ export default function EditTeamContainer({
       // TODO: 실제 팀 수정 API 호출
       // const response = await updateTeamAPI(teamId, updateData);
       // if (response.success) {
-      //   router.push(`/addteam/${teamId}`);
+      //   router.push(`/${teamId}`);
       // } else if (response.error === "duplicate") {
       //   setError("teamName", {
       //     type: "manual",
@@ -126,7 +126,7 @@ export default function EditTeamContainer({
 
       // 임시: 성공 시 팀 페이지로 이동
       console.log("팀 수정 시도:", { teamId, ...updateData });
-      router.push(`/addteam/${teamId}`);
+      router.push(`/${teamId}`);
     } catch (error) {
       console.error("팀 수정 실패:", error);
 
