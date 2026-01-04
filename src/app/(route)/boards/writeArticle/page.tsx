@@ -11,11 +11,13 @@ import { useState } from "react";
 function WriteArticle() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [articleImage, setArticleImage] = useState<File | string | null>(null);
+  const [articleImageUrl, setArticleImageUrl] = useState<string | null>(null);
+  const [articleImageFile, setArticleImageFile] = useState<File | null>(null);
 
   // 게시글 작성하고 등록하면 작동하는 함수입니다.
   const handleSubmitClick = () => {
     console.log("Submit Button");
+    console.log(articleImageFile);
   };
 
   return (
@@ -65,8 +67,13 @@ function WriteArticle() {
           <section className="flex flex-col gap-16">
             <div>이미지</div>
             <ArticleImageUpload
-              image={typeof articleImage === "string" ? articleImage : null}
-              onChange={(file) => setArticleImage(file)}
+              image={
+                typeof articleImageUrl === "string" ? articleImageUrl : null
+              }
+              onChange={(file, previewUrl) => {
+                setArticleImageFile(file);
+                setArticleImageUrl(previewUrl);
+              }}
             />
           </section>
           <div className="flex justify-center sm:hidden">

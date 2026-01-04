@@ -59,7 +59,7 @@ function BoardPage() {
 
   // 추후 함수는 글쓰기 페이지로 이동할 예정입니다.
   const handleWriteClick = () => {
-    router.push("boards/writeArticle");
+    router.push("/boards/writeArticle");
   };
 
   // 더보기 문구 클릭시 작동하는 함수입니다.

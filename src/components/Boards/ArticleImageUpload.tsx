@@ -3,20 +3,19 @@
 import clsx from "clsx";
 import Image from "next/image";
 import SVGIcon from "../Common/SVGIcon/SVGIcon";
-import { useState, useRef } from "react";
+import { useRef, useEffect } from "react";
 
 interface ArticleImageProps {
   image?: string | null;
-  onChange: (file: File | null) => void;
+  onChange: (file: File | null, previewUrl: string | null) => void;
 }
 
 // 게시글 이미지 입로드 할 수 있는 컴포넌트입니다.
 function ArticleImageUpload({ image = null, onChange }: ArticleImageProps) {
-  const [preview, setPreview] = useState<string | null>(image);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleImageClick = () => {
-    if (!preview) {
+    if (!image) {
       inputRef.current?.click();
     }
   };
@@ -26,19 +25,27 @@ function ArticleImageUpload({ image = null, onChange }: ArticleImageProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setPreview(URL.createObjectURL(file));
-    onChange(file);
+    const previewUrl = URL.createObjectURL(file);
+    onChange(file, previewUrl);
   };
 
   // 선택한 이미지를 삭제하는 함수입니다.
   const deleteImage = () => {
-    onChange(null);
-    setPreview(null);
+    onChange(null, null);
 
     if (inputRef.current) {
       inputRef.current.value = "";
     }
   };
+
+  // 이전 이미지 URL을 해제하는 함수, 메모리 누수 방지
+  useEffect(() => {
+    return () => {
+      if (image && image.startsWith("blob:")) {
+        URL.revokeObjectURL(image);
+      }
+    };
+  }, [image]);
 
   return (
     <div
@@ -58,15 +65,18 @@ function ArticleImageUpload({ image = null, onChange }: ArticleImageProps) {
         onChange={handleFileChange}
         className="hidden"
       />
-      {preview ? (
+      {image ? (
         <>
-          <Image src={preview} alt="preview image" fill />
+          <Image src={image} alt="preview image" fill />
           <div
             className={clsx(
               "flex flex-col gap-12 items-center",
               "absolute top-60 right-40 sm:top-110 sm:right-100"
             )}
-            onClick={deleteImage}
+            onClick={(e) => {
+              e.stopPropagation();
+              deleteImage();
+            }}
           >
             <SVGIcon icon="x" size="md" />
             <div className="text-gray-400 text-base">이미지 삭제</div>
