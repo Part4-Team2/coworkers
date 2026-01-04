@@ -32,7 +32,10 @@ function Header() {
       >
         <div className="cursor-pointer flex items-center gap-40">
           <div className="flex items-center gap-16">
-            <div className="sm:hidden" onClick={handleSideClick}>
+            <div
+              className={hasTeam ? "sm:hidden" : "hidden"}
+              onClick={handleSideClick}
+            >
               <SVGIcon icon="gnbMenu" />
             </div>
             <Link href="/">
