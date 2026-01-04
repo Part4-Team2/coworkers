@@ -15,7 +15,7 @@ export default function Reply() {
   const [content, setContent] = useState(mockComment[0].content);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const onKebabClick = () => {
+  const handleKebabButton = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
@@ -60,7 +60,11 @@ export default function Reply() {
         {!isEditing && (
           <>
             <div className="relative">
-              <SVGIcon icon="kebabSmall" size="xxs" onClick={onKebabClick} />
+              <SVGIcon
+                icon="kebabSmall"
+                size="xxs"
+                onClick={handleKebabButton}
+              />
               {isDropdownOpen && (
                 <DropdownList
                   isOpen
