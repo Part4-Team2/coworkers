@@ -7,8 +7,7 @@ import DropdownList from "../Common/Dropdown/DropdownList";
 import { mockComment } from "@/mocks";
 import Button from "../Common/Button/Button";
 import { Modal } from "../Common/Modal";
-
-const DROPDOWN_OPTIONS = ["수정하기", "삭제하기"];
+import { DROPDOWN_OPTIONS } from "@/constants/dropdown";
 
 export default function Reply() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
