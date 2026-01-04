@@ -18,15 +18,9 @@ export default function TeamListItem({
       aria-label={`${teamName} 팀으로 이동`}
       className="flex items-center gap-12 w-full py-7 px-8 rounded-lg bg-slate-700 cursor-pointer"
     >
-      <div className="w-32 h-32 rounded-lg overflow-hidden shrink-0 bg-slate-600">
+      <div className="w-32 h-32 rounded-lg overflow-hidden shrink-0 bg-slate-600 relative">
         {teamImage ? (
-          <Image
-            src={teamImage}
-            alt={teamName}
-            width={32}
-            height={32}
-            className="w-full h-full object-cover"
-          />
+          <Image src={teamImage} alt={teamName} fill className="object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <SVGIcon icon="image" size={20} />
