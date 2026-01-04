@@ -31,7 +31,9 @@ function WriteArticle() {
         <main className="flex flex-col gap-40">
           <section className="flex justify-between items-center">
             <span className="text-xl">게시글 쓰기</span>
-            <Button label="등록" width="184px" onClick={handleSubmitClick} />
+            <div className="hidden sm:block">
+              <Button label="등록" width="184px" onClick={handleSubmitClick} />
+            </div>
           </section>
           <div className="border-b border-b-text-primary/10"></div>
           {/* 제목 영역 */}
@@ -67,6 +69,9 @@ function WriteArticle() {
               onChange={(file) => setArticleImage(file)}
             />
           </section>
+          <div className="flex justify-center sm:hidden">
+            <Button label="등록" onClick={handleSubmitClick} />
+          </div>
         </main>
       </div>
     </div>
