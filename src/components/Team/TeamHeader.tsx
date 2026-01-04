@@ -8,6 +8,11 @@ interface TeamHeaderProps {
   onDelete?: () => void;
 }
 
+const DROPDOWN_ACTIONS = {
+  EDIT: "수정하기",
+  DELETE: "삭제하기",
+} as const;
+
 export default function TeamHeader({
   teamName,
   onEdit,
@@ -18,9 +23,9 @@ export default function TeamHeader({
   const handleSelect = (value: string) => {
     blurActiveElement();
 
-    if (value === "수정하기" && onEdit) {
+    if (value === DROPDOWN_ACTIONS.EDIT && onEdit) {
       onEdit();
-    } else if (value === "삭제하기" && onDelete) {
+    } else if (value === DROPDOWN_ACTIONS.DELETE && onDelete) {
       onDelete();
     }
   };
@@ -37,7 +42,7 @@ export default function TeamHeader({
 
       <div className="absolute right-24 top-1/2 -translate-y-1/2 flex items-center justify-center">
         <Dropdown
-          options={["수정하기", "삭제하기"]}
+          options={[DROPDOWN_ACTIONS.EDIT, DROPDOWN_ACTIONS.DELETE]}
           onSelect={handleSelect}
           size="md"
           trigger="icon"

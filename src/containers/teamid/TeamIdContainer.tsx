@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { notFound } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Member from "@/components/Team/Member";
 import Report from "@/components/Team/Report";
 import TodoList from "@/components/Team/TodoList";
@@ -107,15 +106,12 @@ const mockTodos: Todo[] = [
   },
 ];
 
-export default function TeamIdContainer() {
-  const router = useRouter();
-  const params = useParams();
+interface TeamIdContainerProps {
+  teamId: string;
+}
 
-  // 타입 안정성 확보
-  const teamId = params.teamid;
-  if (!teamId || typeof teamId !== "string") {
-    notFound();
-  }
+export default function TeamIdContainer({ teamId }: TeamIdContainerProps) {
+  const router = useRouter();
 
   const [members] = useState(mockMembers);
   const [todos] = useState(mockTodos);

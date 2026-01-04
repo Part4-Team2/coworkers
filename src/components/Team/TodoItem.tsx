@@ -16,6 +16,11 @@ const PROGRESS_CIRCLE_SIZE = 14;
 const PROGRESS_CIRCLE_STROKE_WIDTH = 2.5;
 const FALLBACK_COLOR = "#6B7280";
 
+const DROPDOWN_ACTIONS = {
+  EDIT: "수정하기",
+  DELETE: "삭제하기",
+} as const;
+
 const SmallProgressCircle = ({ percentage }: { percentage: number }) => {
   const size = PROGRESS_CIRCLE_SIZE;
   const strokeWidth = PROGRESS_CIRCLE_STROKE_WIDTH;
@@ -68,9 +73,9 @@ const TodoItem = memo(function TodoItem({
   const handleSelect = (value: string) => {
     blurActiveElement();
 
-    if (value === "수정하기" && onEdit) {
+    if (value === DROPDOWN_ACTIONS.EDIT && onEdit) {
       onEdit();
-    } else if (value === "삭제하기" && onDelete) {
+    } else if (value === DROPDOWN_ACTIONS.DELETE && onDelete) {
       onDelete();
     }
   };
@@ -112,7 +117,7 @@ const TodoItem = memo(function TodoItem({
 
           {/* 케밥 메뉴 */}
           <Dropdown
-            options={["수정하기", "삭제하기"]}
+            options={[DROPDOWN_ACTIONS.EDIT, DROPDOWN_ACTIONS.DELETE]}
             onSelect={handleSelect}
             size="md"
             trigger="icon"

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import TeamIdContainer from "@/containers/teamid/TeamIdContainer";
 
 type Props = {
@@ -9,6 +10,11 @@ type Props = {
 // params를 통해 동적 경로 매개변수 접근 가능
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { teamid: teamId } = await params;
+
+  // teamId 유효성 검사
+  if (!teamId) {
+    notFound();
+  }
 
   // TODO: 실제로는 API에서 팀 정보를 가져와야 함
   const teamName = "경영관리팀";
@@ -32,6 +38,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function TeamPage() {
-  return <TeamIdContainer />;
+export default async function TeamPage({ params }: Props) {
+  const { teamid: teamId } = await params;
+
+  // teamId 유효성 검사
+  if (!teamId) {
+    notFound();
+  }
+
+  return <TeamIdContainer teamId={teamId} />;
 }

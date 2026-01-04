@@ -277,4 +277,15 @@ body {
   font-size: 14px;
   line-height: 17px;
   color: var(--color-text-primary);
+  transition: background-color 0.2s ease;
+}
+
+.teamid-page .relative > ul.absolute li:hover {
+  background-color: var(--color-background-primary);
+}
+
+.teamid-page .relative > ul.absolute li:focus-visible {
+  background-color: var(--color-background-primary);
+  outline: 2px solid var(--color-interaction-focus);
+  outline-offset: -2px;
 }
