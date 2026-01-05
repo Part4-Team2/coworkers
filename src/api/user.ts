@@ -16,24 +16,22 @@ export async function getUser() {
     updatedAt: string;
     createdAt: string;
     id: number;
-    memberships: [
-      {
-        group: {
-          teamId: string;
-          updatedAt: string;
-          createdAt: string;
-          image: string | null;
-          name: string;
-          id: number;
-        };
-        role: Role;
-        userImage: string | null;
-        userEmail: string;
-        userName: string;
-        groupId: number;
-        userId: number;
-      },
-    ];
+    memberships: Array<{
+      group: {
+        teamId: string;
+        updatedAt: string;
+        createdAt: string;
+        image: string | null;
+        name: string;
+        id: number;
+      };
+      role: Role;
+      userImage: string | null;
+      userEmail: string;
+      userName: string;
+      groupId: number;
+      userId: number;
+    }>;
   };
 }
 
@@ -52,7 +50,7 @@ export async function deleteUser() {
   const response = await fetch(`${BASE_URL}/user`, {
     method: "DELETE",
   });
-  return await response.json();
+  return await response.json(); // no content
 }
 
 /*

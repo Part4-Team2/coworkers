@@ -62,7 +62,7 @@ export async function postGroupMember(
     },
     body: JSON.stringify(data),
   });
-  return await response.json();
+  return await response.json(); // no content
 }
 
 /*
