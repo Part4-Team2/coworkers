@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InputConfig } from "@/components/Common/Form/types";
+import { postSignup } from "@/api/auth";
+import { SignUpRequestBody } from "@/types/api/auth";
 
 interface SignupFormData {
   name: string;
@@ -31,21 +33,27 @@ export default function SignupContainer() {
   const password = watch("password");
 
   const onSubmit = async (data: SignupFormData) => {
+    const requestData: SignUpRequestBody = {
+      email: data.email,
+      password: data.password,
+      passwordConfirmation: data.confirmPassword,
+      nickname: data.name,
+    };
     setSignupError("");
     try {
-      // TODO: 실제 회원가입 API 호출
-      // const response = await signupAPI(data);
-      // if (response.success) {
-      //   router.push("/");
-      // } else {
-      //   setSignupError(response.message || "회원가입에 실패했습니다.");
-      // }
+      const response = await postSignup(requestData);
 
-      // 임시: 성공 시 홈으로 이동
-      // console.log("회원가입 시도:", data);
+      if ("error" in response) {
+        setSignupError(response.message);
+        return;
+      }
       router.push("/");
     } catch (error) {
-      setSignupError("회원가입에 실패했습니다. 다시 시도해주세요.");
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "회원가입에 실패했습니다. 다시 시도해주세요.";
+      setSignupError(errorMessage);
     }
   };
 

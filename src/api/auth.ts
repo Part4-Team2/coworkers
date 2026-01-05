@@ -8,13 +8,23 @@ import {
 } from "@/types/api/auth";
 
 export async function postSignup(data: SignUpRequestBody) {
-  const response = await fetch(`${BASE_URL}/auth/signUp`, {
+  const response = await fetch("/api/auth/signup", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+    credentials: "include", // 쿠키 포함
   });
+
+  if (!response.ok) {
+    const error = await response.json();
+    return {
+      error: true,
+      message: error.message || "회원가입에 실패했습니다.",
+    };
+  }
+
   return (await response.json()) as SignUpResponse;
 }
 
