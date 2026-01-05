@@ -16,12 +16,11 @@ const BaseModal = ({
 }: BaseModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // 포커스 트랩 (ESC 키, Tab 순환, 초기 포커스)
+  // 포커스 트랩 (ESC 키, Tab 순환)
   useFocusTrap({
     isActive: isOpen,
     containerRef: modalRef,
     onEscape: onClose,
-    excludeInitialFocusSelector: '[aria-label="닫기"]',
   });
 
   // 스크롤 잠금
@@ -69,6 +68,8 @@ const BaseModal = ({
             onClick={onClose}
             className="absolute right-16 top-16 text-text-default cursor-pointer"
             aria-label="닫기"
+            data-modal-close
+            tabIndex={-1}
           >
             <SVGIcon icon="x" size={24} />
           </button>

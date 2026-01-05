@@ -4,6 +4,14 @@ const nextConfig: NextConfig = {
   compress: true,
   generateEtags: true,
   poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
+  },
   turbopack: {
     rules: {
       "*.svg": {

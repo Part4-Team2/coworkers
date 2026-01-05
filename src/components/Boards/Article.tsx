@@ -23,12 +23,13 @@ function Article({
   avatarImageUrl,
   likeCount,
 }: ArticleProps) {
-  const handleKebabClick = () => {
-    console.log("kebab click");
+  const handleKebabClick = (value: string) => {
+    if (value === WRITEOPTIONS[0]) console.log("수정하기 누름");
+    else console.log("삭제하기 누름");
   };
 
   return (
-    <Link href={`/board/${id}`}>
+    <Link href={`/boards/${id}`}>
       <div
         className={clsx(
           "w-343 h-162 sm:w-696 sm:h-176 lg:w-590",
@@ -50,7 +51,6 @@ function Article({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              handleKebabClick();
             }}
           >
             <Dropdown
@@ -76,7 +76,7 @@ function Article({
               <span>{createdAt}</span>
               <div className={clsx("flex gap-4 items-center")}>
                 <span>
-                  <SVGIcon icon="done" size="xxs" />
+                  <SVGIcon icon="heart" size="xxs" />
                 </span>
                 <span>{likeCount > 9999 ? "9999+" : likeCount}</span>
               </div>

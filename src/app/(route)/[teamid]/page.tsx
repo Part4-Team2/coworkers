@@ -1,5 +1,6 @@
 import { Metadata } from "next";
-import TeamPageClient from "./TeamPageClient";
+import { notFound } from "next/navigation";
+import TeamIdContainer from "@/containers/teamid/TeamIdContainer";
 
 type Props = {
   params: Promise<{ teamid: string }>;
@@ -10,6 +11,11 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { teamid: teamId } = await params;
 
+  // teamId 유효성 검사
+  if (!teamId) {
+    notFound();
+  }
+
   // TODO: 실제로는 API에서 팀 정보를 가져와야 함
   const teamName = "경영관리팀";
 
@@ -19,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: `${teamName}`, // siteName이 자동으로 추가됨
       description: `${teamName}의 할 일 목록, 멤버 관리, 프로젝트 진행 상황을 확인하세요.`,
-      url: `/addteam/${teamId}`, // 폴더 구조 변경시 수정 필요
+      url: `/${teamId}`, // 폴더 구조 변경시 수정 필요
       images: [
         {
           url: "/opengraph-image.png",
@@ -32,6 +38,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function TeamPage() {
-  return <TeamPageClient />;
+export default async function TeamPage({ params }: Props) {
+  const { teamid: teamId } = await params;
+
+  // teamId 유효성 검사
+  if (!teamId) {
+    notFound();
+  }
+
+  return <TeamIdContainer teamId={teamId} />;
 }
