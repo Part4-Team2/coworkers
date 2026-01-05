@@ -4,7 +4,7 @@ import { useState } from "react";
 import Avatar from "../Common/Avatar/Avatar";
 import SVGIcon from "../Common/SVGIcon/SVGIcon";
 import DropdownList from "../Common/Dropdown/DropdownList";
-import { mockComment } from "@/mocks";
+import { mockComment } from "@/mocks/task";
 import Button from "../Common/Button/Button";
 import { Modal } from "../Common/Modal";
 import { DROPDOWN_OPTIONS } from "@/constants/dropdown";
