@@ -8,6 +8,8 @@ interface UseKebabMenuProps {
   deleteModalDescription?: string;
 }
 
+const KEBAB_MENU_OPTIONS = ["수정하기", "삭제하기"];
+
 export default function useKebabMenu({
   initialContent,
   onSave,
@@ -15,8 +17,6 @@ export default function useKebabMenu({
   deleteModalTitle,
   deleteModalDescription = "삭제 후에는 되돌릴 수 없습니다.",
 }: UseKebabMenuProps) {
-  const KEBAB_MENU_OPTIONS = ["수정하기", "삭제하기"];
-
   const [isEditing, setIsEditing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState(initialContent);
