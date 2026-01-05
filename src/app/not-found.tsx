@@ -29,7 +29,8 @@ function NotFound() {
             <span className="text-4xl">Not Found</span>
             <span className="text-xl text-center">
               존재하지 않은 주소를 입력하셨거나,<br></br>요청하신 페이지의
-              주소가 변경 or 삭제되어 찾을 수 없습니다.
+              주소가<br className="sm:hidden"></br> 변경 or 삭제되어 찾을 수
+              없습니다.
             </span>
           </div>
           <Button
