@@ -1,23 +1,60 @@
 "use client";
 
 import Avatar from "@/components/Common/Avatar/Avatar";
+import Button from "@/components/Common/Button/Button";
 import ButtonFloating from "@/components/Common/Button/ButtonFloating";
+import DropdownList from "@/components/Common/Dropdown/DropdownList";
+import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import InputReply from "@/components/Tasklist/InputReply";
 import Reply from "@/components/Tasklist/Reply";
+import { DROPDOWN_OPTIONS } from "@/constants/dropdown";
+import { mockTask } from "@/mocks/task";
 import clsx from "clsx";
 import { useState } from "react";
 
-const handleXButton = () => {};
-
-const handleKebabButton = () => {};
-
 export default function TaskDetailsContainer() {
   const [isComplete, setIsComplete] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [description, setDescription] = useState(mockTask.description);
 
   const handleCompleteTaskButton = () => {
     setIsComplete((prev) => !prev);
   };
+
+  const handleXButton = () => {
+    // Parallel Routes 설정 후 추가예정
+  };
+
+  const handleKebabButton = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleListClick = (value: string) => {
+    if (value === "수정하기") {
+      setIsEditing(true);
+      setIsDropdownOpen(false);
+    } else {
+      setIsModalOpen(true);
+      setIsDropdownOpen(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setDescription(description);
+    setIsEditing(false);
+  };
+  const handleSaveEdit = () => {
+    // api PATCH
+    setIsEditing(false);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="flex flex-col gap-16 p-40">
       <SVGIcon icon="x" onClick={handleXButton} />
@@ -29,40 +66,97 @@ export default function TaskDetailsContainer() {
       )}
       <div className="flex items-center justify-between">
         <h3 className={clsx("text-xl font-bold", isComplete && "line-through")}>
-          법인 설립 비용 안내 드리기
+          {mockTask.title}
         </h3>
-        <SVGIcon icon="kebabLarge" onClick={handleKebabButton} />
+        <div className="relative">
+          <SVGIcon icon="kebabLarge" onClick={handleKebabButton} />
+          {isDropdownOpen && (
+            <DropdownList
+              isOpen
+              options={DROPDOWN_OPTIONS}
+              size="sm"
+              position="absolute right-0 top-full mt-5"
+              onSelect={handleListClick}
+            />
+          )}
+        </div>
+        <Modal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          title={
+            <>
+              &apos;{mockTask.title}&apos; <br />할 일을 정말 삭제하시겠어요?
+            </>
+          }
+          description="삭제 후에는 되돌릴 수 없습니다."
+          primaryButton={{
+            label: "삭제하기",
+            onClick: () => {
+              console.log("api DELETE");
+              handleModalClose();
+            },
+            variant: "danger",
+          }}
+          secondaryButton={{
+            label: "닫기",
+            onClick: handleModalClose,
+          }}
+        />
       </div>
       <div className="flex items-center">
-        <Avatar altText="안해나 프로필" size="large" />
-        <span className="ml-12 text-md font-medium">안해나</span>
+        <Avatar altText={`${mockTask.writer.nickname} 프로필`} size="large" />
+        <span className="ml-12 text-md font-medium">
+          {mockTask.writer.nickname}
+        </span>
         <span className="ml-auto text-text-secondary text-md font-regular">
-          2025.05.30
+          {mockTask.createdAt}
         </span>
       </div>
       {!isComplete && (
         <div className="flex items-center gap-10 text-text-default text-xs font-regular">
           <div className="flex items-center gap-6">
             <SVGIcon icon="calendar" size="xxs" />
-            <span>2024년 7월 29일</span>
+            <span>{mockTask.date}</span>
           </div>
           <div className="w-px h-8 bg-background-tertiary" />
           <div className="flex items-center gap-6">
             <SVGIcon icon="iconTime" size="xxs" />
-            <span>오후 3:30</span>
+            <span>{mockTask.time}</span>
           </div>
           <div className="w-px h-8 bg-background-tertiary " />
           <div className="flex items-center gap-6">
             <SVGIcon icon="iconRepeat" size="xxs" />
-            <span>매일 반복</span>
+            <span>{mockTask.frequency}</span>
           </div>
         </div>
       )}
+      {isEditing ? (
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          autoFocus
+          className="min-h-180 flex-1 resize-none placeholder-text-default text-text-primary text-md font-regular"
+        />
+      ) : (
+        <div className="min-h-200">{description}</div>
+      )}
+      {isEditing && (
+        <div className="flex items-center justify-end gap-20">
+          <button
+            onClick={handleCancelEdit}
+            className="text-text-default text-md font-semibold"
+          >
+            취소
+          </button>
+          <Button
+            variant="outlined"
+            size="xSmall"
+            label="수정하기"
+            onClick={handleSaveEdit}
+          />
+        </div>
+      )}
 
-      <div className="min-h-200">
-        필수 정보 10분 입력하면 3일 안에 법인 설립이 완료되는 법인 설립 서비스의
-        장점에 대해 상세하게 설명드리기
-      </div>
       <InputReply />
       <Reply />
       <div className="fixed bottom-50 z-50 right-[max(1.5rem,calc(50%-600px+1.5rem))]">
