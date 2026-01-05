@@ -8,17 +8,30 @@ import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import InputReply from "@/components/Tasklist/InputReply";
 import Reply from "@/components/Tasklist/Reply";
-import { DROPDOWN_OPTIONS } from "@/constants/dropdown";
+import useKebabMenu from "@/hooks/useKebabMenu";
 import { mockTask } from "@/mocks/task";
 import clsx from "clsx";
 import { useState } from "react";
 
 export default function TaskDetailsContainer() {
   const [isComplete, setIsComplete] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [description, setDescription] = useState(mockTask.description);
+
+  const kebab = useKebabMenu({
+    initialContent: mockTask.description,
+    onSave: (newContent) => {
+      console.log("api PATCH 로직", newContent);
+      // 실제 api 호출
+    },
+    onDelete: () => {
+      console.log("api DELETE 로직");
+      // 실제 api 호출
+    },
+    deleteModalTitle: (
+      <>
+        &apos;{mockTask.title}&apos; <br />할 일을 정말 삭제하시겠어요?
+      </>
+    ),
+  });
 
   const handleCompleteTaskButton = () => {
     setIsComplete((prev) => !prev);
@@ -26,33 +39,6 @@ export default function TaskDetailsContainer() {
 
   const handleXButton = () => {
     // Parallel Routes 설정 후 추가예정
-  };
-
-  const handleKebabButton = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleListClick = (value: string) => {
-    if (value === "수정하기") {
-      setIsEditing(true);
-      setIsDropdownOpen(false);
-    } else {
-      setIsModalOpen(true);
-      setIsDropdownOpen(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setDescription(description);
-    setIsEditing(false);
-  };
-  const handleSaveEdit = () => {
-    // api PATCH
-    setIsEditing(false);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
   };
 
   return (
@@ -69,37 +55,30 @@ export default function TaskDetailsContainer() {
           {mockTask.title}
         </h3>
         <div className="relative">
-          <SVGIcon icon="kebabLarge" onClick={handleKebabButton} />
-          {isDropdownOpen && (
+          <SVGIcon icon="kebabLarge" onClick={kebab.handleKebabClick} />
+          {kebab.isDropdownOpen && (
             <DropdownList
               isOpen
-              options={DROPDOWN_OPTIONS}
+              options={kebab.dropdownOptions}
               size="sm"
               position="absolute right-0 top-full mt-5"
-              onSelect={handleListClick}
+              onSelect={kebab.handleDropdownSelect}
             />
           )}
         </div>
         <Modal
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          title={
-            <>
-              &apos;{mockTask.title}&apos; <br />할 일을 정말 삭제하시겠어요?
-            </>
-          }
-          description="삭제 후에는 되돌릴 수 없습니다."
+          isOpen={kebab.isModalOpen}
+          onClose={kebab.handleModalClose}
+          title={kebab.deleteModalTitle}
+          description={kebab.deleteModalDescription}
           primaryButton={{
             label: "삭제하기",
-            onClick: () => {
-              console.log("api DELETE");
-              handleModalClose();
-            },
+            onClick: kebab.handleDeleteConfirm,
             variant: "danger",
           }}
           secondaryButton={{
             label: "닫기",
-            onClick: handleModalClose,
+            onClick: kebab.handleModalClose,
           }}
         />
       </div>
@@ -112,6 +91,7 @@ export default function TaskDetailsContainer() {
           {mockTask.createdAt}
         </span>
       </div>
+
       {!isComplete && (
         <div className="flex items-center gap-10 text-text-default text-xs font-regular">
           <div className="flex items-center gap-6">
@@ -130,20 +110,21 @@ export default function TaskDetailsContainer() {
           </div>
         </div>
       )}
-      {isEditing ? (
+
+      {kebab.isEditing ? (
         <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={kebab.content}
+          onChange={(e) => kebab.setContent(e.target.value)}
           autoFocus
           className="min-h-180 flex-1 resize-none placeholder-text-default text-text-primary text-md font-regular"
         />
       ) : (
-        <div className="min-h-200">{description}</div>
+        <div className="min-h-200">{kebab.content}</div>
       )}
-      {isEditing && (
+      {kebab.isEditing && (
         <div className="flex items-center justify-end gap-20">
           <button
-            onClick={handleCancelEdit}
+            onClick={kebab.handleCancelEdit}
             className="text-text-default text-md font-semibold"
           >
             취소
@@ -152,13 +133,14 @@ export default function TaskDetailsContainer() {
             variant="outlined"
             size="xSmall"
             label="수정하기"
-            onClick={handleSaveEdit}
+            onClick={kebab.handleSaveEdit}
           />
         </div>
       )}
 
       <InputReply />
       <Reply />
+
       <div className="fixed bottom-50 z-50 right-[max(1.5rem,calc(50%-600px+1.5rem))]">
         {isComplete ? (
           <ButtonFloating
@@ -176,7 +158,7 @@ export default function TaskDetailsContainer() {
             size="large"
             onClick={handleCompleteTaskButton}
           />
-        )}{" "}
+        )}
       </div>
     </div>
   );

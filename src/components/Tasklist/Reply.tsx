@@ -1,107 +1,83 @@
 "use client";
 
-import { useState } from "react";
 import Avatar from "../Common/Avatar/Avatar";
 import SVGIcon from "../Common/SVGIcon/SVGIcon";
 import DropdownList from "../Common/Dropdown/DropdownList";
 import { mockComment } from "@/mocks/task";
 import Button from "../Common/Button/Button";
 import { Modal } from "../Common/Modal";
-import { DROPDOWN_OPTIONS } from "@/constants/dropdown";
+import useKebabMenu from "@/hooks/useKebabMenu";
 
 export default function Reply() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [content, setContent] = useState(mockComment[0].content);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleKebabButton = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleListClick = (value: string) => {
-    if (value === "수정하기") {
-      setIsEditing(true);
-      setIsDropdownOpen(false);
-    } else {
-      setIsModalOpen(true);
-      setIsDropdownOpen(false);
-    }
-  };
-
-  const handleSaveEdit = () => {
-    setIsEditing(false);
-  };
-
-  const handleCancelEdit = () => {
-    // api PATCH
-    setContent(content);
-    setIsEditing(false);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
+  const kebab = useKebabMenu({
+    initialContent: mockComment[0].content,
+    onSave: (newContent) => {
+      console.log("api PATCH 로직", newContent);
+      // 실제 api 호출
+    },
+    onDelete: () => {
+      console.log("api DELETE 로직");
+      // 실제 api 호출
+    },
+    deleteModalTitle: "해당 댓글을 정말 삭제하시겠어요?",
+  });
 
   return (
     <div className="flex flex-col gap-16 mt-16">
       <div className="flex justify-between items-start text-text-primary text-md font-regular">
-        {isEditing ? (
+        {kebab.isEditing ? (
           <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+            value={kebab.content}
+            onChange={(e) => kebab.setContent(e.target.value)}
             autoFocus
             className="flex-1 resize-none field-sizing-content placeholder-text-default text-text-primary text-md font-regular"
           />
         ) : (
-          <div>{content}</div>
+          <div>{kebab.content}</div>
         )}
 
-        {!isEditing && (
+        {!kebab.isEditing && (
           <>
             <div className="relative">
               <SVGIcon
                 icon="kebabSmall"
                 size="xxs"
-                onClick={handleKebabButton}
+                onClick={kebab.handleKebabClick}
               />
-              {isDropdownOpen && (
+              {kebab.isDropdownOpen && (
                 <DropdownList
                   isOpen
-                  options={DROPDOWN_OPTIONS}
+                  options={kebab.dropdownOptions}
                   size="sm"
                   position="absolute right-0 top-full mt-5"
-                  onSelect={handleListClick}
+                  onSelect={kebab.handleDropdownSelect}
                 />
               )}
             </div>
 
             <Modal
-              isOpen={isModalOpen}
-              onClose={handleModalClose}
-              title="해당 댓글을 정말 삭제하시겠어요?"
-              description="삭제 후에는 되돌릴 수 없습니다."
+              isOpen={kebab.isModalOpen}
+              onClose={kebab.handleModalClose}
+              title={kebab.deleteModalTitle}
+              description={kebab.deleteModalDescription}
               primaryButton={{
                 label: "삭제하기",
-                onClick: () => {
-                  console.log("api DELETE");
-                  handleModalClose();
-                },
+                onClick: kebab.handleDeleteConfirm,
                 variant: "danger",
               }}
               secondaryButton={{
                 label: "닫기",
-                onClick: handleModalClose,
+                onClick: kebab.handleModalClose,
               }}
             />
           </>
         )}
       </div>
 
-      {isEditing ? (
+      {kebab.isEditing ? (
         <div className="flex items-center justify-end gap-20">
           <button
-            onClick={handleCancelEdit}
+            onClick={kebab.handleCancelEdit}
             className="text-text-default text-md font-semibold"
           >
             취소
@@ -110,7 +86,7 @@ export default function Reply() {
             variant="outlined"
             size="xSmall"
             label="수정하기"
-            onClick={handleSaveEdit}
+            onClick={kebab.handleSaveEdit}
           />
         </div>
       ) : (
