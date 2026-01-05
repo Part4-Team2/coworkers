@@ -2,13 +2,17 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-import ButtonFloating from "@/components/Common/Button/ButtonFloating";
+import Button from "@/components/Common/Button/Button";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  // 함수는 추후 navigating으로 변경됩니다.
+  const Router = useRouter();
+
+  // 버튼을 누르면 로그인 페이지로 이동합니다.
   const handleClick = () => {
     console.log("Button click");
+    Router.push("/login");
   };
 
   return (
@@ -44,9 +48,9 @@ export default function Home() {
             </div>
           </article>
           {/* 색상이 초록색으로 고정됩니다, 추후에 그라디언트 색상이 들어오면 변경 예정입니다. */}
-          <ButtonFloating
+          <Button
             label="지금 시작하기"
-            variant="solid"
+            variant="gradient"
             size="large"
             width="373px"
             onClick={handleClick}
