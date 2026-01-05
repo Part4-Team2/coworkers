@@ -22,7 +22,7 @@ export default function Home() {
             "flex flex-col justify-between items-center",
             "py-84 h-640 sm:h-940 lg:h-1080",
             "bg-[url(/landing/main/size-small.png)] sm:bg-[url(/landing/main/size-medium.png)] lg:bg-[url(/landing/main/size-large.png)]",
-            "bg-no-repeat bg-center"
+            "bg-no-repeat bg-center bg-cover"
           )}
         >
           <article
@@ -185,7 +185,7 @@ export default function Home() {
           className={clsx(
             "pt-230 h-1080",
             "bg-[url(/landing/bottom/size=small.png)] sm:bg-[url(/landing/bottom/size=medium.png)] lg:bg-[url(/landing/bottom/size=large.png)]",
-            "bg-no-repeat bg-center"
+            "bg-no-repeat bg-center bg-cover"
           )}
         >
           <div className="flex flex-col gap-24 items-center">
