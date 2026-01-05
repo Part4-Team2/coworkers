@@ -1,8 +1,6 @@
 "use client";
 
 import Avatar from "../Common/Avatar/Avatar";
-import SVGIcon from "../Common/SVGIcon/SVGIcon";
-import DropdownList from "../Common/Dropdown/DropdownList";
 import { mockComment } from "@/mocks/task";
 import Button from "../Common/Button/Button";
 import { Modal } from "../Common/Modal";
