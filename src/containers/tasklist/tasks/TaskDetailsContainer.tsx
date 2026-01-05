@@ -46,7 +46,11 @@ export default function TaskDetailsContainer() {
       <SVGIcon icon="x" onClick={handleXButton} />
       {isComplete && (
         <div className="flex items-center gap-6">
-          <SVGIcon icon="check" size="xxs" />
+          <SVGIcon
+            icon="check"
+            size="xxs"
+            className="[--icon-stroke:theme(colors.brand.tertiary)]"
+          />
           <span className="text-xs font-medium text-brand-tertiary">완료</span>
         </div>
       )}
@@ -145,7 +149,7 @@ export default function TaskDetailsContainer() {
         {isComplete ? (
           <ButtonFloating
             label="완료 취소하기"
-            icon={<SVGIcon icon="check" size="xxs" />}
+            icon={<SVGIcon icon="check" size="xxs" className="mr-4" />}
             variant="outlined"
             size="large"
             onClick={handleCompleteTaskButton}
@@ -153,7 +157,13 @@ export default function TaskDetailsContainer() {
         ) : (
           <ButtonFloating
             label="완료 하기"
-            icon={<SVGIcon icon="checkOne" size="xxs" />}
+            icon={
+              <SVGIcon
+                icon="check"
+                size="xxs"
+                className="[--icon-stroke:theme(colors.icon.inverse)] mr-4"
+              />
+            }
             variant="solid"
             size="large"
             onClick={handleCompleteTaskButton}
