@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 import Article from "../../../components/Boards/Article";
 import ButtonFloating from "../../../components/Common/Button/ButtonFloating";
@@ -18,6 +19,7 @@ type Mockdata = {
   title: string;
   createdAt: string;
   avatarImageUrl?: string;
+  articleImageUrl?: string;
   likeCount: number;
 };
 
@@ -27,6 +29,7 @@ const MOCKDATA01: Mockdata = {
   title: "게시글 제목입니다.",
   createdAt: "2025.12.29",
   avatarImageUrl: undefined,
+  articleImageUrl: undefined,
   likeCount: 10000,
 };
 
@@ -51,13 +54,14 @@ const MOCKDATA03: Mockdata = {
 const MOCKMEMBERS = [MOCKDATA01, MOCKDATA02, MOCKDATA03];
 
 function BoardPage() {
+  const router = useRouter();
+  const members = MOCKMEMBERS;
   const [inputVal, setInputVal] = useState("");
   const [arrange, setArrange] = useState(ARRANGE[0]);
-  const members = MOCKMEMBERS;
 
   // 추후 함수는 글쓰기 페이지로 이동할 예정입니다.
   const handleWriteClick = () => {
-    console.log("Write Button Click.");
+    router.push("/boards/writeArticle");
   };
 
   // 더보기 문구 클릭시 작동하는 함수입니다.
@@ -116,6 +120,7 @@ function BoardPage() {
                     nickname={member.nickname}
                     createdAt={member.createdAt}
                     avatarImageUrl={member.avatarImageUrl}
+                    articleImageUrl={member.articleImageUrl}
                     likeCount={member.likeCount}
                   />
                 </div>
@@ -143,6 +148,7 @@ function BoardPage() {
                   nickname={member.nickname}
                   createdAt={member.createdAt}
                   avatarImageUrl={member.avatarImageUrl}
+                  articleImageUrl={member.articleImageUrl}
                   likeCount={member.likeCount}
                 />
               ))}

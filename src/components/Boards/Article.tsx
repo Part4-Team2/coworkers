@@ -3,6 +3,7 @@ import Link from "next/link";
 import Avatar from "@/components/Common/Avatar/Avatar";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+import ArticleImage from "./ArticleImage";
 
 interface ArticleProps {
   id: number;
@@ -10,6 +11,7 @@ interface ArticleProps {
   nickname: string;
   createdAt: string;
   avatarImageUrl?: string;
+  articleImageUrl?: string;
   likeCount: number;
 }
 
@@ -21,6 +23,7 @@ function Article({
   nickname,
   createdAt,
   avatarImageUrl,
+  articleImageUrl,
   likeCount,
 }: ArticleProps) {
   const handleKebabClick = (value: string) => {
@@ -38,13 +41,16 @@ function Article({
         )}
       >
         <div className="h-full flex flex-col justify-between relative">
-          <div
-            className={clsx(
-              "text-text-secondary text-2lg",
-              "overflow-hidden text-ellipsis line-clamp-2"
-            )}
-          >
-            {title}
+          <div className="flex justify-between items-center">
+            <div
+              className={clsx(
+                "text-text-secondary text-2lg",
+                "overflow-hidden text-ellipsis line-clamp-2"
+              )}
+            >
+              {title}
+            </div>
+            {articleImageUrl && <ArticleImage image={articleImageUrl} />}
           </div>
           <div
             className="absolute top-0 right-0 cursor-pointer"
