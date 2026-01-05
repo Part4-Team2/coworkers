@@ -19,6 +19,7 @@ type Mockdata = {
   title: string;
   createdAt: string;
   avatarImageUrl?: string;
+  articleImageUrl?: string;
   likeCount: number;
 };
 
@@ -28,6 +29,7 @@ const MOCKDATA01: Mockdata = {
   title: "게시글 제목입니다.",
   createdAt: "2025.12.29",
   avatarImageUrl: undefined,
+  articleImageUrl: undefined,
   likeCount: 10000,
 };
 
@@ -118,6 +120,7 @@ function BoardPage() {
                     nickname={member.nickname}
                     createdAt={member.createdAt}
                     avatarImageUrl={member.avatarImageUrl}
+                    articleImageUrl={member.articleImageUrl}
                     likeCount={member.likeCount}
                   />
                 </div>
@@ -145,6 +148,7 @@ function BoardPage() {
                   nickname={member.nickname}
                   createdAt={member.createdAt}
                   avatarImageUrl={member.avatarImageUrl}
+                  articleImageUrl={member.articleImageUrl}
                   likeCount={member.likeCount}
                 />
               ))}
