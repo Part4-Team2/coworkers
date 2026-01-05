@@ -7,8 +7,18 @@ export default function InputReply() {
   const [commentText, setCommentText] = useState("");
   const isActive = commentText.trim().length > 0;
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isActive) return;
+
+    // TODO: api 호출로 댓글 제출
+  };
+
   return (
-    <form className="flex items-start border-y border-y-border-primary py-13">
+    <form
+      onSubmit={handleSubmit}
+      className="flex items-start border-y border-y-border-primary py-13"
+    >
       <textarea
         placeholder="댓글을 달아주세요"
         value={commentText}
