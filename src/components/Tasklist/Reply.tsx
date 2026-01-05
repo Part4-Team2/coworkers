@@ -84,7 +84,7 @@ export default function Reply() {
         </div>
       ) : (
         <div className="flex items-center">
-          <Avatar altText="우지은 프로필" size="large" />
+          <Avatar altText={`${mockComment[0].userName} 프로필`} size="large" />
           <span className="ml-16 text-text-primary text-md font-medium">
             {mockComment[0].userName}
           </span>
