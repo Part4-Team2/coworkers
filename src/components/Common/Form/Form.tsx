@@ -2,6 +2,7 @@ import { FormProps, InputConfig } from "./types";
 import FormTitle from "./FormTitle";
 import Input from "../Input/Input";
 import Button from "../Button/Button";
+import clsx from "clsx";
 
 export default function Form({
   onSubmit,
@@ -35,15 +36,6 @@ export default function Form({
     if (register && fieldName) {
       const registered = register(fieldName, registerOptions || {});
       inputProps = { ...inputProps, ...registered };
-
-      // onBlur에 trigger 추가
-      const originalOnBlur = inputProps.onBlur;
-      inputProps.onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        originalOnBlur?.(e);
-        if (trigger && fieldName) {
-          trigger(fieldName);
-        }
-      };
     }
 
     // errors가 있고 fieldName이 있는 경우에만 에러 적용
@@ -71,15 +63,19 @@ export default function Form({
     );
   };
 
-  const containerClass = centered
-    ? "min-h-screen w-full flex items-center justify-center"
-    : `w-full flex justify-center ${topOffsetClassName}`.trim();
-
   return (
-    <div className={containerClass}>
+    <div
+      className={clsx("w-full max-w-800 sm:px-16 flex flex-col items-center", {
+        "min-h-screen w-full flex items-center justify-center": centered,
+        "w-full flex justify-center": !centered,
+      })}
+    >
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-800 sm:px-16 flex flex-col items-center"
+        className={clsx(
+          "w-full flex flex-col items-center",
+          topOffsetClassName
+        )}
       >
         {hasTitle && (
           <div className="text-center mb-80">
@@ -99,13 +95,11 @@ export default function Form({
 
         {hasOption && (
           <div
-            className={`mt-12 w-full flex ${
-              optionAlign === "start"
-                ? "justify-start"
-                : optionAlign === "end"
-                  ? "justify-end"
-                  : "justify-center"
-            }`}
+            className={clsx("mt-12 w-full flex", {
+              "justify-start": optionAlign === "start",
+              "justify-end": optionAlign === "end",
+              "justify-center": optionAlign === "center",
+            })}
           >
             {option}
           </div>
