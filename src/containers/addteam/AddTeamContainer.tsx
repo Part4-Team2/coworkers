@@ -45,7 +45,7 @@ export default function AddTeamContainer() {
   };
 
   return (
-    <>
+    <div className="w-full flex flex-col lg:items-center">
       <Form
         centered={false}
         topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
@@ -102,6 +102,6 @@ export default function AddTeamContainer() {
           팀 이름은 회사명이나 모임 이름 등으로 설정하면 좋아요.
         </span>
       </FormFooter>
-    </>
+    </div>
   );
 }
