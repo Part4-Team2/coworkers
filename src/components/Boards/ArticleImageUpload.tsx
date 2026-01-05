@@ -10,6 +10,9 @@ interface ArticleImageProps {
   onChange: (file: File | null, previewUrl: string | null) => void;
 }
 
+// 이미지 용량 제한 10mb로 임시 설정하였습니다.
+const MAXSIZE = 10 * 1024 * 1024;
+
 // 게시글 이미지 입로드 할 수 있는 컴포넌트입니다.
 function ArticleImageUpload({ image = null, onChange }: ArticleImageProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -24,6 +27,16 @@ function ArticleImageUpload({ image = null, onChange }: ArticleImageProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("이미지 파일만 업로드할 수 있습니다.");
+      return;
+    }
+
+    if (file.size > MAXSIZE) {
+      alert("이미지 크기는 10MB 이하여야합니다.");
+      return;
+    }
 
     const previewUrl = URL.createObjectURL(file);
     onChange(file, previewUrl);
