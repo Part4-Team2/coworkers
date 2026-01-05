@@ -7,6 +7,7 @@ import { mockComment } from "@/mocks/task";
 import Button from "../Common/Button/Button";
 import { Modal } from "../Common/Modal";
 import useKebabMenu from "@/hooks/useKebabMenu";
+import Dropdown from "../Common/Dropdown/Dropdown";
 
 export default function Reply() {
   const kebab = useKebabMenu({
@@ -39,20 +40,14 @@ export default function Reply() {
         {!kebab.isEditing && (
           <>
             <div className="relative">
-              <SVGIcon
+              <Dropdown
+                options={kebab.dropdownOptions}
+                size="md"
+                trigger="icon"
                 icon="kebabSmall"
-                size="xxs"
-                onClick={kebab.handleKebabClick}
+                listPosition="absolute right-0 top-full mt-5"
+                onSelect={kebab.handleDropdownSelect}
               />
-              {kebab.isDropdownOpen && (
-                <DropdownList
-                  isOpen
-                  options={kebab.dropdownOptions}
-                  size="sm"
-                  position="absolute right-0 top-full mt-5"
-                  onSelect={kebab.handleDropdownSelect}
-                />
-              )}
             </div>
 
             <Modal

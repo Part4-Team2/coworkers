@@ -3,7 +3,7 @@
 import Avatar from "@/components/Common/Avatar/Avatar";
 import Button from "@/components/Common/Button/Button";
 import ButtonFloating from "@/components/Common/Button/ButtonFloating";
-import DropdownList from "@/components/Common/Dropdown/DropdownList";
+import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import InputReply from "@/components/Tasklist/InputReply";
@@ -59,16 +59,14 @@ export default function TaskDetailsContainer() {
           {mockTask.title}
         </h3>
         <div className="relative">
-          <SVGIcon icon="kebabLarge" onClick={kebab.handleKebabClick} />
-          {kebab.isDropdownOpen && (
-            <DropdownList
-              isOpen
-              options={kebab.dropdownOptions}
-              size="sm"
-              position="absolute right-0 top-full mt-5"
-              onSelect={kebab.handleDropdownSelect}
-            />
-          )}
+          <Dropdown
+            options={kebab.dropdownOptions}
+            size="md"
+            trigger="icon"
+            icon="kebabLarge"
+            listPosition="absolute right-0 top-full mt-5"
+            onSelect={kebab.handleDropdownSelect}
+          />
         </div>
         <Modal
           isOpen={kebab.isModalOpen}

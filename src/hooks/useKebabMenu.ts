@@ -17,22 +17,15 @@ export default function useKebabMenu({
 }: UseKebabMenuProps) {
   const KEBAB_MENU_OPTIONS = ["수정하기", "삭제하기"];
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState(initialContent);
 
-  const handleKebabClick = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
   const handleDropdownSelect = (value: string) => {
     if (value === "수정하기") {
       setIsEditing(true);
-      setIsDropdownOpen(false);
     } else {
       setIsModalOpen(true);
-      setIsDropdownOpen(false);
     }
   };
 
@@ -57,7 +50,6 @@ export default function useKebabMenu({
   };
 
   return {
-    isDropdownOpen,
     isModalOpen,
     isEditing,
     content,
@@ -65,7 +57,6 @@ export default function useKebabMenu({
     dropdownOptions: KEBAB_MENU_OPTIONS,
     deleteModalTitle,
     deleteModalDescription,
-    handleKebabClick,
     handleDropdownSelect,
     handleSaveEdit,
     handleCancelEdit,
