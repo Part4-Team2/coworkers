@@ -40,7 +40,7 @@ export interface AvatarConfig {
 }
 
 export interface ModalHeaderProps {
-  title?: string | React.ReactNode;
+  title?: string | ReactNode;
   description?: string | string[];
   icon?: ReactNode | IconConfig;
   avatar?: AvatarConfig;
@@ -57,7 +57,7 @@ export interface ModalProps {
   showCloseButton?: boolean;
 
   // 헤더
-  title?: string | React.ReactNode;
+  title?: string | ReactNode;
   description?: string | string[];
   icon?: ReactNode | IconConfig;
   avatar?: AvatarConfig;
