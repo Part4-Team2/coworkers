@@ -14,7 +14,6 @@ export async function postSignup(data: SignUpRequestBody) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-    credentials: "include", // 쿠키 포함
   });
 
   if (!response.ok) {
@@ -29,13 +28,21 @@ export async function postSignup(data: SignUpRequestBody) {
 }
 
 export async function postSignin(data: SignInRequestBody) {
-  const response = await fetch(`${BASE_URL}/auth/signIn`, {
+  const response = await fetch("/api/auth/signin", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
+
+  if (!response.ok) {
+    const error = await response.json();
+    return {
+      error: true,
+      message: error.message || "로그인에 실패했습니다.",
+    };
+  }
   return (await response.json()) as SignInResponse;
 }
 

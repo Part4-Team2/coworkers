@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BASE_URL } from "@/constants/api";
-import { SignUpRequestBody } from "@/types/api/auth";
+import { SignInRequestBody } from "@/types/api/auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const body: SignUpRequestBody = await request.json();
+    const body: SignInRequestBody = await request.json();
 
     // 백엔드 API 호출
-    const response = await fetch(`${BASE_URL}/auth/signUp`, {
+    const response = await fetch(`${BASE_URL}/auth/signIn`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
