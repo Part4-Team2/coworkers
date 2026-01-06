@@ -73,17 +73,11 @@ async function proxyRequest(
 
     // 쿠키에서 accessToken 읽기
     const accessToken = request.cookies.get("accessToken")?.value;
-    console.log("[API Proxy] accessToken:", accessToken ? "exists" : "missing");
-    console.log("[API Proxy] pathSegments:", pathSegments);
 
     // 경로 조합 (예: ['user'] -> '/user', ['groups', '1', 'member'] -> '/groups/1/member')
     const backendPath = `/${pathSegments.join("/")}`;
     const searchParams = request.nextUrl.search;
     const backendUrl = `${BASE_URL}${backendPath}${searchParams}`;
-
-    console.log("[API Proxy] BASE_URL:", BASE_URL);
-    console.log("[API Proxy] Backend URL:", backendUrl);
-    console.log("[API Proxy] Method:", request.method);
 
     // 요청 헤더 준비
     const headers = new Headers();
@@ -91,9 +85,6 @@ async function proxyRequest(
     // accessToken이 있으면 Authorization 헤더 추가
     if (accessToken) {
       headers.set("Authorization", `Bearer ${accessToken}`);
-      console.log("[API Proxy] Authorization header added");
-    } else {
-      console.log("[API Proxy] WARNING: No accessToken in cookie");
     }
 
     // 요청 body 처리
@@ -114,13 +105,6 @@ async function proxyRequest(
       }
     }
 
-    // 백엔드로 프록시 요청
-    console.log("[API Proxy] Sending request to backend...");
-    console.log(
-      "[API Proxy] Request headers:",
-      Object.fromEntries(headers.entries())
-    );
-
     let response: Response;
     try {
       response = await fetch(backendUrl, {
@@ -128,23 +112,8 @@ async function proxyRequest(
         headers,
         body,
       });
-      console.log("[API Proxy] Backend response status:", response.status);
-      console.log("[API Proxy] Backend response ok:", response.ok);
     } catch (fetchError) {
-      console.error("[API Proxy] Fetch failed:", fetchError);
-      console.error("[API Proxy] Fetch error details:", {
-        message:
-          fetchError instanceof Error ? fetchError.message : String(fetchError),
-        backendUrl,
-        method: request.method,
-      });
       throw fetchError;
-    }
-
-    // Unauthorized 에러인 경우 로깅
-    if (response.status === 401) {
-      console.error("[API Proxy] UNAUTHORIZED ERROR from backend");
-      console.error("[API Proxy] Was accessToken sent?", !!accessToken);
     }
 
     // 응답 헤더 복사
@@ -175,8 +144,6 @@ async function proxyRequest(
           headers: responseHeaders,
         });
       } catch (parseError) {
-        console.error("[API Proxy] JSON parse error:", parseError);
-        console.error("[API Proxy] Response text:", data.substring(0, 200));
         // 파싱 실패 시 원본 텍스트 반환
         return new NextResponse(data, {
           status: response.status,
@@ -193,12 +160,6 @@ async function proxyRequest(
       headers: responseHeaders,
     });
   } catch (error) {
-    console.error("[API Proxy] Proxy error:", error);
-    console.error("[API Proxy] Error details:", {
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      BASE_URL,
-    });
     return NextResponse.json(
       {
         error: true,
