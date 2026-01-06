@@ -1,6 +1,8 @@
 "use client";
 
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+import { formatDate, formatTime } from "@/utils/date";
+import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
 
 // api response 확인 이후 타입이 변경될 수 있습니다.
@@ -28,36 +30,6 @@ export default function List({
   frequency,
   date,
 }: ListProps) {
-  const formatDate = (isoDate: string) => {
-    const dateObj = new Date(isoDate);
-    return dateObj.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "Asia/Seoul",
-    });
-  };
-
-  const formatTime = (isoDate: string) => {
-    const dateObj = new Date(isoDate);
-    return dateObj.toLocaleTimeString("ko-KR", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "Asia/Seoul",
-    });
-  };
-
-  const getFrequencyText = (freq?: string) => {
-    const frequencyMap = {
-      ONCE: "한 번만",
-      DAILY: "매일 반복",
-      WEEKLY: "매주 반복",
-      MONTHLY: "매월 반복",
-    };
-    return frequencyMap[freq as keyof typeof frequencyMap] ?? "-";
-  };
-
   return (
     <div className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-[8px]">
       <div className="flex items-center justify-between ">
