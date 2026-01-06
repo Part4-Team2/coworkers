@@ -9,15 +9,23 @@ import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import InputReply from "@/components/Tasklist/InputReply";
 import Reply from "@/components/Tasklist/Reply";
 import useKebabMenu from "@/hooks/useKebabMenu";
-import { mockTask } from "@/mocks/task";
+import { Task } from "@/types/task";
+import { formatDate, formatTime } from "@/utils/date";
+import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
 import { useState } from "react";
 
-export default function TaskDetailsContainer() {
-  const [isComplete, setIsComplete] = useState(false);
+type TaskDetailsContainerProps = {
+  task: Task;
+};
+
+export default function TaskDetailsContainer({
+  task,
+}: TaskDetailsContainerProps) {
+  const [isComplete, setIsComplete] = useState(task.isToggle);
 
   const kebab = useKebabMenu({
-    initialContent: mockTask.description,
+    initialContent: task.description || "", // 실제 api 이후엔 || "" 제거
     onSave: (newContent) => {
       console.log("api PATCH 로직", newContent);
       // 실제 api 호출
@@ -28,7 +36,7 @@ export default function TaskDetailsContainer() {
     },
     deleteModalTitle: (
       <>
-        &apos;{mockTask.title}&apos; <br />할 일을 정말 삭제하시겠어요?
+        &apos;{task.content}&apos; <br />할 일을 정말 삭제하시겠어요?
       </>
     ),
   });
@@ -56,7 +64,7 @@ export default function TaskDetailsContainer() {
       )}
       <div className="flex items-center justify-between">
         <h3 className={clsx("text-xl font-bold", isComplete && "line-through")}>
-          {mockTask.title}
+          {task.content}
         </h3>
         <div className="relative">
           <Dropdown
@@ -85,12 +93,12 @@ export default function TaskDetailsContainer() {
         />
       </div>
       <div className="flex items-center">
-        <Avatar altText={`${mockTask.writer.nickname} 프로필`} size="large" />
+        <Avatar altText={`${task.writer?.nickname} 프로필`} size="large" />
         <span className="ml-12 text-md font-medium">
-          {mockTask.writer.nickname}
+          {task.writer?.nickname}
         </span>
         <span className="ml-auto text-text-secondary text-md font-regular">
-          {mockTask.createdAt}
+          {task.createdAt ? formatDate(task.createdAt) : "-"}
         </span>
       </div>
 
@@ -98,17 +106,17 @@ export default function TaskDetailsContainer() {
         <div className="flex items-center gap-10 text-text-default text-xs font-regular">
           <div className="flex items-center gap-6">
             <SVGIcon icon="calendar" size="xxs" />
-            <span>{mockTask.date}</span>
+            <span>{task.date ? formatDate(task.date) : "-"}</span>
           </div>
           <div className="w-px h-8 bg-background-tertiary" />
           <div className="flex items-center gap-6">
             <SVGIcon icon="iconTime" size="xxs" />
-            <span>{mockTask.time}</span>
+            <span>{task.date ? formatTime(task.date) : "-"}</span>
           </div>
           <div className="w-px h-8 bg-background-tertiary " />
           <div className="flex items-center gap-6">
             <SVGIcon icon="iconRepeat" size="xxs" />
-            <span>{mockTask.frequency}</span>
+            <span>{getFrequencyText(task.frequency)}</span>
           </div>
         </div>
       )}
