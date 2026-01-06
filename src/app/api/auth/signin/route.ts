@@ -33,16 +33,16 @@ export async function POST(request: NextRequest) {
 
     // accessToken 쿠키 설정
     apiResponse.cookies.set("accessToken", data.accessToken, {
-      httpOnly: true, // XSS 방지를 위해 JavaScript에서 접근 불가
-      secure: process.env.NODE_ENV === "production", // HTTPS에서만 전송
+      // httpOnly: true, // XSS 방지를 위해 JavaScript에서 접근 불가
+      // secure: process.env.NODE_ENV === "production", // HTTPS에서만 전송
       sameSite: "strict", // CSRF 방지
       maxAge: 60 * 60 * 24 * 7, // 7일
     });
 
     // refreshToken 쿠키 설정
     apiResponse.cookies.set("refreshToken", data.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 60 * 60 * 24 * 30, // 30일 (refreshToken은 더 길게)
     });
