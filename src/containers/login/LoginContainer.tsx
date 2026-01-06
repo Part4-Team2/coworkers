@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { InputConfig } from "@/components/Common/Form/types";
 import { postSignin } from "@/api/auth";
 import { SignInRequestBody } from "@/types/api/auth";
-
+// login, signup은 API route가 아니라 서버 액션으로 구현
 interface LoginFormData {
   email: string;
   password: string;
@@ -61,7 +61,10 @@ export default function LoginContainer() {
         setLoginError(response.message);
         return;
       }
+      // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
+      console.log("response", response);
       router.push("/");
+      // 관련된 모든 처리는 서버에서 관리해야함! 현재는 클라이언트
     } catch (error) {
       setError("email", { type: "manual", message: "" });
       setError("password", { type: "manual", message: "" });
