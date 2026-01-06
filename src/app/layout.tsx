@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_BASE_URL ||
       (process.env.NODE_ENV === "development"
         ? "http://localhost:3000"
-        : "https://coworkers-eight.vercel.app")
+        : "https://coworkers-two.vercel.app")
   ),
   title: {
     default: "Coworkers - 팀 협업 관리 서비스",
