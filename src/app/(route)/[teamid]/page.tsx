@@ -1,3 +1,4 @@
+import { trace } from "@opentelemetry/api";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import TeamIdContainer from "@/containers/teamid/TeamIdContainer";
@@ -39,12 +40,68 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function TeamPage({ params }: Props) {
-  const { teamid: teamId } = await params;
+  const tracer = trace.getTracer("coworkers-page");
 
-  // teamId 유효성 검사
-  if (!teamId) {
-    notFound();
-  }
+  return await tracer.startActiveSpan("render-team-page", async (span) => {
+    const startTime = performance.now();
 
-  return <TeamIdContainer teamId={teamId} />;
+    try {
+      const { teamid: teamId } = await params;
+      span.setAttribute("team.id", teamId);
+      span.setAttribute("page.route", "/[teamid]");
+
+      // teamId 유효성 검사
+      if (!teamId) {
+        span.setStatus({ code: 2, message: "Invalid team ID" });
+        notFound();
+      }
+
+      // TODO: 실제 API 구현 시 데이터 fetching 추가
+      // 예시:
+      // const teamData = await tracer.startActiveSpan('fetch-team-data', async (fetchSpan) => {
+      //   fetchSpan.setAttribute('fetch.url', `/api/teams/${teamId}`);
+      //   const response = await fetch(`/api/teams/${teamId}`);
+      //   const data = await response.json();
+      //   fetchSpan.setAttribute('team.name', data.name);
+      //   fetchSpan.setAttribute('team.member_count', data.members?.length || 0);
+      //   fetchSpan.end();
+      //   return data;
+      // });
+
+      span.setAttribute("page.rendered", true);
+      span.setStatus({ code: 0 });
+
+      const component = <TeamIdContainer teamId={teamId} />;
+
+      // 개발 환경에서만 성능 로그 출력
+      if (process.env.NODE_ENV === "development") {
+        const duration = Math.round(performance.now() - startTime);
+        console.log(`[OpenTelemetry] render-team-page:`, {
+          teamId,
+          route: "/[teamid]",
+          duration: `${duration}ms`,
+          status: "success",
+        });
+      }
+
+      return component;
+    } catch (error) {
+      const duration = Math.round(performance.now() - startTime);
+
+      span.recordException(error as Error);
+      span.setStatus({ code: 2, message: "Page render failed" });
+
+      // 개발 환경에서만 에러 로그 출력
+      if (process.env.NODE_ENV === "development") {
+        console.error(`[OpenTelemetry] render-team-page failed:`, {
+          duration: `${duration}ms`,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+      }
+
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
 }

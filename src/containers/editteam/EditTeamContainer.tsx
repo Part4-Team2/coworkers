@@ -6,7 +6,6 @@ import FormFooter from "@/components/Common/Form/FormFooter";
 import Avatar from "@/components/Common/Avatar/Avatar";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { trace } from "@opentelemetry/api";
 import { InputConfig } from "@/components/Common/Form/types";
 import { useImageUpload } from "@/hooks/useImageUpload";
 
@@ -54,110 +53,45 @@ export default function EditTeamContainer({
   });
 
   const uploadImage = async (file: File): Promise<string> => {
-    const tracer = trace.getTracer("coworkers-upload");
+    const formData = new FormData();
+    formData.append("image", file);
 
-    return await tracer.startActiveSpan("upload-team-image", async (span) => {
-      // 파일 메타데이터 추가
-      const fileSizeKB = Math.round(file.size / 1024);
-      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
-
-      span.setAttribute("upload.file_type", file.type);
-      span.setAttribute("upload.file_size_kb", fileSizeKB);
-      span.setAttribute("upload.file_size_mb", fileSizeMB);
-      span.setAttribute("upload.team_id", teamId);
-      span.setAttribute("upload.file_name", file.name);
-
-      console.log("🔍 [OpenTelemetry] 이미지 업로드 시작:", {
-        fileName: file.name,
-        fileType: file.type,
-        sizeKB: fileSizeKB,
-        sizeMB: fileSizeMB,
-        teamId,
+    try {
+      const response = await fetch(`/${teamId}/images/upload`, {
+        method: "POST",
+        body: formData,
       });
 
-      const formData = new FormData();
-      formData.append("image", file);
-
-      try {
-        const startTime = performance.now();
-
-        const response = await fetch(`/${teamId}/images/upload`, {
-          method: "POST",
-          body: formData,
-        });
-
-        const uploadTime = Math.round(performance.now() - startTime);
-        span.setAttribute("upload.duration_ms", uploadTime);
-        span.setAttribute("upload.http_status", response.status);
-
-        if (!response.ok) {
-          // 개발 환경: API 미구현 시 blob URL 사용
-          if (response.status === 404) {
-            console.warn("⚠️ [OpenTelemetry] API 미구현, 미리보기 URL 사용");
-            span.setAttribute("upload.fallback_mode", "preview_url");
-            span.setStatus({ code: 1, message: "Using preview URL fallback" });
-
-            if (!previewUrl) {
-              throw new Error("미리보기 이미지를 사용할 수 없습니다.");
-            }
-            span.end();
-            return previewUrl;
-          }
-          span.setStatus({
-            code: 2,
-            message: `Upload failed with status ${response.status}`,
-          });
-          throw new Error(`이미지 업로드 실패: ${response.status}`);
-        }
-
-        const data: UploadResponse = await response.json();
-        if (!data.url) {
-          span.setStatus({ code: 2, message: "No URL in response" });
-          throw new Error("업로드된 이미지 URL을 받지 못했습니다.");
-        }
-
-        // 성공 메타데이터
-        const speedKbps = Math.round((fileSizeKB / uploadTime) * 1000);
-        span.setAttribute("upload.success", true);
-        span.setAttribute("upload.result_url", data.url);
-        span.setAttribute("upload.speed_kbps", speedKbps);
-        span.setStatus({ code: 0, message: "Upload successful" });
-
-        console.log("✅ [OpenTelemetry] 이미지 업로드 성공:", {
-          duration: `${uploadTime}ms`,
-          speed: `${speedKbps} KB/s`,
-          status: response.status,
-          url: data.url,
-        });
-
-        return data.url;
-      } catch (error) {
-        // 네트워크 에러 (API 서버 없음) - 개발 환경
-        if (
-          error instanceof TypeError &&
-          error.message.includes("Failed to fetch")
-        ) {
-          console.warn("⚠️ [OpenTelemetry] 네트워크 에러, 미리보기 URL 사용");
-          span.setAttribute("upload.fallback_mode", "network_error");
-          span.recordException(error);
-          span.setStatus({ code: 1, message: "Network error, using fallback" });
-
+      if (!response.ok) {
+        // 개발 환경: API 미구현 시 blob URL 사용
+        if (response.status === 404) {
           if (!previewUrl) {
             throw new Error("미리보기 이미지를 사용할 수 없습니다.");
           }
-          span.end();
           return previewUrl;
         }
-
-        // 기타 에러
-        console.error("❌ [OpenTelemetry] 이미지 업로드 실패:", error);
-        span.recordException(error as Error);
-        span.setStatus({ code: 2, message: "Upload failed with exception" });
-        throw error;
-      } finally {
-        span.end();
+        throw new Error(`이미지 업로드 실패: ${response.status}`);
       }
-    });
+
+      const data: UploadResponse = await response.json();
+      if (!data.url) {
+        throw new Error("업로드된 이미지 URL을 받지 못했습니다.");
+      }
+
+      return data.url;
+    } catch (error) {
+      // 네트워크 에러 (API 서버 없음) - 개발 환경
+      if (
+        error instanceof TypeError &&
+        error.message.includes("Failed to fetch")
+      ) {
+        if (!previewUrl) {
+          throw new Error("미리보기 이미지를 사용할 수 없습니다.");
+        }
+        return previewUrl;
+      }
+      throw error;
+    }
   };
 
   const onSubmit = async (data: EditTeamFormData) => {
