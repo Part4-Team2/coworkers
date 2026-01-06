@@ -2,13 +2,16 @@
 
 import clsx from "clsx";
 import Link from "next/link";
+import Dropdown from "../Dropdown/Dropdown";
 import SVGIcon from "../SVGIcon/SVGIcon";
 import SideHeader from "./SideHeader";
 import { useState } from "react";
 
-// 반응형 웹 개발할때 햄버거 아이콘, 작은 로고 도입 예정입니다.
+// 유저 프로필을 누르면 나오는 드롭다운 리스트입니다.
+const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로그아웃"];
+
 // Headers는 props를 받지 않습니다, 로그인 상태, 팀보유 상태를 zustand로 직접 받아올 예정입니다.
-const TEAM: string = "Sales Team"; //추후에 useState 쓸듯, 배열 받아야할지도
+const TEAM: string = "Sales Team";
 const NAME: string = "Doro";
 const isLogin: boolean = true; // zustand 들어오기전 임시로 사용하는 로그인 상태입니다.
 const hasTeam: boolean = isLogin && !!TEAM; // zustand 들어오기전 임시로 사용하는 팀 상태입니다.
@@ -21,13 +24,17 @@ function Header() {
     setIsSideOpen((prev) => !prev);
   };
 
+  const handleProfileClick = () => {
+    console.log("Profile Click");
+  };
+
   return (
     <div className={"bg-background-secondary"}>
       <div
         className={clsx(
           "flex justify-between",
           "max-w-1200 w-full mx-auto py-14",
-          "px-19 lg:px-0"
+          "px-19"
         )}
       >
         <div className="cursor-pointer flex items-center gap-40">
@@ -57,15 +64,20 @@ function Header() {
           )}
         </div>
         {/* 팀명 옆 토글 버튼을 누르면 사이드바가 나옵니다 */}
-        {/* {isSideOpen && (
-          <SideHeader isOpen={isSideOpen} onClick={handleSideClick} />
-        )} */}
         <SideHeader isOpen={isSideOpen} onClick={handleSideClick} />
 
         {/* 로그인 상태면 아래 내용이 mount 됩니다. */}
         {isLogin && (
           <div className="cursor-pointer flex items-center gap-8">
-            <SVGIcon icon="user" size="xxs" />
+            {/* <SVGIcon icon="user" size="xxs" /> */}
+            <Dropdown
+              options={ACCOUNTLIST}
+              onSelect={handleProfileClick}
+              size="sm"
+              trigger="icon"
+              icon="user"
+              listPosition="top-full right-0"
+            />
             <div>{NAME}</div>
           </div>
         )}

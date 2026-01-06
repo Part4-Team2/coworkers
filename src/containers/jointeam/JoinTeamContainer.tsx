@@ -45,7 +45,7 @@ export default function JoinTeamContainer() {
   };
 
   return (
-    <>
+    <div className="w-full flex flex-col lg:items-center">
       <Form
         centered={false}
         topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
@@ -88,6 +88,6 @@ export default function JoinTeamContainer() {
         }}
       />
       <FormFooter>공유받은 팀 링크를 입력해 참여할 수 있어요.</FormFooter>
-    </>
+    </div>
   );
 }

@@ -65,7 +65,6 @@ export default function EditTeamContainer({
       if (!response.ok) {
         // 개발 환경: API 미구현 시 blob URL 사용
         if (response.status === 404) {
-          console.warn("API가 구현되지 않아 미리보기 URL을 사용합니다.");
           if (!previewUrl) {
             throw new Error("미리보기 이미지를 사용할 수 없습니다.");
           }
@@ -78,6 +77,7 @@ export default function EditTeamContainer({
       if (!data.url) {
         throw new Error("업로드된 이미지 URL을 받지 못했습니다.");
       }
+
       return data.url;
     } catch (error) {
       // 네트워크 에러 (API 서버 없음) - 개발 환경
@@ -85,7 +85,6 @@ export default function EditTeamContainer({
         error instanceof TypeError &&
         error.message.includes("Failed to fetch")
       ) {
-        console.warn("API 서버에 연결할 수 없어 미리보기 URL을 사용합니다.");
         if (!previewUrl) {
           throw new Error("미리보기 이미지를 사용할 수 없습니다.");
         }
@@ -144,7 +143,7 @@ export default function EditTeamContainer({
   };
 
   return (
-    <>
+    <div className="w-full flex flex-col lg:items-center">
       <input
         ref={fileInputRef}
         type="file"
@@ -210,6 +209,6 @@ export default function EditTeamContainer({
           팀 이름은 회사명이나 모임 이름 등으로 설정하면 좋아요.
         </span>
       </FormFooter>
-    </>
+    </div>
   );
 }
