@@ -2,6 +2,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import Avatar from "@/components/Common/Avatar/Avatar";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+import ArticleImage from "./ArticleImage";
 
 interface BestArticleProps {
   id: number;
@@ -9,6 +10,7 @@ interface BestArticleProps {
   createdAt: string;
   nickname: string;
   avatarImageUrl?: string;
+  articleImageUrl?: string;
   likeCount: number;
 }
 
@@ -19,6 +21,7 @@ function BestArticle({
   createdAt,
   nickname,
   avatarImageUrl,
+  articleImageUrl,
   likeCount,
 }: BestArticleProps) {
   return (
@@ -39,8 +42,11 @@ function BestArticle({
               <span className="text-white">Best</span>
             </div>
             <div className="flex flex-col gap-12">
-              <div className="text-2lg text-text-secondary overflow-hidden text-ellipsis line-clamp-2">
-                {title}
+              <div className="flex justify-between items-center">
+                <div className="text-2lg text-text-secondary overflow-hidden text-ellipsis line-clamp-2">
+                  {title}
+                </div>
+                {articleImageUrl && <ArticleImage image={articleImageUrl} />}
               </div>
               <div className="text-sm text-slate-400">{createdAt}</div>
             </div>
