@@ -144,7 +144,7 @@ export default function EditTeamContainer({
   };
 
   return (
-    <>
+    <div className="w-full flex flex-col lg:items-center">
       <input
         ref={fileInputRef}
         type="file"
@@ -210,6 +210,6 @@ export default function EditTeamContainer({
           팀 이름은 회사명이나 모임 이름 등으로 설정하면 좋아요.
         </span>
       </FormFooter>
-    </>
+    </div>
   );
 }

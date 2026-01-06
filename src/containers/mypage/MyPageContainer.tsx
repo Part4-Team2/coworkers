@@ -98,8 +98,10 @@ export default function MyPageContainer() {
   };
 
   return (
-    <>
+    <div className="w-full flex flex-col lg:items-center">
       <Form
+        centered={false}
+        topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
         onSubmit={handleSubmitName(onNameSubmit)}
         profile={
           <div className="w-full flex flex-col gap-4 sm:gap-6 lg:gap-8">
@@ -272,6 +274,6 @@ export default function MyPageContainer() {
           onClick: handleClose,
         }}
       />
-    </>
+    </div>
   );
 }

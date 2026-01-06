@@ -47,7 +47,7 @@ export default function ResetContainer() {
   };
 
   return (
-    <>
+    <div className="w-full flex flex-col lg:items-center">
       <Form
         centered={false}
         topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
@@ -117,6 +117,6 @@ export default function ResetContainer() {
           full: true,
         }}
       />
-    </>
+    </div>
   );
 }
