@@ -1,0 +1,108 @@
+"use client";
+
+import clsx from "clsx";
+import Image from "next/image";
+import SVGIcon from "../Common/SVGIcon/SVGIcon";
+import { useRef, useEffect } from "react";
+
+interface ArticleImageProps {
+  image?: string | null;
+  onChange: (file: File | null, previewUrl: string | null) => void;
+}
+
+// 이미지 용량 제한 10mb로 임시 설정하였습니다.
+const MAXSIZE = 10 * 1024 * 1024;
+
+// 게시글 이미지 입로드 할 수 있는 컴포넌트입니다.
+function ArticleImageUpload({ image = null, onChange }: ArticleImageProps) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImageClick = () => {
+    if (!image) {
+      inputRef.current?.click();
+    }
+  };
+
+  // 이미지를 선택을 반영하는 함수입니다.
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("이미지 파일만 업로드할 수 있습니다.");
+      return;
+    }
+
+    if (file.size > MAXSIZE) {
+      alert("이미지 크기는 10MB 이하여야합니다.");
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    onChange(file, previewUrl);
+  };
+
+  // 선택한 이미지를 삭제하는 함수입니다.
+  const deleteImage = () => {
+    onChange(null, null);
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  };
+
+  // 이전 이미지 URL을 해제하는 함수, 메모리 누수 방지
+  useEffect(() => {
+    return () => {
+      if (image && image.startsWith("blob:")) {
+        URL.revokeObjectURL(image);
+      }
+    };
+  }, [image]);
+
+  return (
+    <div
+      onClick={handleImageClick}
+      className={clsx(
+        "w-160 h-160 sm:w-282 sm:h-282 bg-background-secondary",
+        "border border-border-primary hover:border-brand-primary",
+        "rounded-xl cursor-pointer relative",
+        "overflow-hidden",
+        "flex items-center justify-center"
+      )}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      {image ? (
+        <>
+          <Image src={image} alt="preview image" fill />
+          <div
+            className={clsx(
+              "flex flex-col gap-12 items-center",
+              "absolute top-60 right-40 sm:top-110 sm:right-100"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              deleteImage();
+            }}
+          >
+            <SVGIcon icon="x" size="md" />
+            <div className="text-gray-400 text-base">이미지 삭제</div>
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-12 items-center">
+          <SVGIcon icon="plus" size="md" />
+          <div className="text-gray-400 text-base">이미지 등록</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ArticleImageUpload;

@@ -2,13 +2,17 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-import ButtonFloating from "@/components/Common/Button/ButtonFloating";
+import Button from "@/components/Common/Button/Button";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  // 함수는 추후 navigating으로 변경됩니다.
+  const Router = useRouter();
+
+  // 버튼을 누르면 로그인 페이지로 이동합니다.
   const handleClick = () => {
     console.log("Button click");
+    Router.push("/login");
   };
 
   return (
@@ -22,11 +26,15 @@ export default function Home() {
             "flex flex-col justify-between items-center",
             "py-84 h-640 sm:h-940 lg:h-1080",
             "bg-[url(/landing/main/size-small.png)] sm:bg-[url(/landing/main/size-medium.png)] lg:bg-[url(/landing/main/size-large.png)]",
-            "bg-no-repeat bg-center"
+            "bg-no-repeat bg-center bg-cover"
           )}
         >
           <article
-            className={clsx("flex flex-col gap-20", "items-center", "w-612")}
+            className={clsx(
+              "flex flex-col gap-20",
+              "items-center",
+              "max-w-612 w-full"
+            )}
           >
             <div className={clsx("flex items-center gap-24")}>
               <div className="text-2xl sm:text-4xl lg:text-5xl font-semibold leading-none">
@@ -43,10 +51,9 @@ export default function Home() {
               Coworkers
             </div>
           </article>
-          {/* 색상이 초록색으로 고정됩니다, 추후에 그라디언트 색상이 들어오면 변경 예정입니다. */}
-          <ButtonFloating
+          <Button
             label="지금 시작하기"
-            variant="solid"
+            variant="gradient"
             size="large"
             width="373px"
             onClick={handleClick}
@@ -63,7 +70,7 @@ export default function Home() {
             <div
               className={clsx(
                 "flex flex-col-reverse gap-40 sm:flex-row justify-around items-center",
-                "px-54 pt-48 sm:pt-81"
+                "px-16 sm:px-54 pt-48 sm:pt-81"
               )}
             >
               <div
@@ -105,7 +112,7 @@ export default function Home() {
             <div
               className={clsx(
                 "flex flex-col-reverse gap-40 sm:flex-row justify-around items-center",
-                "px-54 pb-48 sm:pb-81"
+                "px-16 sm:px-54 pb-48 sm:pb-81"
               )}
             >
               <div className="flex flex-col gap-16">
@@ -137,7 +144,6 @@ export default function Home() {
               </div>
             </div>
           </article>
-          {/* 이미지 부분 간격이 안 맞습니다 여려분의 의견이 필요합니다. */}
           <article
             className={clsx(
               "w-343 sm:w-696 lg:w-996 rounded-4xl border bg-black",
@@ -185,13 +191,14 @@ export default function Home() {
           className={clsx(
             "pt-230 h-1080",
             "bg-[url(/landing/bottom/size=small.png)] sm:bg-[url(/landing/bottom/size=medium.png)] lg:bg-[url(/landing/bottom/size=large.png)]",
-            "bg-no-repeat bg-center"
+            "bg-no-repeat bg-center bg-cover"
           )}
         >
           <div className="flex flex-col gap-24 items-center">
             <div className="text-4xl font-semibold">지금 바로 시작해보세요</div>
-            <div className="text-xl font-medium">
-              팀원 모두와 같은 방향, 같은 속도로 나아가는 가장 쉬운 방법
+            <div className="text-xl font-medium text-center">
+              팀원 모두와 같은 방향, 같은 속도로 나아가는
+              <br className="sm:hidden"></br> 가장 쉬운 방법
             </div>
           </div>
         </section>
