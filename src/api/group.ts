@@ -9,7 +9,7 @@ DELETE /{teamId}/groups/{id}
 */
 
 export async function postGroup(data: CreateGroupBody) {
-  const response = await fetch(`${BASE_URL}/groups`, {
+  const response = await fetch("/api/proxy/groups", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -40,7 +40,7 @@ export async function postGroupAcceptInvitation(data: {
   userEmail: string;
   token: string;
 }) {
-  const response = await fetch(`${BASE_URL}/groups/accept-invitation`, {
+  const response = await fetch("/api/proxy/groups/accept-invitation", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -55,7 +55,7 @@ export async function postGroupMember(
   groupId: number,
   data: { userEmail: string }
 ) {
-  const response = await fetch(`${BASE_URL}/groups/${groupId}/member`, {
+  const response = await fetch(`/api/proxy/groups/${groupId}/member`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

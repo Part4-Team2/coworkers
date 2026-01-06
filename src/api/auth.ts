@@ -47,7 +47,7 @@ export async function postSignin(data: SignInRequestBody) {
 }
 
 export async function postRefreshToken(data: { refreshToken: string }) {
-  const response = await fetch(`${BASE_URL}/auth/refresh-token`, {
+  const response = await fetch("/api/proxy/auth/refresh-token", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export async function postRefreshToken(data: { refreshToken: string }) {
 }
 
 export async function postSigninKakao(data: SignInWithOauthRequestBody) {
-  const response = await fetch(`${BASE_URL}/auth/signIn/kakao`, {
+  const response = await fetch("/api/proxy/auth/signIn/kakao", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
