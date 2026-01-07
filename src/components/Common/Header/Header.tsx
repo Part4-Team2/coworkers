@@ -4,15 +4,25 @@ import clsx from "clsx";
 import Link from "next/link";
 import Dropdown from "../Dropdown/Dropdown";
 import SVGIcon from "../SVGIcon/SVGIcon";
-import SideHeader from "./SideHeader";
+import SideHeaderMobile from "./SideHeader/SideHeaderMobile";
+import SideHeaderDesktop from "./SideHeader/SideHeaderDesktop";
 import { useState } from "react";
 
 // 유저 프로필을 누르면 나오는 드롭다운 리스트입니다.
 const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로그아웃"];
 
 // Headers는 props를 받지 않습니다, 로그인 상태, 팀보유 상태를 zustand로 직접 받아올 예정입니다.
-const TEAM: string = "Sales Team";
+
+const TEAMS: string[] = [
+  "Sales Team",
+  "Marketing Team",
+  "Administration Team",
+  "Develop Team",
+];
+
+const TEAM: string = TEAMS[0];
 const NAME: string = "Doro";
+
 const isLogin: boolean = true; // zustand 들어오기전 임시로 사용하는 로그인 상태입니다.
 const hasTeam: boolean = isLogin && !!TEAM; // zustand 들어오기전 임시로 사용하는 팀 상태입니다.
 
@@ -50,11 +60,29 @@ function Header() {
             </Link>
           </div>
           {hasTeam && (
-            <div className="hidden sm:flex gap-10">
-              <div>{TEAM}</div>
-              <div className="cursor-pointer" onClick={handleSideClick}>
-                <SVGIcon icon="toggle" />
+            <div className="relative">
+              <div className="hidden sm:flex gap-10">
+                <div>{TEAM}</div>
+                <div className="cursor-pointer" onClick={handleSideClick}>
+                  <SVGIcon icon="toggle" />
+                </div>
+                <div className="hidden sm:block">
+                  <SideHeaderDesktop
+                    isOpen={isSideOpen}
+                    onClick={handleSideClick}
+                    teams={TEAMS}
+                  />
+                </div>
               </div>
+            </div>
+          )}
+          {isSideOpen && (
+            <div className="sm:hidden">
+              <SideHeaderMobile
+                isOpen={isSideOpen}
+                onClick={handleSideClick}
+                teams={TEAMS}
+              />
             </div>
           )}
           {isLogin && (
@@ -64,7 +92,6 @@ function Header() {
           )}
         </div>
         {/* 팀명 옆 토글 버튼을 누르면 사이드바가 나옵니다 */}
-        <SideHeader isOpen={isSideOpen} onClick={handleSideClick} />
 
         {/* 로그인 상태면 아래 내용이 mount 됩니다. */}
         {isLogin && (
