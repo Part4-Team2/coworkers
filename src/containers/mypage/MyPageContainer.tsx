@@ -140,6 +140,9 @@ export default function MyPageContainer({
           setIsSubmitting(false);
           return;
         }
+
+        // 성공 피드백 및 데이터 갱신
+        router.refresh(); // 서버에서 최신 데이터 가져오기
       }
     } catch (error) {
       setNameError("업데이트에 실패했습니다. 다시 시도해주세요.");
