@@ -9,7 +9,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { InputConfig } from "@/components/Common/Form/types";
-
+import { postSignin } from "@/api/auth";
+import { SignInRequestBody } from "@/types/api/auth";
+// login, signup은 API route가 아니라 서버 액션으로 구현
 interface LoginFormData {
   email: string;
   password: string;
@@ -49,20 +51,20 @@ export default function LoginContainer() {
 
   const onSubmit = async (data: LoginFormData) => {
     setLoginError("");
+    const requestData: SignInRequestBody = {
+      email: data.email,
+      password: data.password,
+    };
     try {
-      // TODO: 실제 로그인 API 호출
-      // const response = await loginAPI(data);
-      // if (response.success) {
-      //   router.push("/");
-      // } else {
-      //   setError("email", { type: "manual", message: "" });
-      //   setError("password", { type: "manual", message: "" });
-      //   setLoginError("이메일 혹은 비밀번호를 확인해주세요.");
-      // }
-
-      // 임시: 성공 시 홈으로 이동
-      // console.log("로그인 시도:", data);
+      const response = await postSignin(requestData);
+      if ("error" in response) {
+        setLoginError(response.message);
+        return;
+      }
+      // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
+      console.log("response", response);
       router.push("/");
+      // 관련된 모든 처리는 서버에서 관리해야함! 현재는 클라이언트
     } catch (error) {
       setError("email", { type: "manual", message: "" });
       setError("password", { type: "manual", message: "" });

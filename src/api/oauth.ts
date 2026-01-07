@@ -14,7 +14,7 @@ appSecret: 필요하지 않음
 실습을 위해 발급받은 키를 등록해주세요. 실제 서비스에서 사용 하는 키를 등록해서는 안됩니다.
 */
 export async function postOauthApps(data: UpsertOauthAppRequestBody) {
-  const response = await fetch(`${BASE_URL}/oauth/apps`, {
+  const response = await fetch("/api/proxy/oauth/apps", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
