@@ -22,7 +22,7 @@ type TaskDetailsContainerProps = {
 export default function TaskDetailsContainer({
   task,
 }: TaskDetailsContainerProps) {
-  const [isComplete, setIsComplete] = useState(task.isToggle);
+  const [isComplete, setIsComplete] = useState(task.isToggle ?? false);
 
   const kebab = useKebabMenu({
     initialContent: task.description || "", // 실제 api 이후엔 || "" 제거
