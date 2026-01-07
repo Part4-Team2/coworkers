@@ -157,6 +157,8 @@ export default function MyPageContainer({
   };
 
   const onPasswordChangeSubmit = async (data: PasswordChangeFormData) => {
+    if (isSubmitting) return;
+
     setPasswordChangeError("");
 
     try {
@@ -186,13 +188,13 @@ export default function MyPageContainer({
   };
 
   const handleWithdraw = async () => {
+    if (isSubmitting) return;
     try {
       setIsSubmitting(true);
       const response = await deleteUser();
 
       if ("error" in response) {
         setNameError(response.message || "회원 탈퇴에 실패했습니다.");
-        setIsSubmitting(false);
         return;
       }
 
@@ -200,6 +202,7 @@ export default function MyPageContainer({
       router.replace("/login");
     } catch (error) {
       setNameError("회원 탈퇴에 실패했습니다. 다시 시도해주세요.");
+    } finally {
       setIsSubmitting(false);
     }
   };
