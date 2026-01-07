@@ -19,8 +19,9 @@ function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
     onClick();
   };
 
-  const handleClickKebab = () => {
-    console.log("Team kebab");
+  // 팀별 케밥 트리거 활성화시 작동하는 함수입니다.
+  const handleClickKebab = (option: string) => {
+    console.log(`${option} 항목 누름`);
   };
 
   return (
@@ -70,7 +71,7 @@ function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
                 <div onClick={(e) => e.stopPropagation()}>
                   <Dropdown
                     options={TEAMSETTINGS}
-                    onSelect={handleClickKebab}
+                    onSelect={(option) => handleClickKebab(option)}
                     size="sm"
                     trigger="icon"
                     icon="kebabLarge"
