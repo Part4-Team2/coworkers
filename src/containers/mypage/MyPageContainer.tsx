@@ -123,8 +123,7 @@ export default function MyPageContainer({
 
       // 이름이 변경되었거나 이미지가 업로드된 경우 업데이트
       const shouldUpdateName = data.name !== initialNickname;
-      const shouldUpdateImage =
-        selectedFile && uploadedImageUrl !== initialImage;
+      const shouldUpdateImage = selectedFile && uploadedImageUrl;
 
       if (shouldUpdateName || shouldUpdateImage) {
         const updateData: { nickname?: string; image?: string | null } = {};

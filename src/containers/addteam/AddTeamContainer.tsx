@@ -60,13 +60,8 @@ export default function AddTeamContainer() {
           }
           uploadedImageUrl = imageResponse.url;
         } catch (error) {
-          // 이미지 업로드 실패 시 blob URL 사용 (개발 환경)
-          if (previewUrl && previewUrl.startsWith("blob:")) {
-            uploadedImageUrl = previewUrl;
-          } else {
-            setAddTeamError("이미지 업로드에 실패했습니다.");
-            return;
-          }
+          setAddTeamError("이미지 업로드에 실패했습니다.");
+          return;
         }
       }
 
@@ -82,7 +77,6 @@ export default function AddTeamContainer() {
       }
 
       // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
-      console.log("response", response);
       router.push(`/${response.id}`);
     } catch (error) {
       setAddTeamError("팀 생성에 실패했습니다. 다시 시도해주세요.");
