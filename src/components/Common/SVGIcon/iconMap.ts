@@ -52,6 +52,7 @@ import SecessionIcon from "@/assets/icon/secession.svg";
 import MedalIcon from "@/assets/icon/medal.svg";
 import SearchIcon from "@/assets/icon/search.svg";
 import HeartIcon from "@/assets/icon/heart.svg";
+import AvatarIcon from "@/assets/icon/avatar.svg";
 
 export const IconMap = {
   alert: AlertIcon,
@@ -90,6 +91,7 @@ export const IconMap = {
   medal: MedalIcon,
   search: SearchIcon,
   heart: HeartIcon,
+  avatar: AvatarIcon,
   // btn
   btnArrowLeft: BtnArrowLeftIcon,
   btnArrowRight: BtnArrowRightIcon,

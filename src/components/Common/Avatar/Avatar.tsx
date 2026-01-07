@@ -13,6 +13,7 @@ interface AvatarProps {
   size?: keyof typeof AVATAR_SIZE_MAP;
   isEditable?: boolean;
   onEditClick?: () => void;
+  variant?: "user" | "team";
 }
 
 export default function Avatar({
@@ -21,13 +22,15 @@ export default function Avatar({
   size = "xlarge",
   isEditable = false,
   onEditClick,
+  variant,
 }: AvatarProps) {
   const pixelSize = AVATAR_SIZE_MAP[size];
 
+  const defaultIcon = variant === "team" ? "img" : "avatar";
   const AvatarContent = (
     <>
       <div
-        className="overflow-hidden rounded-full"
+        className="overflow-hidden rounded-full bg-background-tertiary p-5 border-2 border-border-primary"
         style={{ width: pixelSize, height: pixelSize }}
       >
         {imageUrl ? (
@@ -40,7 +43,7 @@ export default function Avatar({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <SVGIcon icon="image" size={pixelSize} />
+            <SVGIcon icon={defaultIcon} size={pixelSize} />
           </div>
         )}
       </div>
