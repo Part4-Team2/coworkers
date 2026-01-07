@@ -1,28 +1,27 @@
 import clsx from "clsx";
-import SVGIcon from "../SVGIcon/SVGIcon";
+import SVGIcon from "../../SVGIcon/SVGIcon";
 
 interface SideHeaderProps {
   isOpen: boolean;
+  teams: string[];
   onClick: () => void;
 }
 
-const MOCKDATA: string[] = [
-  "Sales Team",
-  "Marketing Team",
-  "Administration Team",
-  "Develop Team",
-];
-
 // Header 컴포 요소 중 팀 옆 토글 버튼 누를사 등장하는 사이드 바입니다.
-function SideHeader({ isOpen, onClick }: SideHeaderProps) {
-  const teams: string[] = MOCKDATA; // 팀 받아올때 zustand로 받아올 것 같습니다.
+function SideHeaderMobile({ isOpen, teams, onClick }: SideHeaderProps) {
+  // Team 명을 클릭할때 소속 팀 화면으로 이동하는 함수입니다.
+  // button이 아닌 Link로 변경할 수 있습니다.
+  const handleClickTeam = (team: string) => {
+    console.log(team);
+    onClick();
+  };
 
   return (
     <div
       className={clsx(
+        "fixed top-0 left-0 z-50",
         "min-h-screen",
         "bg-background-secondary w-204 p-16",
-        "fixed top-0 left-0",
         "transform transition-transform duration-300 ease-out",
         isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
       )}
@@ -32,12 +31,15 @@ function SideHeader({ isOpen, onClick }: SideHeaderProps) {
           <SVGIcon icon="x" className="cursor-pointer" />
         </div>
         <div className="flex flex-col gap-24">
-          {/* 배열로 받는 방식이 아니면 과감히 변경할 예정입니다. */}
           {teams.map((team) => {
             return (
-              <div key={team} className="cursor-pointer">
+              <button
+                key={team}
+                className="cursor-pointer hover:bg-background-tertiary"
+                onClick={() => handleClickTeam(team)}
+              >
                 {team}
-              </div>
+              </button>
             );
           })}
         </div>
@@ -46,4 +48,4 @@ function SideHeader({ isOpen, onClick }: SideHeaderProps) {
   );
 }
 
-export default SideHeader;
+export default SideHeaderMobile;
