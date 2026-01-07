@@ -101,7 +101,8 @@ export async function deleteUser() {
     cookieStore.delete("accessToken");
     cookieStore.delete("refreshToken");
 
-    return await response.json();
+    // 성공 응답 반환 (클라이언트에서 리다이렉트 처리)
+    return { success: true };
   } catch (error) {
     return {
       error: true,
