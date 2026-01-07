@@ -156,19 +156,19 @@ export default function LoginContainer() {
               showError: !!errors.password || !!loginError,
             } as InputConfig,
           ]}
-          optionAlign="end"
+          optionAlign="start"
           option={
-            <>
+            <div className="flex flex-col gap-4 w-full">
               {loginError && (
                 <p className="text-xs text-status-danger">{loginError}</p>
               )}
               <div
                 onClick={() => setOpenModal("password-reset")}
-                className="text-sm text-emerald-500 underline cursor-pointer"
+                className="text-sm text-emerald-500 underline cursor-pointer self-end"
               >
                 비밀번호를 잊으셨나요?
               </div>
-            </>
+            </div>
           }
           button={{
             label: "로그인",

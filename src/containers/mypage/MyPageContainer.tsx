@@ -266,7 +266,7 @@ export default function MyPageContainer({
           } as InputConfig,
         ]}
         option={
-          <>
+          <div className="flex flex-col gap-4">
             {nameError && (
               <p className="w-full text-xs text-status-danger">{nameError}</p>
             )}
@@ -277,7 +277,7 @@ export default function MyPageContainer({
               <SVGIcon icon="secession" />
               <span>회원 탈퇴하기</span>
             </div>
-          </>
+          </div>
         }
         optionAlign="start"
       />
