@@ -7,8 +7,8 @@ interface SideHeaderProps {
   onClick: () => void;
 }
 
-// 팀명 옆 케밥버튼 누를때 뜨는 버튼입니다.
-const TEAMSETTINGS = ["하나", "둘"];
+// 팀명 옆 케밥버튼 누를때 뜨는 버튼입니다. 임시로 설정하였습니다.
+const TEAMSETTINGS = ["팀 설정하기", "팀 나가기"];
 
 // Header 컴포 요소 중 팀 옆 토글 버튼 누를사 등장하는 사이드 바입니다.
 function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
@@ -29,7 +29,7 @@ function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
         "absolute top-full right-0 z-50",
         "bg-background-secondary w-218 p-16",
         "border border-text-primary/10 rounded-xl",
-        isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
+        isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
       )}
     >
       <div className="flex flex-col gap-16">
