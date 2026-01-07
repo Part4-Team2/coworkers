@@ -16,6 +16,15 @@ export async function postGroup(data: CreateGroupBody) {
     },
     body: JSON.stringify(data),
   });
+
+  if (!response.ok) {
+    const error = await response.json();
+    return {
+      error: true,
+      message: error.message || "팀 생성에 실패했습니다.",
+    };
+  }
+
   return (await response.json()) as {
     name: string;
     image: string | null;
