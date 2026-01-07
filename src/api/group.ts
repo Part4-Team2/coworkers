@@ -1,3 +1,6 @@
+"use server";
+
+import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/constants/api";
 import { CreateGroupBody } from "@/types/api/group";
 
@@ -9,29 +12,33 @@ DELETE /{teamId}/groups/{id}
 */
 
 export async function postGroup(data: CreateGroupBody) {
-  const response = await fetch("/api/proxy/groups", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  try {
+    const response = await fetchApi(`${BASE_URL}/groups`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
+    if (!response.ok) {
+      const error = await response.json();
+      return {
+        error: true,
+        message: error.message || "팀 생성에 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as {
+      name: string;
+      image: string | null;
+      updatedAt: string;
+      createdAt: string;
+      id: number;
+    };
+  } catch (error) {
     return {
       error: true,
-      message: error.message || "팀 생성에 실패했습니다.",
+      message: "서버 오류가 발생했습니다.",
     };
   }
-
-  return (await response.json()) as {
-    name: string;
-    image: string | null;
-    updatedAt: string;
-    createdAt: string;
-    id: number;
-  };
 }
 
 /*
@@ -49,14 +56,27 @@ export async function postGroupAcceptInvitation(data: {
   userEmail: string;
   token: string;
 }) {
-  const response = await fetch("/api/proxy/groups/accept-invitation", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  return (await response.json()) as { groupId: number };
+  try {
+    const response = await fetchApi(`${BASE_URL}/groups/accept-invitation`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return {
+        error: true,
+        message: error.message || "초대 수락에 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as { groupId: number };
+  } catch (error) {
+    return {
+      error: true,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
 }
 
 /* 초대 링크없이 그룹에 유저를 추가하는 엔드포인트 */
@@ -64,14 +84,27 @@ export async function postGroupMember(
   groupId: number,
   data: { userEmail: string }
 ) {
-  const response = await fetch(`/api/proxy/groups/${groupId}/member`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  return await response.json(); // no content
+  try {
+    const response = await fetchApi(`${BASE_URL}/groups/${groupId}/member`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return {
+        error: true,
+        message: error.message || "멤버 추가에 실패했습니다.",
+      };
+    }
+
+    return await response.json();
+  } catch (error) {
+    return {
+      error: true,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
 }
 
 /*

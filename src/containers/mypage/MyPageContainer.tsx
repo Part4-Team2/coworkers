@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Form from "@/components/Common/Form/Form";
 import Avatar from "@/components/Common/Avatar/Avatar";
 import Button from "@/components/Common/Button/Button";
@@ -8,6 +8,10 @@ import Modal from "@/components/Common/Modal/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { useForm } from "react-hook-form";
 import { InputConfig } from "@/components/Common/Form/types";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import { postImage } from "@/api/image";
+import { patchUser, deleteUser } from "@/api/user";
+import { useRouter } from "next/navigation";
 
 interface NameFormData {
   name: string;
@@ -18,22 +22,57 @@ interface PasswordChangeFormData {
   confirmPassword: string;
 }
 
-export default function MyPageContainer() {
+interface MyPageContainerProps {
+  initialImage: string | null;
+  initialNickname: string;
+  initialEmail: string;
+}
+
+export default function MyPageContainer({
+  initialImage,
+  initialNickname,
+  initialEmail,
+}: MyPageContainerProps) {
+  const router = useRouter();
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string>("");
   const [passwordChangeError, setPasswordChangeError] = useState<string>("");
+  const [currentImage, setCurrentImage] = useState<string | null>(initialImage);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
+
+  const {
+    previewUrl,
+    fileInputRef,
+    handleImageClick,
+    handleImageChange,
+    selectedFile,
+  } = useImageUpload(initialImage || undefined);
 
   const {
     register: registerName,
     handleSubmit: handleSubmitName,
     formState: { errors: nameErrors },
     trigger: triggerName,
+    watch: watchName,
+    setValue: setNameValue,
   } = useForm<NameFormData>({
     mode: "onBlur",
     defaultValues: {
-      name: "우지은",
+      name: initialNickname,
     },
   });
+
+  const currentName = watchName("name");
+
+  // previewUrl이 변경되면 currentImage도 업데이트 (blob URL인 경우 - 미리보기용)
+  useEffect(() => {
+    if (previewUrl && previewUrl.startsWith("blob:")) {
+      setCurrentImage(previewUrl);
+    } else if (previewUrl && !previewUrl.startsWith("blob:")) {
+      setCurrentImage(previewUrl);
+    }
+  }, [previewUrl]);
 
   const {
     register: registerPassword,
@@ -56,17 +95,54 @@ export default function MyPageContainer() {
 
   const onNameSubmit = async (data: NameFormData) => {
     setNameError("");
+
     try {
-      // TODO: 실제 이름 변경 API 호출
-      // const response = await updateNameAPI(data.name);
-      // if (response.success) {
-      //   // 성공 처리
-      // } else {
-      //   setNameError(response.message || "이름 변경에 실패했습니다.");
-      // }
-      // console.log("이름 변경 시도:", data.name);
+      setIsUpdating(true);
+
+      // 이미지가 선택된 경우 먼저 업로드
+      let imageUrl = currentImage;
+      if (selectedFile) {
+        const imageResponse = await postImage(selectedFile);
+        if ("error" in imageResponse) {
+          setNameError("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
+          setIsUpdating(false);
+          return;
+        }
+        imageUrl = imageResponse.url;
+        setCurrentImage(imageUrl);
+      }
+
+      // 이름이 변경되었거나 이미지가 업로드된 경우 업데이트
+      const shouldUpdateName = data.name !== initialNickname;
+      const shouldUpdateImage = selectedFile && imageUrl !== initialImage;
+
+      if (shouldUpdateName || shouldUpdateImage) {
+        const updateData: { nickname?: string; image?: string | null } = {};
+        if (shouldUpdateName) {
+          updateData.nickname = data.name;
+        }
+        if (shouldUpdateImage) {
+          updateData.image = imageUrl;
+        }
+
+        await patchUser(updateData);
+      }
+
+      // 성공 시 초기값 업데이트
+      // initialNickname은 props이므로 업데이트할 수 없지만,
+      // 다음에 페이지를 새로고침하면 새로운 값이 반영됨
     } catch (error) {
-      setNameError("이름 변경에 실패했습니다. 다시 시도해주세요.");
+      setNameError("업데이트에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // 엔터 키 핸들러
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmitName(onNameSubmit)();
     }
   };
 
@@ -91,14 +167,35 @@ export default function MyPageContainer() {
     }
   };
 
-  const handleWithdraw = () => {
-    // TODO: 실제 회원 탈퇴 API 호출
-    // console.log("회원 탈퇴");
-    handleClose();
+  const handleWithdraw = async () => {
+    try {
+      setIsUpdating(true);
+      const response = await deleteUser();
+
+      if ("error" in response) {
+        setNameError(response.message || "회원 탈퇴에 실패했습니다.");
+        setIsUpdating(false);
+        return;
+      }
+
+      // 성공 시 로그인 페이지로 리다이렉트
+      router.push("/login");
+    } catch (error) {
+      setNameError("회원 탈퇴에 실패했습니다. 다시 시도해주세요.");
+      setIsUpdating(false);
+    }
   };
 
   return (
     <div className="w-full flex flex-col lg:items-center">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageChange}
+        className="hidden"
+        aria-label="프로필 이미지 선택"
+      />
       <Form
         centered={false}
         topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
@@ -108,11 +205,11 @@ export default function MyPageContainer() {
             <label className="text-lg sm:text-xl font-bold">계정 설정</label>
             <div className="relative inline-block w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64">
               <Avatar
-                // imageUrl={userProfileImage}
+                imageUrl={currentImage || undefined}
                 altText="사용자 프로필"
                 size="xlarge"
                 isEditable={true}
-                // onEditClick={handleEditClick}
+                onEditClick={handleImageClick}
               />
             </div>
           </div>
@@ -129,6 +226,7 @@ export default function MyPageContainer() {
             size: "large",
             type: "text",
             full: true,
+            onKeyDown: handleNameKeyDown,
             registerOptions: {
               required: "이름은 필수 입력입니다.",
               maxLength: {
@@ -146,7 +244,7 @@ export default function MyPageContainer() {
             size: "large",
             type: "email",
             full: true,
-            value: "codeit@codeit.com",
+            value: initialEmail || "",
             disabled: true,
           } as InputConfig,
           {

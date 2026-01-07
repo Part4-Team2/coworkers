@@ -52,6 +52,12 @@ export default function AddTeamContainer() {
       if (selectedFile) {
         try {
           const imageResponse = await postImage(selectedFile);
+          if ("error" in imageResponse) {
+            setAddTeamError(
+              imageResponse.message || "이미지 업로드에 실패했습니다."
+            );
+            return;
+          }
           uploadedImageUrl = imageResponse.url;
         } catch (error) {
           // 이미지 업로드 실패 시 blob URL 사용 (개발 환경)
