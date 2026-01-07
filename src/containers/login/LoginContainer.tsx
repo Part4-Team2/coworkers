@@ -62,7 +62,6 @@ export default function LoginContainer() {
         return;
       }
       // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
-      console.log("response", response);
       router.push("/");
       // 관련된 모든 처리는 서버에서 관리해야함! 현재는 클라이언트
     } catch (error) {
