@@ -2,6 +2,7 @@
 
 import List from "@/components/Tasklist/List/List";
 import { MOCK_TASKS } from "@/mocks/task";
+import { Task } from "@/types/task";
 import { formatDate } from "@/utils/date";
 
 export default function DoneListContainer() {
@@ -16,7 +17,7 @@ export default function DoneListContainer() {
       acc[task.doneAt].push(task);
       return acc;
     },
-    {} as Record<string, typeof MOCK_TASKS>
+    {} as Record<string, Task[]>
   );
 
   const sortedDates = Object.keys(groupedTasks).sort(
