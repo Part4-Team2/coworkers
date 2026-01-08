@@ -34,19 +34,19 @@ export async function postSignup(data: SignUpRequestBody) {
 
     // 쿠키 설정
     const cookieStore = await cookies();
+    // 유효 기간: 1시간
     cookieStore.set("accessToken", responseData.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 7, // 7일
       path: "/",
     });
 
+    // 유효 기간: 7일
     cookieStore.set("refreshToken", responseData.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 30, // 30일
       path: "/",
     });
 
