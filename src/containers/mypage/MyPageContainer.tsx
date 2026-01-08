@@ -8,32 +8,66 @@ import Modal from "@/components/Common/Modal/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { useForm } from "react-hook-form";
 import { InputConfig } from "@/components/Common/Form/types";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import { postImage } from "@/api/image";
+import { patchUser, deleteUser, patchUserPassword } from "@/api/user";
+import { useRouter } from "next/navigation";
 
 interface NameFormData {
   name: string;
 }
 
 interface PasswordChangeFormData {
-  password: string;
-  confirmPassword: string;
+  newPassword: string;
+  newPasswordConfirmation: string;
 }
 
-export default function MyPageContainer() {
+interface MyPageContainerProps {
+  initialImage: string | null;
+  initialNickname: string;
+  initialEmail: string;
+}
+
+export default function MyPageContainer({
+  initialImage,
+  initialNickname,
+  initialEmail,
+}: MyPageContainerProps) {
+  const router = useRouter();
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string>("");
   const [passwordChangeError, setPasswordChangeError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    previewUrl,
+    fileInputRef,
+    handleImageClick,
+    handleImageChange,
+    selectedFile,
+  } = useImageUpload(initialImage ?? undefined);
 
   const {
     register: registerName,
     handleSubmit: handleSubmitName,
     formState: { errors: nameErrors },
     trigger: triggerName,
+    watch: watchName,
   } = useForm<NameFormData>({
     mode: "onBlur",
     defaultValues: {
-      name: "우지은",
+      name: initialNickname,
     },
   });
+
+  const currentName = watchName("name");
+
+  // 변경사항이 있는지 확인
+  const hasNameChanged = currentName !== initialNickname;
+  const hasImageChanged =
+    selectedFile !== null ||
+    (previewUrl && previewUrl !== (initialImage || undefined));
+  const hasChanges = hasNameChanged || hasImageChanged;
 
   const {
     register: registerPassword,
@@ -46,7 +80,11 @@ export default function MyPageContainer() {
     mode: "onBlur",
   });
 
-  const password = watchPassword("password");
+  const newPassword = watchPassword("newPassword");
+
+  // 비밀번호 변경 모달에서 에러가 있는지 확인
+  const hasPasswordErrors =
+    !!passwordErrors.newPassword || !!passwordErrors.newPasswordConfirmation;
 
   const handleClose = () => {
     setOpenModal(null);
@@ -55,50 +93,133 @@ export default function MyPageContainer() {
   };
 
   const onNameSubmit = async (data: NameFormData) => {
+    if (isSubmitting) return;
+
     setNameError("");
+
     try {
-      // TODO: 실제 이름 변경 API 호출
-      // const response = await updateNameAPI(data.name);
-      // if (response.success) {
-      //   // 성공 처리
-      // } else {
-      //   setNameError(response.message || "이름 변경에 실패했습니다.");
-      // }
-      // console.log("이름 변경 시도:", data.name);
+      setIsSubmitting(true);
+
+      let uploadedImageUrl: string | null = null;
+
+      // 새 이미지가 선택된 경우 업로드
+      if (selectedFile) {
+        try {
+          const imageResponse = await postImage(selectedFile);
+          if ("error" in imageResponse) {
+            setNameError(
+              imageResponse.message || "이미지 업로드에 실패했습니다."
+            );
+            setIsSubmitting(false);
+            return;
+          }
+          uploadedImageUrl = imageResponse.url;
+        } catch (error) {
+          setNameError("이미지 업로드에 실패했습니다.");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // 이름이 변경되었거나 이미지가 업로드된 경우 업데이트
+      const shouldUpdateName = data.name !== initialNickname;
+      const shouldUpdateImage = selectedFile && uploadedImageUrl;
+
+      if (shouldUpdateName || shouldUpdateImage) {
+        const updateData: { nickname?: string; image?: string | null } = {};
+        if (shouldUpdateName) {
+          updateData.nickname = data.name;
+        }
+        if (shouldUpdateImage) {
+          updateData.image = uploadedImageUrl;
+        }
+
+        const response = await patchUser(updateData);
+        if ("error" in response) {
+          setNameError(response.message || "업데이트에 실패했습니다.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        // 성공 피드백 및 데이터 갱신
+        router.refresh(); // 서버에서 최신 데이터 가져오기
+      }
     } catch (error) {
-      setNameError("이름 변경에 실패했습니다. 다시 시도해주세요.");
+      setNameError("업데이트에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // 엔터 키 핸들러
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmitName(onNameSubmit)();
     }
   };
 
   const onPasswordChangeSubmit = async (data: PasswordChangeFormData) => {
+    if (isSubmitting) return;
+
     setPasswordChangeError("");
+
     try {
-      // TODO: 실제 비밀번호 변경 API 호출
-      // const response = await changePasswordAPI(data);
-      // if (response.success) {
-      //   handleClose();
-      // } else {
-      //   setPasswordChangeError(
-      //     response.message || "비밀번호 변경에 실패했습니다."
-      //   );
-      // }
-      // console.log("비밀번호 변경 시도:", data);
+      setIsSubmitting(true);
+      const response = await patchUserPassword({
+        passwordConfirmation: data.newPasswordConfirmation,
+        password: data.newPassword,
+      });
+
+      if ("error" in response) {
+        setPasswordChangeError(
+          response.message || "비밀번호 변경에 실패했습니다."
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 성공 시 모달 닫기
       handleClose();
     } catch (error) {
       setPasswordChangeError(
         "비밀번호 변경에 실패했습니다. 다시 시도해주세요."
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleWithdraw = () => {
-    // TODO: 실제 회원 탈퇴 API 호출
-    // console.log("회원 탈퇴");
-    handleClose();
+  const handleWithdraw = async () => {
+    if (isSubmitting) return;
+    try {
+      setIsSubmitting(true);
+      const response = await deleteUser();
+
+      if ("error" in response) {
+        setNameError(response.message || "회원 탈퇴에 실패했습니다.");
+        return;
+      }
+
+      // 성공 시 로그인 페이지로 리다이렉트 (쿠키 삭제 후)
+      router.replace("/login");
+    } catch (error) {
+      setNameError("회원 탈퇴에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="w-full flex flex-col lg:items-center">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageChange}
+        className="hidden"
+        aria-label="프로필 이미지 선택"
+      />
       <Form
         centered={false}
         topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
@@ -108,11 +229,11 @@ export default function MyPageContainer() {
             <label className="text-lg sm:text-xl font-bold">계정 설정</label>
             <div className="relative inline-block w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64">
               <Avatar
-                // imageUrl={userProfileImage}
+                imageUrl={previewUrl}
                 altText="사용자 프로필"
                 size="xlarge"
                 isEditable={true}
-                // onEditClick={handleEditClick}
+                onEditClick={handleImageClick}
               />
             </div>
           </div>
@@ -129,6 +250,7 @@ export default function MyPageContainer() {
             size: "large",
             type: "text",
             full: true,
+            onKeyDown: handleNameKeyDown,
             registerOptions: {
               required: "이름은 필수 입력입니다.",
               maxLength: {
@@ -146,7 +268,7 @@ export default function MyPageContainer() {
             size: "large",
             type: "email",
             full: true,
-            value: "codeit@codeit.com",
+            value: initialEmail || "",
             disabled: true,
           } as InputConfig,
           {
@@ -168,7 +290,7 @@ export default function MyPageContainer() {
           } as InputConfig,
         ]}
         option={
-          <>
+          <div className="flex flex-col gap-4">
             {nameError && (
               <p className="w-full text-xs text-status-danger">{nameError}</p>
             )}
@@ -179,9 +301,16 @@ export default function MyPageContainer() {
               <SVGIcon icon="secession" />
               <span>회원 탈퇴하기</span>
             </div>
-          </>
+          </div>
         }
         optionAlign="start"
+        button={{
+          label: isSubmitting ? "수정 중..." : "수정하기",
+          variant: "solid",
+          size: "large",
+          full: true,
+          disabled: isSubmitting || !hasChanges,
+        }}
       />
 
       {/* 비밀번호 변경 모달 */}
@@ -195,9 +324,9 @@ export default function MyPageContainer() {
             type: "password",
             placeholder:
               "새 비밀번호 (영문, 숫자, 특수문자 포함, 8-50자)를 입력해주세요.",
-            variant: passwordErrors.password ? "error" : "default",
+            variant: passwordErrors.newPassword ? "error" : "default",
             allowPasswordToggle: true,
-            ...registerPassword("password", {
+            ...registerPassword("newPassword", {
               required: "비밀번호는 필수 입력입니다.",
               minLength: {
                 value: 8,
@@ -213,30 +342,33 @@ export default function MyPageContainer() {
                 message:
                   "비밀번호는 숫자, 영문, 특수문자를 각각 최소 1개 이상 포함해야 합니다.",
               },
-              onBlur: () => triggerPassword("password"),
+              onBlur: () => triggerPassword("newPassword"),
             }),
-            message: passwordErrors.password?.message,
-            showError: !!passwordErrors.password,
+            message: passwordErrors.newPassword?.message,
+            showError: !!passwordErrors.newPassword,
           },
           {
             label: "새 비밀번호 확인",
             type: "password",
             placeholder: "새 비밀번호를 다시 한 번 입력해주세요.",
-            variant: passwordErrors.confirmPassword ? "error" : "default",
+            variant: passwordErrors.newPasswordConfirmation
+              ? "error"
+              : "default",
             allowPasswordToggle: true,
-            ...registerPassword("confirmPassword", {
+            ...registerPassword("newPasswordConfirmation", {
               required: "비밀번호 확인을 입력해주세요.",
               validate: (value) =>
-                value === password || "비밀번호가 일치하지 않습니다.",
-              onBlur: () => triggerPassword("confirmPassword"),
+                value === newPassword || "비밀번호가 일치하지 않습니다.",
+              onBlur: () => triggerPassword("newPasswordConfirmation"),
             }),
-            message: passwordErrors.confirmPassword?.message,
-            showError: !!passwordErrors.confirmPassword,
+            message: passwordErrors.newPasswordConfirmation?.message,
+            showError: !!passwordErrors.newPasswordConfirmation,
           },
         ]}
         primaryButton={{
           label: "변경하기",
           onClick: handleSubmitPassword(onPasswordChangeSubmit),
+          disabled: isSubmitting || hasPasswordErrors,
         }}
         secondaryButton={{
           label: "닫기",

@@ -62,7 +62,6 @@ export default function LoginContainer() {
         return;
       }
       // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
-      console.log("response", response);
       router.push("/");
       // 관련된 모든 처리는 서버에서 관리해야함! 현재는 클라이언트
     } catch (error) {
@@ -156,19 +155,19 @@ export default function LoginContainer() {
               showError: !!errors.password || !!loginError,
             } as InputConfig,
           ]}
-          optionAlign="end"
+          optionAlign="start"
           option={
-            <>
+            <div className="flex flex-col gap-4 w-full">
               {loginError && (
                 <p className="text-xs text-status-danger">{loginError}</p>
               )}
               <div
                 onClick={() => setOpenModal("password-reset")}
-                className="text-sm text-emerald-500 underline cursor-pointer"
+                className="text-sm text-emerald-500 underline cursor-pointer self-end"
               >
                 비밀번호를 잊으셨나요?
               </div>
-            </>
+            </div>
           }
           button={{
             label: "로그인",
