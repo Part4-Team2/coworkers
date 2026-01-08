@@ -1,5 +1,6 @@
 import { createMetadata } from "@/components/Common/Metadata/Metadata";
 import ResetContainer from "@/containers/reset/ResetContainer";
+import { Suspense } from "react";
 
 export const metadata = createMetadata({
   title: "비밀번호 재설정",
@@ -9,5 +10,9 @@ export const metadata = createMetadata({
 });
 
 export default function ResetPage() {
-  return <ResetContainer />;
+  return (
+    <Suspense>
+      <ResetContainer />
+    </Suspense>
+  );
 }
