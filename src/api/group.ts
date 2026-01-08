@@ -66,6 +66,7 @@ export async function postGroupAcceptInvitation(data: {
       const error = await response.json();
       return {
         error: true,
+        status: response.status,
         message: error.message || "초대 수락에 실패했습니다.",
       };
     }
@@ -74,6 +75,7 @@ export async function postGroupAcceptInvitation(data: {
   } catch (error) {
     return {
       error: true,
+      status: 500,
       message: "서버 오류가 발생했습니다.",
     };
   }

@@ -57,7 +57,11 @@ export default function JoinTeamContainer({ email }: { email: string }) {
     try {
       const response = await postGroupAcceptInvitation(requestData);
       if ("error" in response) {
-        setJoinTeamError(response.message);
+        if (response.status === 404) {
+          setJoinTeamError("존재하지 않는 팀 링크입니다.");
+        } else {
+          setJoinTeamError(response.message);
+        }
         return;
       }
       router.push(`/${response.groupId}`);
