@@ -71,7 +71,7 @@ export default function LoginContainer() {
       setIsSubmitting(true);
       const response = await postSignin(requestData);
       if ("error" in response) {
-        setLoginError(response.message);
+        setLoginError("이메일 혹은 비밀번호를 확인해주세요.");
         setIsSubmitting(false);
         return;
       }
