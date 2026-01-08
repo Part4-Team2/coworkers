@@ -12,6 +12,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import { postImage } from "@/api/image";
 import { patchUser, deleteUser, patchUserPassword } from "@/api/user";
 import { useRouter } from "next/navigation";
+import { UpdatePasswordBody } from "@/types/api/user";
 
 interface NameFormData {
   name: string;
@@ -163,13 +164,13 @@ export default function MyPageContainer({
     if (isSubmitting) return;
 
     setPasswordChangeError("");
-
+    const requestData: UpdatePasswordBody = {
+      passwordConfirmation: data.newPasswordConfirmation,
+      password: data.newPassword,
+    };
     try {
       setIsSubmitting(true);
-      const response = await patchUserPassword({
-        passwordConfirmation: data.newPasswordConfirmation,
-        password: data.newPassword,
-      });
+      const response = await patchUserPassword(requestData);
 
       if ("error" in response) {
         setPasswordChangeError(

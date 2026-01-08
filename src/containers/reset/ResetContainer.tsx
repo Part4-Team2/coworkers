@@ -42,10 +42,7 @@ export default function ResetContainer() {
     };
     // console.log(requestData);
     try {
-      const response = await patchUserPassword({
-        passwordConfirmation: data.confirmPassword,
-        password: data.password,
-      });
+      const response = await patchUserPassword(requestData);
       if ("error" in response) {
         setResetError(response.message);
         setIsSubmitting(false);
