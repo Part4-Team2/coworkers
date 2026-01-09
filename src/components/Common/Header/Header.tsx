@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useHeaderStore } from "@/store/headerStore";
-import { useRouter } from "next/navigation";
 import { logoutAction } from "@/api/auth";
 import clsx from "clsx";
 import Link from "next/link";
@@ -15,8 +14,6 @@ import SideHeaderDesktop from "./SideHeader/SideHeaderDesktop";
 const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로그아웃"];
 
 function Header() {
-  const Router = useRouter();
-
   // 추후에 CSS 가상선택자 or focus로 바꿔보자.
   const [isSideOpen, setIsSideOpen] = useState<boolean>(false);
   const { isLogin, nickname, teams, activeTeam } = useHeaderStore();

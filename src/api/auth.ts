@@ -195,11 +195,17 @@ export async function logoutAction() {
   const cookieStore = await cookies();
 
   cookieStore.set("accessToken", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
     maxAge: 0,
     path: "/",
   });
 
   cookieStore.set("refreshToken", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
     maxAge: 0,
     path: "/",
   });
