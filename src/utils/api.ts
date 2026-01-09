@@ -2,6 +2,36 @@ import { cookies } from "next/headers";
 import { BASE_URL } from "@/constants/api";
 
 /**
+ * accessToken과 refreshToken을 쿠키에 설정하는 공통 함수
+ * @param accessToken accessToken 값
+ * @param refreshToken refreshToken 값
+ * @param accessTokenMaxAge accessToken의 유효 기간 (초 단위, 선택사항)
+ * @param refreshTokenMaxAge refreshToken의 유효 기간 (초 단위, 선택사항)
+ */
+export async function setAuthCookies(
+  accessToken: string,
+  refreshToken?: string
+): Promise<void> {
+  const cookieStore = await cookies();
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict" as const,
+    path: "/",
+  };
+
+  cookieStore.set("accessToken", accessToken, {
+    ...cookieOptions,
+  });
+
+  if (refreshToken) {
+    cookieStore.set("refreshToken", refreshToken, {
+      ...cookieOptions,
+    });
+  }
+}
+
+/**
  * 쿠키에서 accessToken을 읽어서 Authorization 헤더 값으로 변환합니다.
  * @returns Authorization 헤더 값 (Bearer {token}) 또는 null
  */
