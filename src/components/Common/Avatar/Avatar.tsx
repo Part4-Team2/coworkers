@@ -1,4 +1,5 @@
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+import clsx from "clsx";
 import Image from "next/image";
 
 const AVATAR_SIZE_MAP = {
@@ -13,6 +14,7 @@ interface AvatarProps {
   size?: keyof typeof AVATAR_SIZE_MAP;
   isEditable?: boolean;
   onEditClick?: () => void;
+  variant?: "user" | "team";
 }
 
 export default function Avatar({
@@ -21,13 +23,22 @@ export default function Avatar({
   size = "xlarge",
   isEditable = false,
   onEditClick,
+  variant,
 }: AvatarProps) {
   const pixelSize = AVATAR_SIZE_MAP[size];
 
+  const defaultIcon = variant === "team" ? "img" : "avatar";
   const AvatarContent = (
     <>
       <div
-        className="overflow-hidden rounded-full"
+        className={clsx(
+          "overflow-hidden rounded-full bg-background-tertiary",
+          size === "xlarge" ? "p-5" : "p-3",
+          {
+            "border border-border-primary": size !== "xlarge",
+            "border-2 border-border-primary": size === "xlarge",
+          }
+        )}
         style={{ width: pixelSize, height: pixelSize }}
       >
         {imageUrl ? (
@@ -40,7 +51,7 @@ export default function Avatar({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <SVGIcon icon="image" size={pixelSize} />
+            <SVGIcon icon={defaultIcon} size={pixelSize} />
           </div>
         )}
       </div>
