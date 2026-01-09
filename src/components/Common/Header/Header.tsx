@@ -1,41 +1,48 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useHeaderStore } from "@/store/headerStore";
+import { logoutAction } from "@/api/auth";
 import clsx from "clsx";
 import Link from "next/link";
 import Dropdown from "../Dropdown/Dropdown";
 import SVGIcon from "../SVGIcon/SVGIcon";
 import SideHeaderMobile from "./SideHeader/SideHeaderMobile";
 import SideHeaderDesktop from "./SideHeader/SideHeaderDesktop";
-import { useState } from "react";
 
 // 유저 프로필을 누르면 나오는 드롭다운 리스트입니다.
 const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로그아웃"];
 
-// Headers는 props를 받지 않습니다, 로그인 상태, 팀보유 상태를 zustand로 직접 받아올 예정입니다.
-
-const TEAMS: string[] = [
-  "Sales Team",
-  "Marketing Team",
-  "Administration Team",
-  "Develop Team",
-];
-
-const TEAM: string = TEAMS[0];
-const NAME: string = "Doro";
-
-const isLogin: boolean = true; // zustand 들어오기전 임시로 사용하는 로그인 상태입니다.
-const hasTeam: boolean = isLogin && !!TEAM; // zustand 들어오기전 임시로 사용하는 팀 상태입니다.
-
 function Header() {
   // 추후에 CSS 가상선택자 or focus로 바꿔보자.
   const [isSideOpen, setIsSideOpen] = useState<boolean>(false);
+  const { isLogin, nickname, teams, activeTeam } = useHeaderStore();
 
+  const fetchUser = useHeaderStore((s) => s.fetchUser);
+  const clearUser = useHeaderStore((s) => s.clearUser);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  // Side Header의 팀명 클릭시 작동하는 함수입니다.
   const handleSideClick = () => {
     setIsSideOpen((prev) => !prev);
   };
 
-  const handleProfileClick = () => {
+  // 로그아웃 작동하는 함수입니다.
+  const handleLogout = async () => {
+    await logoutAction();
+    clearUser();
+  };
+
+  // 우측 프로필을 누르면 작동하는 함수입니다.
+  const handleProfileClick = (value: string) => {
     console.log("Profile Click");
+
+    if (value === "로그아웃") {
+      handleLogout();
+    }
   };
 
   return (
@@ -50,7 +57,7 @@ function Header() {
         <div className="cursor-pointer flex items-center gap-40">
           <div className="flex items-center gap-16">
             <div
-              className={hasTeam ? "sm:hidden" : "hidden"}
+              className={teams ? "sm:hidden" : "hidden"}
               onClick={handleSideClick}
             >
               <SVGIcon icon="gnbMenu" />
@@ -59,10 +66,10 @@ function Header() {
               <SVGIcon icon="LogoLarge" width={158} height={36} />
             </Link>
           </div>
-          {hasTeam && (
+          {isLogin && teams.length > 0 && (
             <div className="relative">
               <div className="hidden sm:flex gap-10">
-                <div>{TEAM}</div>
+                <div>{activeTeam}</div>
                 <div className="cursor-pointer" onClick={handleSideClick}>
                   <SVGIcon icon="toggle" />
                 </div>
@@ -70,7 +77,7 @@ function Header() {
                   <SideHeaderDesktop
                     isOpen={isSideOpen}
                     onClick={handleSideClick}
-                    teams={TEAMS}
+                    teams={teams}
                   />
                 </div>
               </div>
@@ -81,7 +88,7 @@ function Header() {
               <SideHeaderMobile
                 isOpen={isSideOpen}
                 onClick={handleSideClick}
-                teams={TEAMS}
+                teams={teams}
               />
             </div>
           )}
@@ -99,13 +106,13 @@ function Header() {
             {/* <SVGIcon icon="user" size="xxs" /> */}
             <Dropdown
               options={ACCOUNTLIST}
-              onSelect={handleProfileClick}
+              onSelect={(val) => handleProfileClick(val)}
               size="sm"
               trigger="icon"
               icon="user"
               listPosition="top-full right-0"
             />
-            <div>{NAME}</div>
+            <div>{nickname}</div>
           </div>
         )}
       </div>

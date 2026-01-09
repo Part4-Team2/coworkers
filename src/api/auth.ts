@@ -189,3 +189,13 @@ export async function postSigninKakao(data: SignInWithOauthRequestBody) {
     };
   }
 }
+
+// 로그아웃 함수입니다.
+export async function logoutAction() {
+  const cookieStore = cookies();
+
+  (await cookieStore).set("accessToken", "", {
+    maxAge: 0,
+    path: "/",
+  });
+}

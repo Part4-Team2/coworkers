@@ -1,9 +1,14 @@
 import clsx from "clsx";
+import Avatar from "../../Avatar/Avatar";
 import Dropdown from "../../Dropdown/Dropdown";
 
 interface SideHeaderProps {
   isOpen: boolean;
-  teams: string[];
+  teams: {
+    teamId: string;
+    teamName: string;
+    teamImage: string | null;
+  }[];
   onClick: () => void;
 }
 
@@ -39,24 +44,25 @@ function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
             return (
               // 왼쪽 : 팀 이미지 + 팀 네임
               <div
-                key={team}
+                key={team.teamId}
                 className={clsx(
                   "cursor-pointer",
                   "flex justify-between items-center"
                 )}
-                onClick={() => handleClickTeam(team)}
+                onClick={() => handleClickTeam(team.teamId)}
               >
                 <div
                   className={clsx("flex flex-1 min-w-0 gap-12 items-center")}
                 >
-                  <div
+                  {/* <div
                     className={clsx(
                       "w-32 h-32 shrink-0",
                       "rounded-md",
                       // 팀 이미지 api작업시 들어갈 예정입니다.
                       "bg-background-tertiary"
                     )}
-                  ></div>
+                  ></div> */}
+                  <Avatar altText="Team image" size="large" variant="team" />
                   <span
                     className={clsx(
                       "text-base text-white",
@@ -64,7 +70,7 @@ function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
                       "hover:decoration-solid hover:underline"
                     )}
                   >
-                    {team}
+                    {team.teamName}
                   </span>
                 </div>
                 {/* 오른쪽 : 드롭다운 */}

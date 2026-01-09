@@ -3,7 +3,11 @@ import SVGIcon from "../../SVGIcon/SVGIcon";
 
 interface SideHeaderProps {
   isOpen: boolean;
-  teams: string[];
+  teams: {
+    teamId: string;
+    teamName: string;
+    teamImage: string | null;
+  }[];
   onClick: () => void;
 }
 
@@ -34,11 +38,11 @@ function SideHeaderMobile({ isOpen, teams, onClick }: SideHeaderProps) {
           {teams.map((team) => {
             return (
               <button
-                key={team}
+                key={team.teamId}
                 className="cursor-pointer hover:bg-background-tertiary"
-                onClick={() => handleClickTeam(team)}
+                onClick={() => handleClickTeam(team.teamId)}
               >
-                {team}
+                {team.teamName}
               </button>
             );
           })}
