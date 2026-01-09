@@ -1,11 +1,31 @@
+"use server";
+
+import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/constants/api";
 
 export async function postImage(image: File) {
-  const formData = new FormData();
-  formData.append("image", image);
-  const response = await fetch("/api/proxy/image/upload", {
-    method: "POST",
-    body: formData,
-  });
-  return (await response.json()) as { url: string };
+  try {
+    const formData = new FormData();
+    formData.append("image", image);
+
+    const response = await fetchApi(`${BASE_URL}/images/upload`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return {
+        error: true,
+        message: error.message || "이미지 업로드에 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as { url: string };
+  } catch (error) {
+    return {
+      error: true,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
 }

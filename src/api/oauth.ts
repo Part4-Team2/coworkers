@@ -1,5 +1,9 @@
+"use server";
+
+import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/constants/api";
 import { UpsertOauthAppRequestBody, OauthApp } from "@/types/api/oauth";
+
 /*
 간편 로그인 App 등록/수정
 Google, Kakao 간편 로그인을 위한 App 을 등록하거나 수정합니다.
@@ -14,12 +18,25 @@ appSecret: 필요하지 않음
 실습을 위해 발급받은 키를 등록해주세요. 실제 서비스에서 사용 하는 키를 등록해서는 안됩니다.
 */
 export async function postOauthApps(data: UpsertOauthAppRequestBody) {
-  const response = await fetch("/api/proxy/oauth/apps", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  return (await response.json()) as OauthApp;
+  try {
+    const response = await fetchApi(`${BASE_URL}/oauth/apps`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return {
+        error: true,
+        message: error.message || "OAuth 앱 등록에 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as OauthApp;
+  } catch (error) {
+    return {
+      error: true,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
 }
