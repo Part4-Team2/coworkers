@@ -192,9 +192,14 @@ export async function postSigninKakao(data: SignInWithOauthRequestBody) {
 
 // 로그아웃 함수입니다.
 export async function logoutAction() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
-  (await cookieStore).set("accessToken", "", {
+  cookieStore.set("accessToken", "", {
+    maxAge: 0,
+    path: "/",
+  });
+
+  cookieStore.set("refreshToken", "", {
     maxAge: 0,
     path: "/",
   });

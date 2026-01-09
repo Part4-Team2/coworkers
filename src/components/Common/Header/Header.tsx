@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useHeaderStore } from "@/store/headerStore";
+import { useRouter } from "next/navigation";
 import { logoutAction } from "@/api/auth";
 import clsx from "clsx";
 import Link from "next/link";
@@ -14,6 +15,8 @@ import SideHeaderDesktop from "./SideHeader/SideHeaderDesktop";
 const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로그아웃"];
 
 function Header() {
+  const Router = useRouter();
+
   // 추후에 CSS 가상선택자 or focus로 바꿔보자.
   const [isSideOpen, setIsSideOpen] = useState<boolean>(false);
   const { isLogin, nickname, teams, activeTeam } = useHeaderStore();
@@ -32,14 +35,16 @@ function Header() {
 
   // 로그아웃 작동하는 함수입니다.
   const handleLogout = async () => {
-    await logoutAction();
-    clearUser();
+    try {
+      await logoutAction();
+      clearUser();
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    }
   };
 
   // 우측 프로필을 누르면 작동하는 함수입니다.
   const handleProfileClick = (value: string) => {
-    console.log("Profile Click");
-
     if (value === "로그아웃") {
       handleLogout();
     }
@@ -57,7 +62,7 @@ function Header() {
         <div className="cursor-pointer flex items-center gap-40">
           <div className="flex items-center gap-16">
             <div
-              className={teams ? "sm:hidden" : "hidden"}
+              className={teams.length > 0 ? "sm:hidden" : "hidden"}
               onClick={handleSideClick}
             >
               <SVGIcon icon="gnbMenu" />

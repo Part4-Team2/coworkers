@@ -54,15 +54,12 @@ function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
                 <div
                   className={clsx("flex flex-1 min-w-0 gap-12 items-center")}
                 >
-                  {/* <div
-                    className={clsx(
-                      "w-32 h-32 shrink-0",
-                      "rounded-md",
-                      // 팀 이미지 api작업시 들어갈 예정입니다.
-                      "bg-background-tertiary"
-                    )}
-                  ></div> */}
-                  <Avatar altText="Team image" size="large" variant="team" />
+                  <Avatar
+                    imageUrl={team.teamImage || undefined}
+                    altText="Team image"
+                    size="large"
+                    variant="team"
+                  />
                   <span
                     className={clsx(
                       "text-base text-white",
