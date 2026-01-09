@@ -18,15 +18,13 @@ function Header() {
   const router = useRouter();
   // 추후에 CSS 가상선택자 or focus로 바꿔보자.
   const [isSideOpen, setIsSideOpen] = useState<boolean>(false);
-  const { isLogin, nickname, teams, activeTeam, fetchUser, clearUser } =
-    useHeaderStore((s) => ({
-      isLogin: s.isLogin,
-      nickname: s.nickname,
-      teams: s.teams,
-      activeTeam: s.activeTeam,
-      fetchUser: s.fetchUser,
-      clearUser: s.clearUser,
-    }));
+  const isLogin = useHeaderStore((s) => s.isLogin);
+  const nickname = useHeaderStore((s) => s.nickname);
+  const teams = useHeaderStore((s) => s.teams);
+  const activeTeam = useHeaderStore((s) => s.activeTeam);
+
+  const fetchUser = useHeaderStore((s) => s.fetchUser);
+  const clearUser = useHeaderStore((s) => s.clearUser);
 
   useEffect(() => {
     fetchUser();
