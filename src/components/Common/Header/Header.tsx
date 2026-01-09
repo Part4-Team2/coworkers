@@ -5,6 +5,7 @@ import { useHeaderStore } from "@/store/headerStore";
 import { logoutAction } from "@/api/auth";
 import clsx from "clsx";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Dropdown from "../Dropdown/Dropdown";
 import SVGIcon from "../SVGIcon/SVGIcon";
 import SideHeaderMobile from "./SideHeader/SideHeaderMobile";
@@ -14,6 +15,7 @@ import SideHeaderDesktop from "./SideHeader/SideHeaderDesktop";
 const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로그아웃"];
 
 function Header() {
+  const router = useRouter();
   // 추후에 CSS 가상선택자 or focus로 바꿔보자.
   const [isSideOpen, setIsSideOpen] = useState<boolean>(false);
   const { isLogin, nickname, teams, activeTeam } = useHeaderStore();
@@ -42,7 +44,13 @@ function Header() {
 
   // 우측 프로필을 누르면 작동하는 함수입니다.
   const handleProfileClick = (value: string) => {
-    if (value === "로그아웃") {
+    if (value === ACCOUNTLIST[0]) {
+      router.push("/myhistory");
+    } else if (value === ACCOUNTLIST[1]) {
+      router.push("/mypage");
+    } else if (value === ACCOUNTLIST[2]) {
+      router.push("/jointeam");
+    } else {
       handleLogout();
     }
   };
