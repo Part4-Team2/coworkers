@@ -44,7 +44,9 @@ export default function ResetContainer() {
     try {
       const response = await patchUserResetPassword(requestData);
       if ("error" in response) {
-        setResetError(response.message);
+        setResetError(
+          "링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
+        );
         setIsSubmitting(false);
         return;
       }

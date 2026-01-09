@@ -60,7 +60,9 @@ export default function JoinTeamContainer({ email }: { email: string }) {
         if (response.status === 404) {
           setJoinTeamError("존재하지 않는 팀 링크입니다.");
         } else {
-          setJoinTeamError(response.message);
+          setJoinTeamError(
+            "초대 링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
+          );
         }
         return;
       }
