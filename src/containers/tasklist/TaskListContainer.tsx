@@ -4,7 +4,7 @@ import List from "@/components/Tasklist/List/List";
 import { MOCK_TASKS } from "@/mocks/task";
 import { Task } from "@/types/task";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TaskDetailsContainer from "./tasks/TaskDetailsContainer";
 
 interface TaskListProps {
@@ -25,9 +25,6 @@ export default function TaskListContainer({
 
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
 
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const sidebarRef = useRef<HTMLDivElement>(null);
-
   const filteredTasks = useMemo(
     () => tasks.filter((task) => task.tabId === tabId),
     [tasks, tabId]
@@ -39,19 +36,14 @@ export default function TaskListContainer({
 
   useEffect(() => {
     if (openTask) {
-      const timer = setTimeout(() => {
-        if (sidebarRef.current) {
-          sidebarRef.current.style.transform = "translateX(0)";
-        }
-      }, 10);
-
       document.body.style.overflow = "hidden";
-
-      return () => {
-        clearTimeout(timer);
-        document.body.style.overflow = "";
-      };
+    } else {
+      document.body.style.overflow = "";
     }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [openTask]);
 
   if (filteredTasks.length === 0) {
@@ -67,16 +59,7 @@ export default function TaskListContainer({
   };
 
   const handleCloseSidebar = () => {
-    if (sidebarRef.current) {
-      sidebarRef.current.style.transform = "translateX(100%)";
-    }
-    if (overlayRef.current) {
-      overlayRef.current.style.opacity = "0";
-    }
-
-    setTimeout(() => {
-      router.push(`/${teamid}/tasklist`);
-    }, 200);
+    router.push(`/${teamid}/tasklist`);
   };
 
   // // Task 업데이트 (사이드바에서 수정 시)
@@ -132,14 +115,12 @@ export default function TaskListContainer({
       </div>
       {openTask && (
         <div
-          ref={overlayRef}
           onClick={handleCloseSidebar}
-          className="fixed inset-0 bg-black/30 z-50 transition-opacity duration-200"
+          className="fixed inset-0 bg-black/30 z-50"
         >
           <div
-            ref={sidebarRef}
             onClick={(e) => e.stopPropagation()}
-            className="fixed right-0 top-0 h-full w-full sm:w-[600px] bg-background-secondary shadow-xl transition-transform duration-200 ease-out overflow-y-auto"
+            className="fixed right-0 top-0 h-full w-full sm:w-[600px] bg-background-secondary shadow-xl overflow-y-auto"
           >
             <TaskDetailsContainer
               task={openTask}
