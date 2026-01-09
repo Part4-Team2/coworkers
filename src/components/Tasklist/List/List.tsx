@@ -22,7 +22,10 @@ export default function List({
       <div className="flex items-center justify-between ">
         <div className="flex items-center gap-7">
           <button
-            onClick={() => onToggle?.(id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggle?.(id);
+            }}
             aria-label={isToggle ? "완료 취소" : "완료 표시"}
           >
             <SVGIcon icon={isToggle ? "checkboxActive" : "checkboxDefault"} />
@@ -43,7 +46,13 @@ export default function List({
             </div>
           )}
         </div>
-        <button onClick={() => onClickKebab?.(id)} aria-label="옵션 메뉴 열기">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onClickKebab?.(id);
+          }}
+          aria-label="옵션 메뉴 열기"
+        >
           <SVGIcon icon="kebabSmall" />
         </button>
       </div>
