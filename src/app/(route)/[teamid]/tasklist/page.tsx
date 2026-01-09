@@ -2,7 +2,6 @@ import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import TabContainer from "@/components/Tasklist/Tab/TabContainer";
 import ConditionalTaskAddButton from "@/containers/tasklist/ConditionalTaskAddButton";
 import ListAddButtonContainer from "@/containers/tasklist/ListAddButtonContainer";
-import TaskAddButtonContainer from "@/containers/tasklist/TaskAddButtonContainer";
 import TaskListContainer from "@/containers/tasklist/TaskListContainer";
 import { TabItem } from "@/types";
 import { Metadata } from "next";
