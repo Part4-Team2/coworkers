@@ -51,6 +51,7 @@ GET /{teamId}/groups/{id}/invitation
 /* 
 GET {id}/invitation으로 생성한 토큰으로, 초대를 수락하는 엔드포인트 
 token은 초대 링크에 포함되어있는 토큰, userEmail은 초대를 수락하는 유저의 이메일
+링크 토큰 유효 시간: 3일 / 참고: jwt.io
 */
 export async function postGroupAcceptInvitation(data: {
   userEmail: string;
