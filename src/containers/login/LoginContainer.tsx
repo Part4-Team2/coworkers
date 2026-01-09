@@ -24,11 +24,9 @@ interface ResetPasswordFormData {
 }
 
 const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ||
-  (typeof window !== "undefined" &&
   window.location.hostname === "coworkers-two.vercel.app"
     ? "https://coworkers-two.vercel.app"
-    : "http://localhost:3000");
+    : "http://localhost:3000";
 
 export default function LoginContainer() {
   const router = useRouter();
@@ -256,8 +254,11 @@ export default function LoginContainer() {
           label: "닫기",
           onClick: handleClose,
         }}
-      />
-      {resetError && <p className="text-xs text-status-danger">{resetError}</p>}
+      >
+        {resetError && (
+          <p className="text-xs text-status-danger">{resetError}</p>
+        )}
+      </Modal>
     </>
   );
 }

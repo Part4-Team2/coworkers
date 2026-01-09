@@ -35,12 +35,18 @@ export default function ResetContainer() {
     setResetError("");
     setIsSubmitting(true);
     const token = searchParams.get("token");
+    if (!token) {
+      setResetError(
+        "링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
+      );
+      setIsSubmitting(false);
+      return;
+    }
     const requestData: ResetPasswordBody = {
       passwordConfirmation: data.confirmPassword,
       password: data.password,
-      token: token || "",
+      token: token,
     };
-    // console.log(requestData);
     try {
       const response = await patchUserResetPassword(requestData);
       if ("error" in response) {

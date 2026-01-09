@@ -283,11 +283,6 @@ body {
   outline-offset: -2px;
 }
 
-/* Spin animation for loading spinner */
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
 /* 자동완성 스타일 오버라이드 */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

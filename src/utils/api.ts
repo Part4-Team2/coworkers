@@ -9,7 +9,9 @@ import { cookies } from "next/headers";
  */
 export async function setAuthCookies(
   accessToken: string,
-  refreshToken?: string
+  refreshToken?: string,
+  accessTokenMaxAge: number = 3600, // 1시간
+  refreshTokenMaxAge: number = 604800 // 7일
 ): Promise<void> {
   const cookieStore = await cookies();
   const cookieOptions = {
@@ -21,11 +23,13 @@ export async function setAuthCookies(
 
   cookieStore.set("accessToken", accessToken, {
     ...cookieOptions,
+    ...(accessTokenMaxAge && { maxAge: accessTokenMaxAge }),
   });
 
   if (refreshToken) {
     cookieStore.set("refreshToken", refreshToken, {
       ...cookieOptions,
+      ...(refreshTokenMaxAge && { maxAge: refreshTokenMaxAge }),
     });
   }
 }
