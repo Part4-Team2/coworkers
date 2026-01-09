@@ -78,8 +78,11 @@ export async function postSignin(data: SignInRequestBody) {
 
 export async function postRefreshToken(data: { refreshToken: string }) {
   try {
-    const response = await fetchApi(`${BASE_URL}/auth/refresh-token`, {
+    const response = await fetch(`${BASE_URL}/auth/refresh-token`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(data),
     });
 

@@ -24,13 +24,13 @@ export async function setAuthCookies(
 
   cookieStore.set("accessToken", accessToken, {
     ...cookieOptions,
-    ...(accessTokenMaxAge && { maxAge: accessTokenMaxAge }),
+    maxAge: accessTokenMaxAge,
   });
 
   if (refreshToken) {
     cookieStore.set("refreshToken", refreshToken, {
       ...cookieOptions,
-      ...(refreshTokenMaxAge && { maxAge: refreshTokenMaxAge }),
+      maxAge: refreshTokenMaxAge,
     });
   }
 }
