@@ -23,10 +23,7 @@ interface ResetPasswordFormData {
   email: string;
 }
 
-const APP_URL =
-  window.location.hostname === "coworkers-two.vercel.app"
-    ? "https://coworkers-two.vercel.app"
-    : "http://localhost:3000";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export default function LoginContainer() {
   const router = useRouter();
