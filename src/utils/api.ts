@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import { BASE_URL } from "@/constants/api";
 
 /**
  * accessToken과 refreshToken을 쿠키에 설정하는 공통 함수
