@@ -250,6 +250,7 @@ export default function LoginContainer() {
           label: "링크 보내기",
           onClick: handleSubmitReset(onResetSubmit),
           disabled: isSubmitting,
+          loading: isSubmitting,
         }}
         secondaryButton={{
           label: "닫기",
