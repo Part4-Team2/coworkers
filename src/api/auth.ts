@@ -1,7 +1,7 @@
 "use server";
 
 import { BASE_URL } from "@/constants/api";
-import { fetchApi, setAuthCookies } from "@/utils/api";
+import { setAuthCookies } from "@/utils/cookies";
 import {
   SignInRequestBody,
   SignInResponse,
