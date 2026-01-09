@@ -6,7 +6,6 @@ import TaskListContainer from "@/containers/tasklist/TaskListContainer";
 import { TabItem } from "@/types";
 import { Metadata } from "next";
 
-// api 연동 이후 수정될 수 있습니다.
 export async function generateMetadata({
   params,
 }: {
