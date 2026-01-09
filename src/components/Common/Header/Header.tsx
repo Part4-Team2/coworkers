@@ -18,10 +18,15 @@ function Header() {
   const router = useRouter();
   // 추후에 CSS 가상선택자 or focus로 바꿔보자.
   const [isSideOpen, setIsSideOpen] = useState<boolean>(false);
-  const { isLogin, nickname, teams, activeTeam } = useHeaderStore();
-
-  const fetchUser = useHeaderStore((s) => s.fetchUser);
-  const clearUser = useHeaderStore((s) => s.clearUser);
+  const { isLogin, nickname, teams, activeTeam, fetchUser, clearUser } =
+    useHeaderStore((s) => ({
+      isLogin: s.isLogin,
+      nickname: s.nickname,
+      teams: s.teams,
+      activeTeam: s.activeTeam,
+      fetchUser: s.fetchUser,
+      clearUser: s.clearUser,
+    }));
 
   useEffect(() => {
     fetchUser();
@@ -116,7 +121,7 @@ function Header() {
             {/* <SVGIcon icon="user" size="xxs" /> */}
             <Dropdown
               options={ACCOUNTLIST}
-              onSelect={(val) => handleProfileClick(val)}
+              onSelect={handleProfileClick}
               size="sm"
               trigger="icon"
               icon="user"
