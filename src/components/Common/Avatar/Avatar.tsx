@@ -33,7 +33,7 @@ export default function Avatar({
       <div
         className={clsx(
           "overflow-hidden rounded-full bg-background-tertiary",
-          size === "xlarge" ? "p-5" : "p-3",
+
           {
             "border border-border-primary": size !== "xlarge",
             "border-2 border-border-primary": size === "xlarge",

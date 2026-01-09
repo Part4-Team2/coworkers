@@ -109,6 +109,7 @@ export default function AddTeamContainer() {
               <Avatar
                 imageUrl={previewUrl}
                 altText="팀 프로필"
+                variant="team"
                 size="xlarge"
                 isEditable={true}
                 onEditClick={handleImageClick}
