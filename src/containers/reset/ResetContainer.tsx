@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { InputConfig } from "@/components/Common/Form/types";
-import { patchUserPassword } from "@/api/user";
+import { patchUserResetPassword } from "@/api/user";
 import { ResetPasswordBody } from "@/types/api/user";
 
 interface ResetPasswordFormData {
@@ -42,7 +42,7 @@ export default function ResetContainer() {
     };
     // console.log(requestData);
     try {
-      const response = await patchUserPassword(requestData);
+      const response = await patchUserResetPassword(requestData);
       if ("error" in response) {
         setResetError(response.message);
         setIsSubmitting(false);
@@ -125,6 +125,8 @@ export default function ResetContainer() {
           variant: "solid",
           size: "large",
           full: true,
+          disabled: isSubmitting,
+          loading: isSubmitting,
         }}
       />
     </div>

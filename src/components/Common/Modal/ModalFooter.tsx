@@ -31,12 +31,13 @@ const ModalFooter = ({ primaryButton, secondaryButton }: ModalFooterProps) => {
       {/* Primary 버튼 (오른쪽 또는 중앙) */}
       {primaryButton && (
         <Button
-          label={primaryButton.loading ? "처리 중..." : primaryButton.label}
+          label={primaryButton.label}
           variant={isDanger ? "danger" : "solid"}
           size="large"
           width={hasTwoButtons ? "136px" : "280px"}
           full
           disabled={primaryButton.disabled || primaryButton.loading}
+          loading={primaryButton.loading}
           onClick={primaryButton.onClick}
         />
       )}

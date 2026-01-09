@@ -82,10 +82,14 @@ export default function MyPageContainer({
   });
 
   const newPassword = watchPassword("newPassword");
+  const newPasswordConfirmation = watchPassword("newPasswordConfirmation");
 
   // 비밀번호 변경 모달에서 에러가 있는지 확인
   const hasPasswordErrors =
     !!passwordErrors.newPassword || !!passwordErrors.newPasswordConfirmation;
+
+  // 비밀번호 필드가 비어있는지 확인
+  const isPasswordEmpty = !newPassword || !newPasswordConfirmation;
 
   const handleClose = () => {
     setOpenModal(null);
@@ -306,11 +310,12 @@ export default function MyPageContainer({
         }
         optionAlign="start"
         button={{
-          label: isSubmitting ? "수정 중..." : "수정하기",
+          label: "수정하기",
           variant: "solid",
           size: "large",
           full: true,
           disabled: isSubmitting || !hasChanges,
+          loading: isSubmitting,
         }}
       />
 
@@ -369,7 +374,8 @@ export default function MyPageContainer({
         primaryButton={{
           label: "변경하기",
           onClick: handleSubmitPassword(onPasswordChangeSubmit),
-          disabled: isSubmitting || hasPasswordErrors,
+          disabled: isSubmitting || hasPasswordErrors || isPasswordEmpty,
+          loading: isSubmitting,
         }}
         secondaryButton={{
           label: "닫기",

@@ -147,11 +147,12 @@ export default function AddTeamContainer() {
           )
         }
         button={{
-          label: isSubmitting ? "생성 중..." : "생성하기",
+          label: "생성하기",
           variant: "solid",
           size: "large",
           full: true,
           disabled: isSubmitting,
+          loading: isSubmitting,
         }}
       />
       <FormFooter>

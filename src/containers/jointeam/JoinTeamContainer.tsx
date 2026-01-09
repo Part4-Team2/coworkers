@@ -113,6 +113,8 @@ export default function JoinTeamContainer({ email }: { email: string }) {
           variant: "solid",
           size: "large",
           full: true,
+          disabled: isSubmitting,
+          loading: isSubmitting,
         }}
       />
       {joinTeamError && <div className="text-red-500">{joinTeamError}</div>}

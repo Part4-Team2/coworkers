@@ -204,6 +204,8 @@ export default function LoginContainer() {
             variant: "solid",
             size: "large",
             full: true,
+            disabled: isSubmitting,
+            loading: isSubmitting,
           }}
         />
         <FormFooter>
