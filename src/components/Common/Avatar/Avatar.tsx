@@ -1,4 +1,5 @@
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+import clsx from "clsx";
 import Image from "next/image";
 
 const AVATAR_SIZE_MAP = {
@@ -30,7 +31,14 @@ export default function Avatar({
   const AvatarContent = (
     <>
       <div
-        className="overflow-hidden rounded-full bg-background-tertiary p-5 border-2 border-border-primary"
+        className={clsx(
+          "overflow-hidden rounded-full bg-background-tertiary",
+          size === "xlarge" ? "p-5" : "p-3",
+          {
+            "border border-border-primary": size !== "xlarge",
+            "border-2 border-border-primary": size === "xlarge",
+          }
+        )}
         style={{ width: pixelSize, height: pixelSize }}
       >
         {imageUrl ? (
