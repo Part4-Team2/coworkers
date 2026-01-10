@@ -1,6 +1,9 @@
+"use client";
+
 import clsx from "clsx";
 import Avatar from "../../Avatar/Avatar";
 import Dropdown from "../../Dropdown/Dropdown";
+import { useRouter } from "next/navigation";
 
 interface SideHeaderProps {
   isOpen: boolean;
@@ -17,10 +20,12 @@ const TEAMSETTINGS = ["팀 설정하기", "팀 나가기"];
 
 // Header 컴포 요소 중 팀 옆 토글 버튼 누를사 등장하는 사이드 바입니다.
 function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
+  const router = useRouter();
+
   // Team 명을 클릭할때 소속 팀 화면으로 이동하는 함수입니다.
   // button이 아닌 Link로 변경할 수 있습니다.
   const handleClickTeam = (team: string) => {
-    console.log(team);
+    router.push(`/${team}`);
     onClick();
   };
 
