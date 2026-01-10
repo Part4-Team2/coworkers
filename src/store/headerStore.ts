@@ -10,8 +10,10 @@ interface HeaderStoreState {
     teamName: string;
     teamImage: string | null;
   }[];
-  activeTeam: string | null;
-
+  activeTeam: {
+    teamId: string;
+    teamName: string;
+  } | null;
   fetchUser: () => Promise<void>;
   clearUser: () => void;
 }
@@ -44,12 +46,17 @@ export const useHeaderStore = create<HeaderStoreState>((set) => ({
       teamImage: team.group.image,
     }));
 
+    const activeTeam = {
+      teamId: teams[0].teamId,
+      teamName: teams[0].teamName,
+    };
+
     set({
       isLogin: true,
       nickname: res.nickname,
       profileImage: res.image,
       teams,
-      activeTeam: teams.length > 0 ? teams[0].teamName : null,
+      activeTeam,
     });
   },
 

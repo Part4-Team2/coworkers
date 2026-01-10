@@ -35,6 +35,11 @@ function Header() {
     setIsSideOpen((prev) => !prev);
   };
 
+  // 헤더에 있는 팀 이름 클릭하면 작동하는 함수입니다.
+  const activeTeamClick = () => {
+    router.push(`/${activeTeam?.teamId}`);
+  };
+
   // 로그아웃 작동하는 함수입니다.
   const handleLogout = async () => {
     try {
@@ -82,7 +87,8 @@ function Header() {
           {isLogin && teams.length > 0 && (
             <div className="relative">
               <div className="hidden sm:flex gap-10">
-                <div>{activeTeam}</div>
+                {/* 여기에도 네비게이팅 달아야댐 */}
+                <div onClick={activeTeamClick}>{activeTeam?.teamName}</div>
                 <div className="cursor-pointer" onClick={handleSideClick}>
                   <SVGIcon icon="toggle" />
                 </div>
