@@ -6,12 +6,12 @@ interface HeaderStoreState {
   nickname: string | null;
   profileImage: string | null;
   teams: {
-    teamId: string;
+    teamId: number;
     teamName: string;
     teamImage: string | null;
   }[];
   activeTeam: {
-    teamId: string;
+    teamId: number;
     teamName: string;
   } | null;
   fetchUser: () => Promise<void>;
@@ -41,7 +41,7 @@ export const useHeaderStore = create<HeaderStoreState>((set) => ({
     }
 
     const teams = res.memberships.map((team) => ({
-      teamId: team.group.teamId,
+      teamId: team.group.id,
       teamName: team.group.name,
       teamImage: team.group.image,
     }));

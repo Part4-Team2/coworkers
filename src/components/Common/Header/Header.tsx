@@ -37,6 +37,7 @@ function Header() {
 
   // 헤더에 있는 팀 이름 클릭하면 작동하는 함수입니다.
   const activeTeamClick = () => {
+    if (!activeTeam) return;
     router.push(`/${activeTeam?.teamId}`);
   };
 
@@ -45,18 +46,21 @@ function Header() {
     try {
       await logoutAction();
       clearUser();
+      setIsSideOpen(false);
+      router.push("/");
     } catch (error) {
       console.error("로그아웃 실패:", error);
+      // 추후에 토스트 같은 걸로 사용자에게 피드백 제공하면 좋을 것 같습니다.
     }
   };
 
   // 우측 프로필을 누르면 작동하는 함수입니다.
   const handleProfileClick = (value: string) => {
-    if (value === ACCOUNTLIST[0]) {
+    if (value === "마이 히스토리") {
       router.push("/myhistory");
-    } else if (value === ACCOUNTLIST[1]) {
+    } else if (value === "계정 설정") {
       router.push("/mypage");
-    } else if (value === ACCOUNTLIST[2]) {
+    } else if (value === "팀 참여") {
       router.push("/jointeam");
     } else {
       handleLogout();

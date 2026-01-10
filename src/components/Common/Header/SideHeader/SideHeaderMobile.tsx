@@ -7,7 +7,7 @@ import SVGIcon from "../../SVGIcon/SVGIcon";
 interface SideHeaderProps {
   isOpen: boolean;
   teams: {
-    teamId: string;
+    teamId: number;
     teamName: string;
     teamImage: string | null;
   }[];
@@ -20,7 +20,7 @@ function SideHeaderMobile({ isOpen, teams, onClick }: SideHeaderProps) {
 
   // Team 명을 클릭할때 소속 팀 화면으로 이동하는 함수입니다.
   // button이 아닌 Link로 변경할 수 있습니다.
-  const handleClickTeam = (team: string) => {
+  const handleClickTeam = (team: number) => {
     router.push(`/${team}`);
     onClick();
   };
