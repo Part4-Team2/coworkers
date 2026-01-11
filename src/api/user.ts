@@ -20,7 +20,7 @@ export async function getUser() {
         message: "사용자 정보를 가져오는데 실패했습니다.",
       }));
       return {
-        error: true,
+        error: true as const,
         message: error.message || "사용자 정보를 가져오는데 실패했습니다.",
       };
     }
@@ -52,7 +52,7 @@ export async function getUser() {
     };
   } catch (error) {
     return {
-      error: true,
+      error: true as const,
       message: "서버 오류가 발생했습니다.",
     };
   }
@@ -70,7 +70,7 @@ export async function getUserMemberships() {
         message: "멤버십 정보를 가져오는데 실패했습니다.",
       }));
       return {
-        error: true,
+        error: true as const,
         message: error.message || "멤버십 정보를 가져오는데 실패했습니다.",
       };
     }
@@ -90,6 +90,39 @@ export async function getUserMemberships() {
         updatedAt: string;
         teamId: string;
       };
+    }>;
+  } catch (error: unknown) {
+    return {
+      error: true as const,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
+
+/**
+ * 사용자가 참여한 그룹(팀) 목록 조회
+ */
+export async function getUserGroups() {
+  try {
+    const response = await fetchApi(`${BASE_URL}/user/groups`);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "팀 목록을 가져오는데 실패했습니다.",
+      }));
+      return {
+        error: true as const,
+        message: error.message || "팀 목록을 가져오는데 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as Array<{
+      id: number;
+      name: string;
+      image: string | null;
+      createdAt: string;
+      updatedAt: string;
+      teamId: string;
     }>;
   } catch (error: unknown) {
     return {

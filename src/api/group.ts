@@ -280,6 +280,41 @@ export async function deleteMember(
   }
 }
 
+/**
+ * 그룹(팀) 정보 수정
+ */
+export async function patchGroup(
+  groupId: string,
+  data: { name: string; image?: string | null }
+): Promise<ApiResult<void>> {
+  try {
+    const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "팀 수정에 실패했습니다.",
+      }));
+      return {
+        success: false,
+        error: error.message || "팀 수정에 실패했습니다.",
+      };
+    }
+
+    revalidatePath(`/${groupId}`);
+    revalidatePath(`/${groupId}/edit`);
+    revalidatePath("/teamlist");
+    return { success: true, data: undefined };
+  } catch {
+    return {
+      success: false,
+      error: "서버 오류가 발생했습니다.",
+    };
+  }
+}
+
 export async function postGroup(data: CreateGroupBody) {
   try {
     const response = await fetchApi(`${BASE_URL}/groups`, {
