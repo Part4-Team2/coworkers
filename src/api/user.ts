@@ -58,6 +58,47 @@ export async function getUser() {
   }
 }
 
+/**
+ * 사용자의 멤버십 정보 조회
+ */
+export async function getUserMemberships() {
+  try {
+    const response = await fetchApi(`${BASE_URL}/user/memberships`);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "멤버십 정보를 가져오는데 실패했습니다.",
+      }));
+      return {
+        error: true,
+        message: error.message || "멤버십 정보를 가져오는데 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as Array<{
+      userId: number;
+      groupId: number;
+      userName: string;
+      userEmail: string;
+      userImage: string | null;
+      role: Role;
+      group: {
+        id: number;
+        name: string;
+        image: string | null;
+        createdAt: string;
+        updatedAt: string;
+        teamId: string;
+      };
+    }>;
+  } catch (error: unknown) {
+    return {
+      error: true as const,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
+
 export async function patchUser(data: UpdateUserRequestBody) {
   try {
     const response = await fetchApi(`${BASE_URL}/user`, {

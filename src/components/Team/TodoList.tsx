@@ -1,13 +1,19 @@
 import TodoItem from "@/components/Team/TodoItem";
-import { Todo } from "@/types";
+import { Todo } from "@/types/todo";
 
 interface TodoListProps {
   todos: Todo[];
   onEdit?: (todoId: number) => void;
   onDelete?: (todoId: number) => void;
+  onClick?: (todoId: number) => void;
 }
 
-export default function TodoList({ todos, onEdit, onDelete }: TodoListProps) {
+export default function TodoList({
+  todos,
+  onEdit,
+  onDelete,
+  onClick,
+}: TodoListProps) {
   if (todos.length === 0) {
     return (
       <div className="text-center pt-48 lg:pt-64 text-text-default text-md font-medium">
@@ -27,6 +33,7 @@ export default function TodoList({ todos, onEdit, onDelete }: TodoListProps) {
           color={todo.color}
           onEdit={() => onEdit?.(todo.id)}
           onDelete={() => onDelete?.(todo.id)}
+          onClick={() => onClick?.(todo.id)}
         />
       ))}
     </div>

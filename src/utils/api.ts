@@ -25,9 +25,16 @@ export async function fetchApi(
     headers?: HeadersInit;
     body?: BodyInit;
     searchParams?: string;
+    next?: NextFetchRequestConfig;
   } = {}
 ): Promise<Response> {
-  const { method = "GET", headers = {}, body, searchParams = "" } = options;
+  const {
+    method = "GET",
+    headers = {},
+    body,
+    searchParams = "",
+    next,
+  } = options;
 
   // Authorization 헤더 추가
   const headersWithAuth = await createHeadersWithAuth(headers);
@@ -48,6 +55,7 @@ export async function fetchApi(
     method,
     headers: headersWithAuth,
     body,
+    ...(next && { next }),
   });
 
   // 401 Unauthorized 응답이고 refreshToken이 있으면 토큰 갱신 시도
@@ -75,6 +83,7 @@ export async function fetchApi(
           method,
           headers: newHeadersWithAuth,
           body,
+          ...(next && { next }),
         });
       }
       // refreshToken도 만료되었거나 갱신 실패한 경우 원래 401 응답 반환

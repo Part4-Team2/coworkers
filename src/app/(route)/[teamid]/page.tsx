@@ -1,7 +1,9 @@
-import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import TeamIdContainer from "@/containers/teamid/TeamIdContainer";
+import { measureSSR } from "@/utils/measure";
+import { getUser } from "@/api/user";
+import { getGroup } from "@/api/group";
 
 type Props = {
   params: Promise<{ teamid: string }>;
@@ -17,8 +19,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     notFound();
   }
 
-  // TODO: 실제로는 API에서 팀 정보를 가져와야 함
-  const teamName = "경영관리팀";
+  // API에서 팀 정보 가져오기
+  const groupData = await getGroup(teamId);
+  const teamName = groupData.success ? groupData.data.name : "팀";
 
   return {
     title: teamName, // "경영관리팀 | Coworkers"
@@ -40,82 +43,54 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function TeamPage({ params }: Props) {
-  const tracer = trace.getTracer("coworkers-page");
-
-  return await tracer.startActiveSpan("render-team-page", async (span) => {
-    const startTime = performance.now();
-
-    try {
+  return await measureSSR({
+    name: "render-team-page",
+    fn: async () => {
       const { teamid: teamId } = await params;
-      span.setAttribute("team.id", teamId);
-      span.setAttribute("page.route", "/[teamid]");
 
       // teamId 유효성 검사
       if (!teamId) {
-        span.setStatus({
-          code: SpanStatusCode.ERROR,
-          message: "Invalid team ID",
-        });
         notFound();
       }
 
-      // TODO: 실제 API 구현 시 데이터 fetching 추가
-      // 예시:
-      // const teamData = await tracer.startActiveSpan('fetch-team-data', async (fetchSpan) => {
-      //   try {
-      //     fetchSpan.setAttribute('fetch.url', `/api/teams/${teamId}`);
-      //     const response = await fetch(`/api/teams/${teamId}`);
-      //     const data = await response.json();
-      //     fetchSpan.setAttribute('team.name', data.name);
-      //     fetchSpan.setAttribute('team.member_count', data.members?.length || 0);
-      //     fetchSpan.setStatus({ code: SpanStatusCode.OK });
-      //     return data;
-      //   } catch (error) {
-      //     fetchSpan.recordException(error as Error);
-      //     fetchSpan.setStatus({ code: SpanStatusCode.ERROR });
-      //     throw error;
-      //   } finally {
-      //     fetchSpan.end();
-      //   }
-      // });
+      // 그룹 정보 조회
+      const groupData = await getGroup(teamId);
 
-      span.setAttribute("page.rendered", true);
-      span.setStatus({ code: SpanStatusCode.OK });
-
-      const component = <TeamIdContainer teamId={teamId} />;
-
-      // 개발 환경에서만 성능 로그 출력
-      if (process.env.NODE_ENV === "development") {
-        const duration = Math.round(performance.now() - startTime);
-        console.log(`[OpenTelemetry] render-team-page:`, {
-          teamId,
-          route: "/[teamid]",
-          duration: `${duration}ms`,
-          status: "success",
-        });
+      if (!groupData.success) {
+        notFound();
       }
 
-      return component;
-    } catch (error) {
-      const duration = Math.round(performance.now() - startTime);
+      // 현재 로그인한 사용자 정보 조회
+      const userData = await getUser();
 
-      span.recordException(error as Error);
-      span.setStatus({
-        code: SpanStatusCode.ERROR,
-        message: "Page render failed",
-      });
-
-      // 개발 환경에서만 에러 로그 출력
-      if (process.env.NODE_ENV === "development") {
-        console.error(`[OpenTelemetry] render-team-page failed:`, {
-          duration: `${duration}ms`,
-          error: error instanceof Error ? error.message : "Unknown error",
-        });
+      if ("error" in userData) {
+        notFound();
       }
 
-      throw error;
-    } finally {
-      span.end();
-    }
+      // memberships에서 현재 groupId에 해당하는 role 찾기
+      const currentMembership = userData.memberships.find(
+        (membership) => membership.groupId === Number(teamId)
+      );
+
+      if (!currentMembership) {
+        // 소속된 팀이 아니면 teamlist로 리다이렉트
+        redirect("/teamlist");
+      }
+
+      const currentUserId = userData.id;
+      const userRole = currentMembership.role;
+
+      return (
+        <TeamIdContainer
+          teamId={teamId}
+          userRole={userRole}
+          currentUserId={currentUserId}
+          teamName={groupData.data.name}
+          members={groupData.data.members}
+          taskLists={groupData.data.taskLists}
+        />
+      );
+    },
+    attr: { "page.route": "/[teamid]" },
   });
 }
