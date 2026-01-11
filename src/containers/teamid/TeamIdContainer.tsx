@@ -12,6 +12,7 @@ import { useModalState, MODAL_TYPES } from "@/hooks/useModalState";
 import { useTeamActions } from "@/hooks/useTeamActions";
 import { useTodoActions } from "@/hooks/useTodoActions";
 import { useMemberActions } from "@/hooks/useMemberActions";
+import { getLocalDateString } from "@/utils/date";
 
 // 상수 정의
 const TODO_COLORS = [
@@ -27,7 +28,7 @@ const TODO_COLORS = [
 interface TeamIdContainerProps {
   teamId: string;
   userRole: "ADMIN" | "MEMBER";
-  currentUserId?: number;
+  currentUserId: number;
   teamName: string;
   members: GroupDetailResponse["members"];
   taskLists: GroupDetailResponse["taskLists"];
@@ -70,11 +71,11 @@ export default function TeamIdContainer({
       : 0;
 
   // 오늘 날짜의 작업 수 계산만 별도로 수행
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const todayTaskCount = initialTaskLists
     .flatMap((taskList) => taskList.tasks)
     .filter((task) => {
-      const taskDate = new Date(task.date).toISOString().split("T")[0];
+      const taskDate = getLocalDateString(new Date(task.date));
       return taskDate === today;
     }).length;
 

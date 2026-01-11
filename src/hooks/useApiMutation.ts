@@ -15,6 +15,7 @@ interface UseApiMutationOptions {
  */
 export function useApiMutation<T>(options?: UseApiMutationOptions) {
   const [isLoading, setIsLoading] = useState(false);
+  const { onSuccess, onError } = options || {};
 
   const mutate = useCallback(
     async (fn: () => Promise<T>): Promise<T | null> => {
@@ -26,18 +27,18 @@ export function useApiMutation<T>(options?: UseApiMutationOptions) {
       setIsLoading(true);
       try {
         const result = await fn();
-        options?.onSuccess?.();
+        onSuccess?.();
         return result;
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "오류가 발생했습니다.";
-        options?.onError?.(errorMessage);
+        onError?.(errorMessage);
         throw error;
       } finally {
         setIsLoading(false);
       }
     },
-    [isLoading, options]
+    [isLoading, onSuccess, onError]
   );
 
   return { mutate, isLoading };

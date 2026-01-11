@@ -27,7 +27,15 @@ export function useTodoActions({
 
   // 모달 열기 함수들
   const openCreateModal = useCallback(() => {
-    openModalWithDelay({ type: MODAL_TYPES.TODO_LIST }, 0);
+    openModalWithDelay(
+      {
+        type: MODAL_TYPES.TODO_LIST,
+        todoListName: "",
+        selectedTodo: null,
+        todoToDelete: null,
+      },
+      0
+    );
   }, [openModalWithDelay]);
 
   const openEditModal = useCallback(
@@ -97,14 +105,21 @@ export function useTodoActions({
         }
 
         alert("할 일 목록이 수정되었습니다.");
-        window.location.reload();
-      } catch {
+        router.refresh();
+      } catch (error) {
+        console.error("[updateTaskList]", error);
         alert("할 일 목록 수정 중 오류가 발생했습니다.");
       } finally {
         setIsLoading(false);
       }
     }
-  }, [modalState.selectedTodo?.id, modalState.todoListName, teamId, isLoading]);
+  }, [
+    modalState.selectedTodo?.id,
+    modalState.todoListName,
+    teamId,
+    isLoading,
+    router,
+  ]);
 
   const confirmDelete = useCallback(async () => {
     if (modalState.todoToDelete !== null && !isLoading) {

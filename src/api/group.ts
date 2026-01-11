@@ -256,6 +256,7 @@ export async function deleteGroup(
       data = (await response.json()) as DeleteResponse;
     }
     revalidatePath(`/${groupId}`);
+    revalidatePath("/teamlist");
     return { success: true, data };
   } catch {
     return {
