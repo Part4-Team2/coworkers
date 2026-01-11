@@ -75,10 +75,13 @@ export function useMemberActions({
     if (modalState.selectedMember?.email) {
       navigator.clipboard
         .writeText(modalState.selectedMember.email)
-        .then(() => alert("이메일이 복사되었습니다!"))
+        .then(() => {
+          alert("이메일이 복사되었습니다!");
+          resetModalState();
+        })
         .catch(() => alert("이메일 복사에 실패했습니다. 다시 시도해주세요."));
     }
-  }, [modalState.selectedMember]);
+  }, [modalState.selectedMember, resetModalState]);
 
   const copyInviteLink = useCallback(async () => {
     try {
