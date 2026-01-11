@@ -135,7 +135,7 @@ function Header() {
               icon="user"
               listPosition="top-full right-0"
             />
-            <div>{nickname}</div>
+            <div>{nickname || "사용자"}</div>
           </div>
         )}
       </div>
