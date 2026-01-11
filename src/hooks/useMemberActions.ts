@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { getGroupInvitation, deleteMember } from "@/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 import { Member as MemberType } from "@/types/member";
@@ -18,6 +18,8 @@ export function useMemberActions({
   openModalWithDelay,
   resetModalState,
 }: UseMemberActionsProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
   // 모달 열기 함수들
   const openInviteModal = useCallback(() => {
     openModalWithDelay({ type: MODAL_TYPES.INVITE }, 0);
@@ -45,24 +47,26 @@ export function useMemberActions({
 
   // API 호출 및 액션 함수들
   const confirmDelete = useCallback(async () => {
-    if (modalState.memberToDelete !== null) {
+    if (modalState.memberToDelete !== null && !isLoading) {
+      setIsLoading(true);
       try {
         const result = await deleteMember(teamId, modalState.memberToDelete);
 
-        if ("error" in result) {
-          alert(result.message);
+        if (!result.success) {
+          alert(result.error);
           return;
         }
 
         alert("멤버가 삭제되었습니다.");
         resetModalState();
         window.location.reload();
-      } catch (error) {
-        console.error("멤버 삭제 에러:", error);
+      } catch {
         alert("멤버 삭제에 실패했습니다. 다시 시도해주세요.");
+      } finally {
+        setIsLoading(false);
       }
     }
-  }, [teamId, modalState.memberToDelete, resetModalState]);
+  }, [teamId, modalState.memberToDelete, resetModalState, isLoading]);
 
   const copyEmail = useCallback(() => {
     if (modalState.selectedMember?.email) {
@@ -104,5 +108,7 @@ export function useMemberActions({
     confirmDelete,
     copyEmail,
     copyInviteLink,
+    // 로딩 상태
+    isLoading,
   };
 }

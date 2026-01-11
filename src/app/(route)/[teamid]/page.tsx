@@ -19,8 +19,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     notFound();
   }
 
-  // TODO: 실제로는 API에서 팀 정보를 가져와야 함
-  const teamName = "경영관리팀";
+  // API에서 팀 정보 가져오기
+  const groupData = await getGroup(teamId);
+  const teamName = groupData.success ? groupData.data.name : "팀";
 
   return {
     title: teamName, // "경영관리팀 | Coworkers"
@@ -55,8 +56,7 @@ export default async function TeamPage({ params }: Props) {
       // 그룹 정보 조회
       const groupData = await getGroup(teamId);
 
-      if ("error" in groupData) {
-        console.error("Failed to fetch group:", groupData.message);
+      if (!groupData.success) {
         notFound();
       }
 
@@ -64,7 +64,6 @@ export default async function TeamPage({ params }: Props) {
       const userData = await getUser();
 
       if ("error" in userData) {
-        console.error("Failed to fetch user:", userData.message);
         notFound();
       }
 
@@ -86,9 +85,9 @@ export default async function TeamPage({ params }: Props) {
           teamId={teamId}
           userRole={userRole}
           currentUserId={currentUserId}
-          teamName={groupData.name}
-          members={groupData.members}
-          taskLists={groupData.taskLists}
+          teamName={groupData.data.name}
+          members={groupData.data.members}
+          taskLists={groupData.data.taskLists}
         />
       );
     },

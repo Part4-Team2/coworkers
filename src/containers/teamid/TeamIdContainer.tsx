@@ -204,8 +204,9 @@ export default function TeamIdContainer({
           onChange: todoActions.handleNameChange,
         }}
         primaryButton={{
-          label: "만들기",
+          label: todoActions.isLoading ? "만드는 중..." : "만들기",
           onClick: todoActions.confirmCreate,
+          disabled: todoActions.isLoading,
         }}
       />
 
@@ -220,8 +221,9 @@ export default function TeamIdContainer({
           onChange: todoActions.handleNameChange,
         }}
         primaryButton={{
-          label: "수정하기",
+          label: todoActions.isLoading ? "수정 중..." : "수정하기",
           onClick: todoActions.confirmEdit,
+          disabled: todoActions.isLoading,
         }}
       />
 
@@ -232,9 +234,10 @@ export default function TeamIdContainer({
         title="정말 목록을 삭제하시겠습니까?"
         description="삭제된 데이터는 복구 할 수 없습니다."
         primaryButton={{
-          label: "삭제",
+          label: todoActions.isLoading ? "삭제 중..." : "삭제",
           onClick: todoActions.confirmDelete,
           variant: "danger",
+          disabled: todoActions.isLoading,
         }}
         secondaryButton={{
           label: "닫기",
@@ -266,9 +269,10 @@ export default function TeamIdContainer({
         title="멤버를 삭제하시겠습니까?"
         description="삭제한 멤버는 팀에서 완전히 제외됩니다."
         primaryButton={{
-          label: "삭제",
+          label: memberActions.isLoading ? "삭제 중..." : "삭제",
           onClick: memberActions.confirmDelete,
           variant: "danger",
+          disabled: memberActions.isLoading,
         }}
         secondaryButton={{
           label: "닫기",
@@ -283,9 +287,10 @@ export default function TeamIdContainer({
         title="정말 팀을 삭제하시겠습니까?"
         description="삭제된 데이터는 복구 할 수 없습니다."
         primaryButton={{
-          label: "삭제",
+          label: teamActions.isLoading ? "삭제 중..." : "삭제",
           onClick: teamActions.confirmDelete,
           variant: "danger",
+          disabled: teamActions.isLoading,
         }}
         secondaryButton={{
           label: "닫기",

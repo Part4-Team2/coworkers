@@ -1,9 +1,30 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/constants/api";
 import { CreateGroupBody } from "@/types/api/group";
 import { Role } from "@/types/schemas";
+
+// 공통 API 응답 타입
+export type ApiResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: string };
+
+// 개별 응답 타입 정의
+export type TaskListResponse = {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  groupId: number;
+  displayIndex: number;
+};
+
+export type DeleteResponse = {
+  id: number;
+  deletedAt: string;
+};
 
 export type GroupDetailResponse = {
   id: number;
@@ -61,25 +82,30 @@ export type GroupDetailResponse = {
 /**
  * 그룹 상세 정보 조회 (멤버, 할 일 목록 포함)
  */
-export async function getGroup(groupId: string) {
+export async function getGroup(
+  groupId: string
+): Promise<ApiResult<GroupDetailResponse>> {
   try {
-    const response = await fetchApi(`${BASE_URL}/groups/${groupId}`);
+    const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+      next: { tags: [`group-${groupId}`] },
+    });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({
         message: "그룹 정보를 가져오는데 실패했습니다.",
       }));
       return {
-        error: true,
-        message: error.message || "그룹 정보를 가져오는데 실패했습니다.",
+        success: false,
+        error: error.message || "그룹 정보를 가져오는데 실패했습니다.",
       };
     }
 
-    return (await response.json()) as GroupDetailResponse;
-  } catch (error) {
+    const data = (await response.json()) as GroupDetailResponse;
+    return { success: true, data };
+  } catch {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
@@ -87,7 +113,10 @@ export async function getGroup(groupId: string) {
 /**
  * 할 일 목록 생성
  */
-export async function createTaskList(groupId: string, name: string) {
+export async function createTaskList(
+  groupId: string,
+  name: string
+): Promise<ApiResult<TaskListResponse>> {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists`,
@@ -102,23 +131,18 @@ export async function createTaskList(groupId: string, name: string) {
         message: "할 일 목록 생성에 실패했습니다.",
       }));
       return {
-        error: true as const,
-        message: error.message || "할 일 목록 생성에 실패했습니다.",
+        success: false,
+        error: error.message || "할 일 목록 생성에 실패했습니다.",
       };
     }
 
-    return (await response.json()) as {
-      id: number;
-      name: string;
-      createdAt: string;
-      updatedAt: string;
-      groupId: number;
-      displayIndex: number;
-    };
-  } catch (error) {
+    const data = (await response.json()) as TaskListResponse;
+    revalidatePath(`/${groupId}`);
+    return { success: true, data };
+  } catch {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
@@ -130,7 +154,7 @@ export async function updateTaskList(
   groupId: string,
   taskListId: number,
   name: string
-) {
+): Promise<ApiResult<TaskListResponse>> {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}`,
@@ -145,23 +169,18 @@ export async function updateTaskList(
         message: "할 일 목록 수정에 실패했습니다.",
       }));
       return {
-        error: true as const,
-        message: error.message || "할 일 목록 수정에 실패했습니다.",
+        success: false,
+        error: error.message || "할 일 목록 수정에 실패했습니다.",
       };
     }
 
-    return (await response.json()) as {
-      id: number;
-      name: string;
-      createdAt: string;
-      updatedAt: string;
-      groupId: number;
-      displayIndex: number;
-    };
-  } catch (error) {
+    const data = (await response.json()) as TaskListResponse;
+    revalidatePath(`/${groupId}`);
+    return { success: true, data };
+  } catch {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
@@ -169,7 +188,10 @@ export async function updateTaskList(
 /**
  * 할 일 목록 삭제
  */
-export async function deleteTaskList(groupId: string, taskListId: number) {
+export async function deleteTaskList(
+  groupId: string,
+  taskListId: number
+): Promise<ApiResult<DeleteResponse>> {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}`,
@@ -183,16 +205,24 @@ export async function deleteTaskList(groupId: string, taskListId: number) {
         message: "할 일 목록 삭제에 실패했습니다.",
       }));
       return {
-        error: true as const,
-        message: error.message || "할 일 목록 삭제에 실패했습니다.",
+        success: false,
+        error: error.message || "할 일 목록 삭제에 실패했습니다.",
       };
     }
 
-    return { success: true };
-  } catch (error) {
+    // 204 No Content인 경우 빈 응답
+    let data: DeleteResponse;
+    if (response.status === 204) {
+      data = { id: taskListId, deletedAt: new Date().toISOString() };
+    } else {
+      data = (await response.json()) as DeleteResponse;
+    }
+    revalidatePath(`/${groupId}`);
+    return { success: true, data };
+  } catch {
     return {
-      error: true as const,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
@@ -200,7 +230,9 @@ export async function deleteTaskList(groupId: string, taskListId: number) {
 /**
  * 그룹(팀) 삭제
  */
-export async function deleteGroup(groupId: string) {
+export async function deleteGroup(
+  groupId: string
+): Promise<ApiResult<DeleteResponse>> {
   try {
     const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
       method: "DELETE",
@@ -211,16 +243,24 @@ export async function deleteGroup(groupId: string) {
         message: "팀 삭제에 실패했습니다.",
       }));
       return {
-        error: true as const,
-        message: error.message || "팀 삭제에 실패했습니다.",
+        success: false,
+        error: error.message || "팀 삭제에 실패했습니다.",
       };
     }
 
-    return { success: true };
-  } catch (error) {
+    // 204 No Content인 경우 빈 응답
+    let data: DeleteResponse;
+    if (response.status === 204) {
+      data = { id: Number(groupId), deletedAt: new Date().toISOString() };
+    } else {
+      data = (await response.json()) as DeleteResponse;
+    }
+    revalidatePath(`/${groupId}`);
+    return { success: true, data };
+  } catch {
     return {
-      error: true as const,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
@@ -228,7 +268,10 @@ export async function deleteGroup(groupId: string) {
 /**
  * 그룹 멤버 삭제
  */
-export async function deleteMember(groupId: string, memberUserId: number) {
+export async function deleteMember(
+  groupId: string,
+  memberUserId: number
+): Promise<ApiResult<DeleteResponse>> {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/member/${memberUserId}`,
@@ -242,16 +285,24 @@ export async function deleteMember(groupId: string, memberUserId: number) {
         message: "멤버 삭제에 실패했습니다.",
       }));
       return {
-        error: true as const,
-        message: error.message || "멤버 삭제에 실패했습니다.",
+        success: false,
+        error: error.message || "멤버 삭제에 실패했습니다.",
       };
     }
 
-    return { success: true };
-  } catch (error) {
+    // 204 No Content인 경우 빈 응답
+    let data: DeleteResponse;
+    if (response.status === 204) {
+      data = { id: memberUserId, deletedAt: new Date().toISOString() };
+    } else {
+      data = (await response.json()) as DeleteResponse;
+    }
+    revalidatePath(`/${groupId}`);
+    return { success: true, data };
+  } catch {
     return {
-      error: true as const,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
@@ -278,7 +329,7 @@ export async function postGroup(data: CreateGroupBody) {
       createdAt: string;
       id: number;
     };
-  } catch (error) {
+  } catch {
     return {
       error: true,
       message: "서버 오류가 발생했습니다.",
@@ -306,7 +357,7 @@ export async function getGroupInvitation(groupId: string) {
     // API가 토큰 문자열을 직접 반환
     const token = await response.text();
     return { token };
-  } catch (error) {
+  } catch {
     return {
       error: true as const,
       message: "서버 오류가 발생했습니다.",
@@ -314,10 +365,9 @@ export async function getGroupInvitation(groupId: string) {
   }
 }
 
-/* 
-GET {id}/invitation으로 생성한 토큰으로, 초대를 수락하는 엔드포인트 
-token은 초대 링크에 포함되어있는 토큰, userEmail은 초대를 수락하는 유저의 이메일
-*/
+/**
+ * 초대 토큰으로 그룹 참여 수락
+ */
 export async function postGroupAcceptInvitation(data: {
   userEmail: string;
   token: string;
@@ -337,7 +387,7 @@ export async function postGroupAcceptInvitation(data: {
     }
 
     return (await response.json()) as { groupId: number };
-  } catch (error) {
+  } catch {
     return {
       error: true,
       message: "서버 오류가 발생했습니다.",
@@ -345,7 +395,9 @@ export async function postGroupAcceptInvitation(data: {
   }
 }
 
-/* 초대 링크없이 그룹에 유저를 추가하는 엔드포인트 */
+/**
+ * 초대 링크 없이 그룹에 멤버 추가
+ */
 export async function postGroupMember(
   groupId: number,
   data: { userEmail: string }
@@ -365,7 +417,7 @@ export async function postGroupMember(
     }
 
     return await response.json();
-  } catch (error) {
+  } catch {
     return {
       error: true,
       message: "서버 오류가 발생했습니다.",

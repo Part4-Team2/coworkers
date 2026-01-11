@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteGroup } from "@/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
@@ -15,6 +15,7 @@ export function useTeamActions({
   openModalWithDelay,
 }: UseTeamActionsProps) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   // 팀 수정 페이지로 이동 (모달 없음)
   const navigateToEdit = useCallback(() => {
@@ -28,11 +29,14 @@ export function useTeamActions({
 
   // API 호출
   const confirmDelete = useCallback(async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
     try {
       const result = await deleteGroup(teamId);
 
-      if ("error" in result) {
-        alert(result.message);
+      if (!result.success) {
+        alert(result.error);
         return;
       }
 
@@ -40,12 +44,15 @@ export function useTeamActions({
       router.replace("/teamlist");
     } catch {
       alert("팀 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
-  }, [teamId, router]);
+  }, [teamId, router, isLoading]);
 
   return {
     navigateToEdit,
     openDeleteModal,
     confirmDelete,
+    isLoading,
   };
 }

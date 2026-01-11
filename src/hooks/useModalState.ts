@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Todo } from "@/types/todo";
 import { Member as MemberType } from "@/types/member";
 
@@ -39,12 +39,28 @@ const initialModalState: ModalState = {
 
 export function useModalState() {
   const [modalState, setModalState] = useState<ModalState>(initialModalState);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   const openModalWithDelay = useCallback(
     (updates: Partial<ModalState>, delay = MODAL_OPEN_DELAY) => {
+      // 기존 타이머 취소
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+
       if (delay > 0) {
-        setTimeout(() => {
+        timerRef.current = setTimeout(() => {
           setModalState((prev) => ({ ...prev, ...updates }));
+          timerRef.current = null;
         }, delay);
       } else {
         setModalState((prev) => ({ ...prev, ...updates }));

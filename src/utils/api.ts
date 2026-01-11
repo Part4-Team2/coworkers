@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import { BASE_URL } from "@/constants/api";
 
 /**
  * 쿠키에서 accessToken을 읽어서 Authorization 헤더 값으로 변환합니다.
@@ -46,9 +45,16 @@ export async function fetchApi(
     headers?: HeadersInit;
     body?: BodyInit;
     searchParams?: string;
+    next?: NextFetchRequestConfig;
   } = {}
 ): Promise<Response> {
-  const { method = "GET", headers = {}, body, searchParams = "" } = options;
+  const {
+    method = "GET",
+    headers = {},
+    body,
+    searchParams = "",
+    next,
+  } = options;
 
   // Authorization 헤더 추가
   const headersWithAuth = await createHeadersWithAuth(headers);
@@ -68,5 +74,6 @@ export async function fetchApi(
     method,
     headers: headersWithAuth,
     body,
+    ...(next && { next }),
   });
 }

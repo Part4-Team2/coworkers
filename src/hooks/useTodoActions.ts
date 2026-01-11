@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { createTaskList, updateTaskList, deleteTaskList } from "@/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 import { Todo } from "@/types/todo";
+import { useApiMutation } from "./useApiMutation";
 
 interface UseTodoActionsProps {
   teamId: string;
@@ -20,6 +21,8 @@ export function useTodoActions({
   openModalWithDelay,
   updateModalState,
 }: UseTodoActionsProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
   // 모달 열기 함수들
   const openCreateModal = useCallback(() => {
     openModalWithDelay({ type: MODAL_TYPES.TODO_LIST }, 0);
@@ -51,24 +54,33 @@ export function useTodoActions({
 
   // API 호출 함수들
   const confirmCreate = useCallback(async () => {
-    if (modalState.todoListName.trim()) {
+    if (modalState.todoListName.trim() && !isLoading) {
+      setIsLoading(true);
       try {
         const result = await createTaskList(teamId, modalState.todoListName);
 
-        if ("error" in result) {
-          alert(result.message);
+        if (!result.success) {
+          alert(result.error);
           return;
         }
 
+        alert("할 일 목록이 생성되었습니다.");
         window.location.reload();
       } catch {
         alert("할 일 목록 생성 중 오류가 발생했습니다.");
+      } finally {
+        setIsLoading(false);
       }
     }
-  }, [modalState.todoListName, teamId]);
+  }, [modalState.todoListName, teamId, isLoading]);
 
   const confirmEdit = useCallback(async () => {
-    if (modalState.selectedTodo && modalState.todoListName.trim()) {
+    if (
+      modalState.selectedTodo &&
+      modalState.todoListName.trim() &&
+      !isLoading
+    ) {
+      setIsLoading(true);
       try {
         const result = await updateTaskList(
           teamId,
@@ -76,34 +88,41 @@ export function useTodoActions({
           modalState.todoListName
         );
 
-        if ("error" in result) {
-          alert(result.message);
+        if (!result.success) {
+          alert(result.error);
           return;
         }
 
+        alert("할 일 목록이 수정되었습니다.");
         window.location.reload();
       } catch {
         alert("할 일 목록 수정 중 오류가 발생했습니다.");
+      } finally {
+        setIsLoading(false);
       }
     }
-  }, [modalState.selectedTodo, modalState.todoListName, teamId]);
+  }, [modalState.selectedTodo?.id, modalState.todoListName, teamId, isLoading]);
 
   const confirmDelete = useCallback(async () => {
-    if (modalState.todoToDelete !== null) {
+    if (modalState.todoToDelete !== null && !isLoading) {
+      setIsLoading(true);
       try {
         const result = await deleteTaskList(teamId, modalState.todoToDelete);
 
-        if ("error" in result) {
-          alert(result.message);
+        if (!result.success) {
+          alert(result.error);
           return;
         }
 
+        alert("할 일 목록이 삭제되었습니다.");
         window.location.reload();
       } catch {
         alert("할 일 목록 삭제 중 오류가 발생했습니다.");
+      } finally {
+        setIsLoading(false);
       }
     }
-  }, [modalState.todoToDelete, teamId]);
+  }, [modalState.todoToDelete, teamId, isLoading]);
 
   // Input 변경 핸들러
   const handleNameChange = useCallback(
@@ -124,5 +143,7 @@ export function useTodoActions({
     confirmDelete,
     // Input 핸들러
     handleNameChange,
+    // 로딩 상태
+    isLoading,
   };
 }
