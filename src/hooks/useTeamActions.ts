@@ -42,7 +42,8 @@ export function useTeamActions({
 
       // 성공 시 팀 목록 페이지로 이동 (replace로 히스토리 교체)
       router.replace("/teamlist");
-    } catch {
+    } catch (error) {
+      console.error("[deleteGroup]", error);
       alert("팀 삭제 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);

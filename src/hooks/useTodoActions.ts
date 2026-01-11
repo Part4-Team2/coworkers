@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createTaskList, updateTaskList, deleteTaskList } from "@/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 import { Todo } from "@/types/todo";
@@ -21,6 +22,7 @@ export function useTodoActions({
   openModalWithDelay,
   updateModalState,
 }: UseTodoActionsProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   // 모달 열기 함수들
@@ -65,14 +67,15 @@ export function useTodoActions({
         }
 
         alert("할 일 목록이 생성되었습니다.");
-        window.location.reload();
-      } catch {
+        router.refresh();
+      } catch (error) {
+        console.error("[createTaskList]", error);
         alert("할 일 목록 생성 중 오류가 발생했습니다.");
       } finally {
         setIsLoading(false);
       }
     }
-  }, [modalState.todoListName, teamId, isLoading]);
+  }, [modalState.todoListName, teamId, isLoading, router]);
 
   const confirmEdit = useCallback(async () => {
     if (
@@ -115,14 +118,15 @@ export function useTodoActions({
         }
 
         alert("할 일 목록이 삭제되었습니다.");
-        window.location.reload();
-      } catch {
+        router.refresh();
+      } catch (error) {
+        console.error("[deleteTaskList]", error);
         alert("할 일 목록 삭제 중 오류가 발생했습니다.");
       } finally {
         setIsLoading(false);
       }
     }
-  }, [modalState.todoToDelete, teamId, isLoading]);
+  }, [modalState.todoToDelete, teamId, isLoading, router]);
 
   // Input 변경 핸들러
   const handleNameChange = useCallback(

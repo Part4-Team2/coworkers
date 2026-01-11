@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getGroupInvitation, deleteMember } from "@/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 import { Member as MemberType } from "@/types/member";
@@ -18,6 +19,7 @@ export function useMemberActions({
   openModalWithDelay,
   resetModalState,
 }: UseMemberActionsProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   // 모달 열기 함수들
@@ -59,14 +61,15 @@ export function useMemberActions({
 
         alert("멤버가 삭제되었습니다.");
         resetModalState();
-        window.location.reload();
-      } catch {
+        router.refresh();
+      } catch (error) {
+        console.error("[deleteMember]", error);
         alert("멤버 삭제에 실패했습니다. 다시 시도해주세요.");
       } finally {
         setIsLoading(false);
       }
     }
-  }, [teamId, modalState.memberToDelete, resetModalState, isLoading]);
+  }, [teamId, modalState.memberToDelete, resetModalState, isLoading, router]);
 
   const copyEmail = useCallback(() => {
     if (modalState.selectedMember?.email) {
