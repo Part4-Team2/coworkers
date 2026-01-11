@@ -1,8 +1,8 @@
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import TeamIdContainer from "@/containers/teamid/TeamIdContainer";
 import { measureSSR } from "@/utils/measure";
-import { getUserMemberships } from "@/api/user";
+import { getUser } from "@/api/user";
 import { getGroup } from "@/api/group";
 
 type Props = {
@@ -60,25 +60,32 @@ export default async function TeamPage({ params }: Props) {
         notFound();
       }
 
-      // 사용자 멤버십 정보 조회하여 role 확인
-      const memberships = await getUserMemberships();
-      let userRole: "ADMIN" | "MEMBER" = "MEMBER";
+      // 현재 로그인한 사용자 정보 조회
+      const userData = await getUser();
 
-      if ("error" in memberships) {
-        console.error("Failed to fetch memberships:", memberships.message);
-        // 에러 시 기본값 MEMBER 유지
-      } else {
-        // 현재 groupId에 해당하는 멤버십 찾기
-        const currentMembership = memberships.find(
-          (membership) => membership.groupId === Number(teamId)
-        );
-        userRole = currentMembership?.role || "MEMBER";
+      if ("error" in userData) {
+        console.error("Failed to fetch user:", userData.message);
+        notFound();
       }
+
+      // memberships에서 현재 groupId에 해당하는 role 찾기
+      const currentMembership = userData.memberships.find(
+        (membership) => membership.groupId === Number(teamId)
+      );
+
+      if (!currentMembership) {
+        // 소속된 팀이 아니면 teamlist로 리다이렉트
+        redirect("/teamlist");
+      }
+
+      const currentUserId = userData.id;
+      const userRole = currentMembership.role;
 
       return (
         <TeamIdContainer
           teamId={teamId}
           userRole={userRole}
+          currentUserId={currentUserId}
           teamName={groupData.name}
           members={groupData.members}
           taskLists={groupData.taskLists}

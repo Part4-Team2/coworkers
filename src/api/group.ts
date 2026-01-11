@@ -5,13 +5,6 @@ import { BASE_URL } from "@/constants/api";
 import { CreateGroupBody } from "@/types/api/group";
 import { Role } from "@/types/schemas";
 
-/*
-GET /{teamId}/groups/{id}
-PATCH /{teamId}/groups/{id}
-DELETE /{teamId}/groups/{id}
-추가해 주시면 됩니다!
-*/
-
 export type GroupDetailResponse = {
   id: number;
   name: string;
@@ -83,9 +76,181 @@ export async function getGroup(groupId: string) {
     }
 
     return (await response.json()) as GroupDetailResponse;
-  } catch (error: unknown) {
+  } catch (error) {
     return {
       error: true,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
+
+/**
+ * 할 일 목록 생성
+ */
+export async function createTaskList(groupId: string, name: string) {
+  try {
+    const response = await fetchApi(
+      `${BASE_URL}/groups/${groupId}/task-lists`,
+      {
+        method: "POST",
+        body: JSON.stringify({ name }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "할 일 목록 생성에 실패했습니다.",
+      }));
+      return {
+        error: true as const,
+        message: error.message || "할 일 목록 생성에 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as {
+      id: number;
+      name: string;
+      createdAt: string;
+      updatedAt: string;
+      groupId: number;
+      displayIndex: number;
+    };
+  } catch (error) {
+    return {
+      error: true,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
+
+/**
+ * 할 일 목록 수정
+ */
+export async function updateTaskList(
+  groupId: string,
+  taskListId: number,
+  name: string
+) {
+  try {
+    const response = await fetchApi(
+      `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ name }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "할 일 목록 수정에 실패했습니다.",
+      }));
+      return {
+        error: true as const,
+        message: error.message || "할 일 목록 수정에 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as {
+      id: number;
+      name: string;
+      createdAt: string;
+      updatedAt: string;
+      groupId: number;
+      displayIndex: number;
+    };
+  } catch (error) {
+    return {
+      error: true,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
+
+/**
+ * 할 일 목록 삭제
+ */
+export async function deleteTaskList(groupId: string, taskListId: number) {
+  try {
+    const response = await fetchApi(
+      `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "할 일 목록 삭제에 실패했습니다.",
+      }));
+      return {
+        error: true as const,
+        message: error.message || "할 일 목록 삭제에 실패했습니다.",
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return {
+      error: true as const,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
+
+/**
+ * 그룹(팀) 삭제
+ */
+export async function deleteGroup(groupId: string) {
+  try {
+    const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "팀 삭제에 실패했습니다.",
+      }));
+      return {
+        error: true as const,
+        message: error.message || "팀 삭제에 실패했습니다.",
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return {
+      error: true as const,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
+
+/**
+ * 그룹 멤버 삭제
+ */
+export async function deleteMember(groupId: string, memberUserId: number) {
+  try {
+    const response = await fetchApi(
+      `${BASE_URL}/groups/${groupId}/member/${memberUserId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "멤버 삭제에 실패했습니다.",
+      }));
+      return {
+        error: true as const,
+        message: error.message || "멤버 삭제에 실패했습니다.",
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return {
+      error: true as const,
       message: "서버 오류가 발생했습니다.",
     };
   }
@@ -121,12 +286,33 @@ export async function postGroup(data: CreateGroupBody) {
   }
 }
 
-/*
-GET /{teamId}/groups/{id}/member/{memberUserId}
-DELETE /{teamId}/groups/{id}/member/{memberUserId}
-GET /{teamId}/groups/{id}/invitation
-추가해 주시면 됩니다!
-*/
+/**
+ * 그룹 초대 토큰 생성
+ */
+export async function getGroupInvitation(groupId: string) {
+  try {
+    const response = await fetchApi(`${BASE_URL}/groups/${groupId}/invitation`);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "초대 링크 생성에 실패했습니다.",
+      }));
+      return {
+        error: true as const,
+        message: error.message || "초대 링크 생성에 실패했습니다.",
+      };
+    }
+
+    // API가 토큰 문자열을 직접 반환
+    const token = await response.text();
+    return { token };
+  } catch (error) {
+    return {
+      error: true as const,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
 
 /* 
 GET {id}/invitation으로 생성한 토큰으로, 초대를 수락하는 엔드포인트 
@@ -186,8 +372,3 @@ export async function postGroupMember(
     };
   }
 }
-
-/*
-GET /{teamId}/groups/{id}/tasks
-추가해 주시면 됩니다!
-*/

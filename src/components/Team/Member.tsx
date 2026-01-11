@@ -67,7 +67,7 @@ export default function Member({
             onClick={onNameClick}
             className="text-md font-medium leading-20 text-text-primary truncate flex-1 py-1 text-left hover:underline cursor-pointer"
           />
-          {isAdmin && <DeleteButton onClick={onDeleteClick} />}
+          {isAdmin && onDeleteClick && <DeleteButton onClick={onDeleteClick} />}
         </div>
         <p className="text-xs font-regular leading-16 text-text-secondary truncate">
           {email}
@@ -89,7 +89,7 @@ export default function Member({
             {email}
           </p>
         </div>
-        {isAdmin && <DeleteButton onClick={onDeleteClick} />}
+        {isAdmin && onDeleteClick && <DeleteButton onClick={onDeleteClick} />}
       </div>
     </div>
   );
