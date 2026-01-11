@@ -12,6 +12,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import { postImage } from "@/api/image";
 import { patchUser, deleteUser, patchUserPassword } from "@/api/user";
 import { useRouter } from "next/navigation";
+import { UpdatePasswordBody } from "@/types/api/user";
 
 interface NameFormData {
   name: string;
@@ -81,10 +82,14 @@ export default function MyPageContainer({
   });
 
   const newPassword = watchPassword("newPassword");
+  const newPasswordConfirmation = watchPassword("newPasswordConfirmation");
 
   // 비밀번호 변경 모달에서 에러가 있는지 확인
   const hasPasswordErrors =
     !!passwordErrors.newPassword || !!passwordErrors.newPasswordConfirmation;
+
+  // 비밀번호 필드가 비어있는지 확인
+  const isPasswordEmpty = !newPassword || !newPasswordConfirmation;
 
   const handleClose = () => {
     setOpenModal(null);
@@ -163,13 +168,13 @@ export default function MyPageContainer({
     if (isSubmitting) return;
 
     setPasswordChangeError("");
-
+    const requestData: UpdatePasswordBody = {
+      passwordConfirmation: data.newPasswordConfirmation,
+      password: data.newPassword,
+    };
     try {
       setIsSubmitting(true);
-      const response = await patchUserPassword({
-        passwordConfirmation: data.newPasswordConfirmation,
-        password: data.newPassword,
-      });
+      const response = await patchUserPassword(requestData);
 
       if ("error" in response) {
         setPasswordChangeError(
@@ -305,11 +310,12 @@ export default function MyPageContainer({
         }
         optionAlign="start"
         button={{
-          label: isSubmitting ? "수정 중..." : "수정하기",
+          label: "수정하기",
           variant: "solid",
           size: "large",
           full: true,
           disabled: isSubmitting || !hasChanges,
+          loading: isSubmitting,
         }}
       />
 
@@ -368,7 +374,8 @@ export default function MyPageContainer({
         primaryButton={{
           label: "변경하기",
           onClick: handleSubmitPassword(onPasswordChangeSubmit),
-          disabled: isSubmitting || hasPasswordErrors,
+          disabled: isSubmitting || hasPasswordErrors || isPasswordEmpty,
+          loading: isSubmitting,
         }}
         secondaryButton={{
           label: "닫기",

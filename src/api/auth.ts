@@ -1,8 +1,7 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { BASE_URL } from "@/constants/api";
-import { fetchApi } from "@/utils/api";
+import { setAuthCookies } from "@/utils/cookies";
 import {
   SignInRequestBody,
   SignInResponse,
@@ -33,22 +32,7 @@ export async function postSignup(data: SignUpRequestBody) {
     const responseData = result as SignUpResponse;
 
     // 쿠키 설정
-    const cookieStore = await cookies();
-    cookieStore.set("accessToken", responseData.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 7, // 7일
-      path: "/",
-    });
-
-    cookieStore.set("refreshToken", responseData.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 30, // 30일
-      path: "/",
-    });
+    await setAuthCookies(responseData.accessToken, responseData.refreshToken);
 
     return responseData;
   } catch (error) {
@@ -81,22 +65,7 @@ export async function postSignin(data: SignInRequestBody) {
     const responseData = result as SignInResponse;
 
     // 쿠키 설정
-    const cookieStore = await cookies();
-    cookieStore.set("accessToken", responseData.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 7, // 7일
-      path: "/",
-    });
-
-    cookieStore.set("refreshToken", responseData.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 30, // 30일
-      path: "/",
-    });
+    await setAuthCookies(responseData.accessToken, responseData.refreshToken);
 
     return responseData;
   } catch (error) {
@@ -109,8 +78,11 @@ export async function postSignin(data: SignInRequestBody) {
 
 export async function postRefreshToken(data: { refreshToken: string }) {
   try {
-    const response = await fetchApi(`${BASE_URL}/auth/refresh-token`, {
+    const response = await fetch(`${BASE_URL}/auth/refresh-token`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(data),
     });
 
@@ -125,14 +97,7 @@ export async function postRefreshToken(data: { refreshToken: string }) {
     const result = (await response.json()) as { accessToken: string };
 
     // 새로운 accessToken을 쿠키에 저장
-    const cookieStore = await cookies();
-    cookieStore.set("accessToken", result.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 7, // 7일
-      path: "/",
-    });
+    await setAuthCookies(result.accessToken);
 
     return result;
   } catch (error) {
@@ -164,22 +129,7 @@ export async function postSigninKakao(data: SignInWithOauthRequestBody) {
     const responseData = (await response.json()) as SignInResponse;
 
     // 쿠키 설정
-    const cookieStore = await cookies();
-    cookieStore.set("accessToken", responseData.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 7, // 7일
-      path: "/",
-    });
-
-    cookieStore.set("refreshToken", responseData.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 30, // 30일
-      path: "/",
-    });
+    await setAuthCookies(responseData.accessToken, responseData.refreshToken);
 
     return responseData;
   } catch (error) {

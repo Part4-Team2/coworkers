@@ -19,6 +19,7 @@ interface SignupFormData {
 export default function SignupContainer() {
   const router = useRouter();
   const [signupError, setSignupError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -33,6 +34,7 @@ export default function SignupContainer() {
   const password = watch("password");
 
   const onSubmit = async (data: SignupFormData) => {
+    if (isSubmitting) return;
     const requestData: SignUpRequestBody = {
       email: data.email,
       password: data.password,
@@ -40,11 +42,13 @@ export default function SignupContainer() {
       nickname: data.name,
     };
     setSignupError("");
+    setIsSubmitting(true);
     try {
       const response = await postSignup(requestData);
 
       if ("error" in response) {
         setSignupError(response.message);
+        setIsSubmitting(false);
         return;
       }
       router.push("/");
@@ -54,6 +58,8 @@ export default function SignupContainer() {
           ? error.message
           : "회원가입에 실패했습니다. 다시 시도해주세요.";
       setSignupError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -174,6 +180,8 @@ export default function SignupContainer() {
           variant: "solid",
           size: "large",
           full: true,
+          disabled: isSubmitting,
+          loading: isSubmitting,
         }}
       />
       <SocialForm

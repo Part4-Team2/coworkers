@@ -53,6 +53,7 @@ import MedalIcon from "@/assets/icon/medal.svg";
 import SearchIcon from "@/assets/icon/search.svg";
 import HeartIcon from "@/assets/icon/heart.svg";
 import AvatarIcon from "@/assets/icon/avatar.svg";
+import LoadingIcon from "@/assets/icon/loading.svg";
 
 export const IconMap = {
   alert: AlertIcon,
@@ -92,6 +93,7 @@ export const IconMap = {
   search: SearchIcon,
   heart: HeartIcon,
   avatar: AvatarIcon,
+  loading: LoadingIcon,
   // btn
   btnArrowLeft: BtnArrowLeftIcon,
   btnArrowRight: BtnArrowRightIcon,
