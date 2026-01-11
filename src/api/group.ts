@@ -3,6 +3,7 @@
 import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/constants/api";
 import { CreateGroupBody } from "@/types/api/group";
+import { Role } from "@/types/schemas";
 
 /*
 GET /{teamId}/groups/{id}
@@ -10,6 +11,85 @@ PATCH /{teamId}/groups/{id}
 DELETE /{teamId}/groups/{id}
 추가해 주시면 됩니다!
 */
+
+export type GroupDetailResponse = {
+  id: number;
+  name: string;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+  teamId: string;
+  members: Array<{
+    userId: number;
+    groupId: number;
+    userName: string;
+    userEmail: string;
+    userImage: string | null;
+    role: Role;
+  }>;
+  taskLists: Array<{
+    id: number;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    groupId: number;
+    displayIndex: number;
+    tasks: Array<{
+      id: number;
+      name: string;
+      description: string;
+      date: string;
+      doneAt: string | null;
+      updatedAt: string;
+      user: {
+        id: number;
+        nickname: string;
+        image: string | null;
+      } | null;
+      recurringId: number;
+      deletedAt: string | null;
+      displayIndex: number;
+      writer: {
+        id: number;
+        nickname: string;
+        image: string | null;
+      };
+      doneBy: {
+        id: number;
+        nickname: string;
+        image: string | null;
+      } | null;
+      commentCount: number;
+      frequency: string;
+    }>;
+  }>;
+};
+
+/**
+ * 그룹 상세 정보 조회 (멤버, 할 일 목록 포함)
+ */
+export async function getGroup(groupId: string) {
+  try {
+    const response = await fetchApi(`${BASE_URL}/groups/${groupId}`);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "그룹 정보를 가져오는데 실패했습니다.",
+      }));
+      return {
+        error: true,
+        message: error.message || "그룹 정보를 가져오는데 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as GroupDetailResponse;
+  } catch (error: unknown) {
+    return {
+      error: true,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
 
 export async function postGroup(data: CreateGroupBody) {
   try {

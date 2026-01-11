@@ -1,7 +1,9 @@
-import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import TeamIdContainer from "@/containers/teamid/TeamIdContainer";
+import { measureSSR } from "@/utils/measure";
+import { getUserMemberships } from "@/api/user";
+import { getGroup } from "@/api/group";
 
 type Props = {
   params: Promise<{ teamid: string }>;
@@ -40,82 +42,49 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function TeamPage({ params }: Props) {
-  const tracer = trace.getTracer("coworkers-page");
-
-  return await tracer.startActiveSpan("render-team-page", async (span) => {
-    const startTime = performance.now();
-
-    try {
+  return await measureSSR({
+    name: "render-team-page",
+    fn: async () => {
       const { teamid: teamId } = await params;
-      span.setAttribute("team.id", teamId);
-      span.setAttribute("page.route", "/[teamid]");
 
       // teamId 유효성 검사
       if (!teamId) {
-        span.setStatus({
-          code: SpanStatusCode.ERROR,
-          message: "Invalid team ID",
-        });
         notFound();
       }
 
-      // TODO: 실제 API 구현 시 데이터 fetching 추가
-      // 예시:
-      // const teamData = await tracer.startActiveSpan('fetch-team-data', async (fetchSpan) => {
-      //   try {
-      //     fetchSpan.setAttribute('fetch.url', `/api/teams/${teamId}`);
-      //     const response = await fetch(`/api/teams/${teamId}`);
-      //     const data = await response.json();
-      //     fetchSpan.setAttribute('team.name', data.name);
-      //     fetchSpan.setAttribute('team.member_count', data.members?.length || 0);
-      //     fetchSpan.setStatus({ code: SpanStatusCode.OK });
-      //     return data;
-      //   } catch (error) {
-      //     fetchSpan.recordException(error as Error);
-      //     fetchSpan.setStatus({ code: SpanStatusCode.ERROR });
-      //     throw error;
-      //   } finally {
-      //     fetchSpan.end();
-      //   }
-      // });
+      // 그룹 정보 조회
+      const groupData = await getGroup(teamId);
 
-      span.setAttribute("page.rendered", true);
-      span.setStatus({ code: SpanStatusCode.OK });
-
-      const component = <TeamIdContainer teamId={teamId} />;
-
-      // 개발 환경에서만 성능 로그 출력
-      if (process.env.NODE_ENV === "development") {
-        const duration = Math.round(performance.now() - startTime);
-        console.log(`[OpenTelemetry] render-team-page:`, {
-          teamId,
-          route: "/[teamid]",
-          duration: `${duration}ms`,
-          status: "success",
-        });
+      if ("error" in groupData) {
+        console.error("Failed to fetch group:", groupData.message);
+        notFound();
       }
 
-      return component;
-    } catch (error) {
-      const duration = Math.round(performance.now() - startTime);
+      // 사용자 멤버십 정보 조회하여 role 확인
+      const memberships = await getUserMemberships();
+      let userRole: "ADMIN" | "MEMBER" = "MEMBER";
 
-      span.recordException(error as Error);
-      span.setStatus({
-        code: SpanStatusCode.ERROR,
-        message: "Page render failed",
-      });
-
-      // 개발 환경에서만 에러 로그 출력
-      if (process.env.NODE_ENV === "development") {
-        console.error(`[OpenTelemetry] render-team-page failed:`, {
-          duration: `${duration}ms`,
-          error: error instanceof Error ? error.message : "Unknown error",
-        });
+      if ("error" in memberships) {
+        console.error("Failed to fetch memberships:", memberships.message);
+        // 에러 시 기본값 MEMBER 유지
+      } else {
+        // 현재 groupId에 해당하는 멤버십 찾기
+        const currentMembership = memberships.find(
+          (membership) => membership.groupId === Number(teamId)
+        );
+        userRole = currentMembership?.role || "MEMBER";
       }
 
-      throw error;
-    } finally {
-      span.end();
-    }
+      return (
+        <TeamIdContainer
+          teamId={teamId}
+          userRole={userRole}
+          teamName={groupData.name}
+          members={groupData.members}
+          taskLists={groupData.taskLists}
+        />
+      );
+    },
+    attr: { "page.route": "/[teamid]" },
   });
 }

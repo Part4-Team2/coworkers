@@ -7,7 +7,9 @@ import Report from "@/components/Team/Report";
 import TodoList from "@/components/Team/TodoList";
 import TeamHeader from "@/components/Team/TeamHeader";
 import Modal from "@/components/Common/Modal/Modal";
-import { Todo, Member as MemberType } from "@/types";
+import { Todo } from "@/types/todo";
+import { Member as MemberType } from "@/types/member";
+import { GroupDetailResponse } from "@/api/group";
 
 // 모달 타입 상수 정의
 const MODAL_TYPES = {
@@ -24,6 +26,15 @@ type ModalType = (typeof MODAL_TYPES)[keyof typeof MODAL_TYPES] | null;
 
 // 상수 정의
 const MODAL_OPEN_DELAY = 100; // 드롭다운 닫힌 후 모달 오픈 지연 (ms)
+const TODO_COLORS = [
+  "#A855F7",
+  "#3B82F6",
+  "#06B6D4",
+  "#EC4899",
+  "#F43F5E",
+  "#F97316",
+  "#EAB308",
+];
 
 // State 관리를 위한 인터페이스
 interface ModalState {
@@ -35,86 +46,65 @@ interface ModalState {
   todoToDelete: number | null;
 }
 
-// 임시 데이터
-const mockMembers: MemberType[] = [
-  {
-    id: 1,
-    name: "우지은",
-    email: "jieun@codeit.com",
-    imageUrl: undefined,
-  },
-  {
-    id: 2,
-    name: "김미희",
-    email: "Mihee@codeit.com",
-    imageUrl: undefined,
-  },
-  {
-    id: 3,
-    name: "김슬아",
-    email: "seula@codeit.com",
-    imageUrl: undefined,
-  },
-  {
-    id: 4,
-    name: "이동규",
-    email: "dongkyu@codeit.com",
-    imageUrl: undefined,
-  },
-  {
-    id: 5,
-    name: "김단혜",
-    email: "Dahye@codeit.com",
-    imageUrl: undefined,
-  },
-  {
-    id: 6,
-    name: "이연지",
-    email: "Yeonji@codeit.com",
-    imageUrl: undefined,
-  },
-];
-
-const mockTodos: Todo[] = [
-  {
-    id: 1,
-    name: "법인 설립",
-    completedCount: 3,
-    totalCount: 5,
-    color: "#A855F7",
-  },
-  {
-    id: 2,
-    name: "변경 등기",
-    completedCount: 5,
-    totalCount: 5,
-    color: "#3B82F6",
-  },
-  {
-    id: 3,
-    name: "정기 주총",
-    completedCount: 3,
-    totalCount: 5,
-    color: "#14B8A6",
-  },
-  {
-    id: 4,
-    name: "법인 설립",
-    completedCount: 3,
-    totalCount: 5,
-    color: "#EC4899",
-  },
-];
-
 interface TeamIdContainerProps {
   teamId: string;
+  userRole: "ADMIN" | "MEMBER";
+  teamName: string;
+  members: GroupDetailResponse["members"];
+  taskLists: GroupDetailResponse["taskLists"];
 }
 
-export default function TeamIdContainer({ teamId }: TeamIdContainerProps) {
+export default function TeamIdContainer({
+  teamId,
+  userRole,
+  teamName,
+  members: initialMembers,
+  taskLists: initialTaskLists,
+}: TeamIdContainerProps) {
   const router = useRouter();
 
-  const [members] = useState(mockMembers);
-  const [todos] = useState(mockTodos);
+  // API 데이터를 컴포넌트 형식에 맞게 변환
+  const convertedMembers: MemberType[] = initialMembers.map((member) => ({
+    id: member.userId,
+    name: member.userName,
+    email: member.userEmail,
+    imageUrl: member.userImage || undefined,
+  }));
+
+  const convertedTodos: Todo[] = initialTaskLists.map((taskList) => ({
+    id: taskList.id,
+    name: taskList.name,
+    completedCount: taskList.tasks.filter((task) => task.doneAt !== null)
+      .length,
+    totalCount: taskList.tasks.length,
+    color: TODO_COLORS[taskList.displayIndex % TODO_COLORS.length],
+  }));
+
+  const [members] = useState(convertedMembers);
+  const [todos] = useState(convertedTodos);
+
+  // Report 데이터 계산 - convertedTodos에서 이미 계산한 값 활용
+  const totalTaskCount = convertedTodos.reduce(
+    (sum, todo) => sum + todo.totalCount,
+    0
+  );
+  const completedTaskCount = convertedTodos.reduce(
+    (sum, todo) => sum + todo.completedCount,
+    0
+  );
+  const progressPercentage =
+    totalTaskCount > 0
+      ? Math.round((completedTaskCount / totalTaskCount) * 100)
+      : 0;
+
+  // 오늘 날짜의 작업 수 계산만 별도로 수행
+  const today = new Date().toISOString().split("T")[0];
+  const todayTaskCount = initialTaskLists
+    .flatMap((taskList) => taskList.tasks)
+    .filter((task) => {
+      const taskDate = new Date(task.date).toISOString().split("T")[0];
+      return taskDate === today;
+    }).length;
 
   // 통합된 모달 state 관리
   const [modalState, setModalState] = useState<ModalState>({
@@ -125,9 +115,6 @@ export default function TeamIdContainer({ teamId }: TeamIdContainerProps) {
     selectedTodo: null,
     todoToDelete: null,
   });
-
-  // TODO: 실제로는 API나 라우터 파라미터에서 팀 정보를 가져와야 함
-  const [teamName] = useState("경영관리팀");
 
   // 공통 모달 오픈 헬퍼 함수
   const openModalWithDelay = useCallback(
@@ -298,8 +285,8 @@ export default function TeamIdContainer({ teamId }: TeamIdContainerProps) {
         <div className="mb-24">
           <TeamHeader
             teamName={teamName}
-            onEdit={handleTeamEdit}
-            onDelete={handleTeamDelete}
+            onEdit={userRole === "ADMIN" ? handleTeamEdit : undefined}
+            onDelete={userRole === "ADMIN" ? handleTeamDelete : undefined}
           />
         </div>
 
@@ -326,9 +313,9 @@ export default function TeamIdContainer({ teamId }: TeamIdContainerProps) {
 
         <div className="mt-48 lg:mt-64">
           <Report
-            progressPercentage={25}
-            todayTaskCount={20}
-            completedTaskCount={5}
+            progressPercentage={progressPercentage}
+            todayTaskCount={todayTaskCount}
+            completedTaskCount={completedTaskCount}
           />
         </div>
 
@@ -354,8 +341,12 @@ export default function TeamIdContainer({ teamId }: TeamIdContainerProps) {
               name={member.name}
               email={member.email}
               imageUrl={member.imageUrl}
-              isAdmin={true}
-              onDeleteClick={() => handleMemberDelete(member.id)}
+              isAdmin={userRole === "ADMIN"}
+              onDeleteClick={
+                userRole === "ADMIN"
+                  ? () => handleMemberDelete(member.id)
+                  : undefined
+              }
               onNameClick={() => handleMemberNameClick(member)}
             />
           ))}
