@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Member from "@/components/Team/Member";
 import Report from "@/components/Team/Report";
 import TodoList from "@/components/Team/TodoList";
@@ -42,6 +43,8 @@ export default function TeamIdContainer({
   members: initialMembers,
   taskLists: initialTaskLists,
 }: TeamIdContainerProps) {
+  const router = useRouter();
+
   // API 데이터를 컴포넌트 형식에 맞게 변환
   const members: MemberType[] = initialMembers.map((member) => ({
     id: member.userId,
@@ -103,6 +106,11 @@ export default function TeamIdContainer({
     resetModalState: handleCloseModal,
   });
 
+  // 할 일 목록 클릭 핸들러
+  const handleTodoListClick = (todoId: number) => {
+    router.push(`/${teamId}/tasklist`);
+  };
+
   return (
     <div className="teamid-page w-full bg-background-primary min-h-screen py-24">
       <div className="max-w-1200 mx-auto px-16 lg:px-24">
@@ -138,6 +146,7 @@ export default function TeamIdContainer({
           todos={todos}
           onEdit={todoActions.openEditModal}
           onDelete={todoActions.openDeleteModal}
+          onClick={handleTodoListClick}
         />
 
         <div className="mt-48 lg:mt-64">
