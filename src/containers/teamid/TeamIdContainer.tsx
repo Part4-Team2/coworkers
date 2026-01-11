@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Member from "@/components/Team/Member";
 import Report from "@/components/Team/Report";
@@ -13,7 +14,6 @@ import { useModalState, MODAL_TYPES } from "@/hooks/useModalState";
 import { useTeamActions } from "@/hooks/useTeamActions";
 import { useTodoActions } from "@/hooks/useTodoActions";
 import { useMemberActions } from "@/hooks/useMemberActions";
-import { getLocalDateString } from "@/utils/date";
 
 // 상수 정의
 const TODO_COLORS = [
@@ -46,41 +46,57 @@ export default function TeamIdContainer({
   const router = useRouter();
 
   // API 데이터를 컴포넌트 형식에 맞게 변환
-  const members: MemberType[] = initialMembers.map((member) => ({
-    id: member.userId,
-    name: member.userName,
-    email: member.userEmail,
-    imageUrl: member.userImage || undefined,
-  }));
+  const members: MemberType[] = useMemo(
+    () =>
+      initialMembers.map((member) => ({
+        id: member.userId,
+        name: member.userName,
+        email: member.userEmail,
+        imageUrl: member.userImage || undefined,
+      })),
+    [initialMembers]
+  );
 
-  const todos: Todo[] = initialTaskLists.map((taskList) => ({
-    id: taskList.id,
-    name: taskList.name,
-    completedCount: taskList.tasks.filter((task) => task.doneAt !== null)
-      .length,
-    totalCount: taskList.tasks.length,
-    color: TODO_COLORS[taskList.displayIndex % TODO_COLORS.length],
-  }));
+  const todos: Todo[] = useMemo(
+    () =>
+      initialTaskLists.map((taskList) => ({
+        id: taskList.id,
+        name: taskList.name,
+        completedCount: taskList.tasks.filter((task) => task.doneAt !== null)
+          .length,
+        totalCount: taskList.tasks.length,
+        color: TODO_COLORS[taskList.displayIndex % TODO_COLORS.length],
+      })),
+    [initialTaskLists]
+  );
 
   // Report 데이터 계산
-  const totalTaskCount = todos.reduce((sum, todo) => sum + todo.totalCount, 0);
-  const completedTaskCount = todos.reduce(
-    (sum, todo) => sum + todo.completedCount,
-    0
+  const totalTaskCount = useMemo(
+    () => todos.reduce((sum, todo) => sum + todo.totalCount, 0),
+    [todos]
   );
-  const progressPercentage =
-    totalTaskCount > 0
-      ? Math.round((completedTaskCount / totalTaskCount) * 100)
-      : 0;
+  const completedTaskCount = useMemo(
+    () => todos.reduce((sum, todo) => sum + todo.completedCount, 0),
+    [todos]
+  );
+  const progressPercentage = useMemo(
+    () =>
+      totalTaskCount > 0
+        ? Math.round((completedTaskCount / totalTaskCount) * 100)
+        : 0,
+    [totalTaskCount, completedTaskCount]
+  );
 
   // 오늘 날짜의 작업 수 계산만 별도로 수행
-  const today = getLocalDateString();
-  const todayTaskCount = initialTaskLists
-    .flatMap((taskList) => taskList.tasks)
-    .filter((task) => {
-      const taskDate = getLocalDateString(new Date(task.date));
-      return taskDate === today;
-    }).length;
+  const todayTaskCount = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0]; // UTC 날짜 (YYYY-MM-DD)
+    return initialTaskLists
+      .flatMap((taskList) => taskList.tasks)
+      .filter((task) => {
+        const taskDate = task.date.split("T")[0]; // UTC 날짜 (YYYY-MM-DD)
+        return taskDate === today;
+      }).length;
+  }, [initialTaskLists]);
 
   // 커스텀 훅 사용
   const { modalState, openModalWithDelay, handleCloseModal, updateModalState } =
@@ -107,7 +123,7 @@ export default function TeamIdContainer({
   });
 
   // 할 일 목록 클릭 핸들러
-  const handleTodoListClick = (todoId: number) => {
+  const handleTodoListClick = () => {
     router.push(`/${teamId}/tasklist`);
   };
 

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { createTaskList, updateTaskList, deleteTaskList } from "@/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 import { Todo } from "@/types/todo";
-import { useApiMutation } from "./useApiMutation";
 
 interface UseTodoActionsProps {
   teamId: string;
@@ -41,13 +40,15 @@ export function useTodoActions({
   const openEditModal = useCallback(
     (todoId: number) => {
       const todo = todos.find((t) => t.id === todoId);
-      if (todo) {
-        openModalWithDelay({
-          type: MODAL_TYPES.TODO_EDIT,
-          selectedTodo: todo,
-          todoListName: todo.name,
-        });
+      if (!todo) {
+        console.warn(`[openEditModal] Todo not found: ${todoId}`);
+        return;
       }
+      openModalWithDelay({
+        type: MODAL_TYPES.TODO_EDIT,
+        selectedTodo: todo,
+        todoListName: todo.name,
+      });
     },
     [todos, openModalWithDelay]
   );
@@ -114,7 +115,7 @@ export function useTodoActions({
       }
     }
   }, [
-    modalState.selectedTodo?.id,
+    modalState.selectedTodo,
     modalState.todoListName,
     teamId,
     isLoading,
