@@ -12,6 +12,7 @@ interface UseTodoActionsProps {
   modalState: ModalState;
   openModalWithDelay: (updates: Partial<ModalState>, delay?: number) => void;
   updateModalState: (updates: Partial<ModalState>) => void;
+  resetModalState: () => void;
 }
 
 export function useTodoActions({
@@ -20,6 +21,7 @@ export function useTodoActions({
   modalState,
   openModalWithDelay,
   updateModalState,
+  resetModalState,
 }: UseTodoActionsProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -76,6 +78,7 @@ export function useTodoActions({
         }
 
         alert("할 일 목록이 생성되었습니다.");
+        resetModalState();
         router.refresh();
       } catch (error) {
         console.error("[createTaskList]", error);
@@ -106,6 +109,7 @@ export function useTodoActions({
         }
 
         alert("할 일 목록이 수정되었습니다.");
+        resetModalState();
         router.refresh();
       } catch (error) {
         console.error("[updateTaskList]", error);
@@ -134,6 +138,7 @@ export function useTodoActions({
         }
 
         alert("할 일 목록이 삭제되었습니다.");
+        resetModalState();
         router.refresh();
       } catch (error) {
         console.error("[deleteTaskList]", error);

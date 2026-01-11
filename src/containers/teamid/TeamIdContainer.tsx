@@ -113,6 +113,7 @@ export default function TeamIdContainer({
     modalState,
     openModalWithDelay,
     updateModalState,
+    resetModalState: handleCloseModal,
   });
 
   const memberActions = useMemberActions({
