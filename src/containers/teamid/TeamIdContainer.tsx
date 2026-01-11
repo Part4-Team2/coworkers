@@ -231,9 +231,9 @@ export default function TeamIdContainer({
           onChange: todoActions.handleNameChange,
         }}
         primaryButton={{
-          label: todoActions.isLoading ? "만드는 중..." : "만들기",
+          label: "만들기",
           onClick: todoActions.confirmCreate,
-          disabled: todoActions.isLoading,
+          loading: todoActions.isLoading,
         }}
       />
 
@@ -248,9 +248,9 @@ export default function TeamIdContainer({
           onChange: todoActions.handleNameChange,
         }}
         primaryButton={{
-          label: todoActions.isLoading ? "수정 중..." : "수정하기",
+          label: "수정하기",
           onClick: todoActions.confirmEdit,
-          disabled: todoActions.isLoading,
+          loading: todoActions.isLoading,
         }}
       />
 
@@ -261,10 +261,10 @@ export default function TeamIdContainer({
         title="정말 목록을 삭제하시겠습니까?"
         description="삭제된 데이터는 복구 할 수 없습니다."
         primaryButton={{
-          label: todoActions.isLoading ? "삭제 중..." : "삭제",
+          label: "삭제",
           onClick: todoActions.confirmDelete,
           variant: "danger",
-          disabled: todoActions.isLoading,
+          loading: todoActions.isLoading,
         }}
         secondaryButton={{
           label: "닫기",
@@ -296,10 +296,10 @@ export default function TeamIdContainer({
         title="멤버를 삭제하시겠습니까?"
         description="삭제한 멤버는 팀에서 완전히 제외됩니다."
         primaryButton={{
-          label: memberActions.isLoading ? "삭제 중..." : "삭제",
+          label: "삭제",
           onClick: memberActions.confirmDelete,
           variant: "danger",
-          disabled: memberActions.isLoading,
+          loading: memberActions.isLoading,
         }}
         secondaryButton={{
           label: "닫기",
@@ -314,10 +314,10 @@ export default function TeamIdContainer({
         title="정말 팀을 삭제하시겠습니까?"
         description="삭제된 데이터는 복구 할 수 없습니다."
         primaryButton={{
-          label: teamActions.isLoading ? "삭제 중..." : "삭제",
+          label: "삭제",
           onClick: teamActions.confirmDelete,
           variant: "danger",
-          disabled: teamActions.isLoading,
+          loading: teamActions.isLoading,
         }}
         secondaryButton={{
           label: "닫기",

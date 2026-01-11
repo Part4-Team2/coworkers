@@ -21,11 +21,6 @@ export type TaskListResponse = {
   displayIndex: number;
 };
 
-export type DeleteResponse = {
-  id: number;
-  deletedAt: string;
-};
-
 export type GroupDetailResponse = {
   id: number;
   name: string;
@@ -191,7 +186,7 @@ export async function updateTaskList(
 export async function deleteTaskList(
   groupId: string,
   taskListId: number
-): Promise<ApiResult<DeleteResponse>> {
+): Promise<ApiResult<void>> {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}`,
@@ -210,15 +205,8 @@ export async function deleteTaskList(
       };
     }
 
-    // 204 No Content인 경우 빈 응답
-    let data: DeleteResponse;
-    if (response.status === 204) {
-      data = { id: taskListId, deletedAt: new Date().toISOString() };
-    } else {
-      data = (await response.json()) as DeleteResponse;
-    }
     revalidatePath(`/${groupId}`);
-    return { success: true, data };
+    return { success: true, data: undefined };
   } catch {
     return {
       success: false,
@@ -230,9 +218,7 @@ export async function deleteTaskList(
 /**
  * 그룹(팀) 삭제
  */
-export async function deleteGroup(
-  groupId: string
-): Promise<ApiResult<DeleteResponse>> {
+export async function deleteGroup(groupId: string): Promise<ApiResult<void>> {
   try {
     const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
       method: "DELETE",
@@ -248,16 +234,9 @@ export async function deleteGroup(
       };
     }
 
-    // 204 No Content인 경우 빈 응답
-    let data: DeleteResponse;
-    if (response.status === 204) {
-      data = { id: Number(groupId), deletedAt: new Date().toISOString() };
-    } else {
-      data = (await response.json()) as DeleteResponse;
-    }
     revalidatePath(`/${groupId}`);
     revalidatePath("/teamlist");
-    return { success: true, data };
+    return { success: true, data: undefined };
   } catch {
     return {
       success: false,
@@ -272,7 +251,7 @@ export async function deleteGroup(
 export async function deleteMember(
   groupId: string,
   memberUserId: number
-): Promise<ApiResult<DeleteResponse>> {
+): Promise<ApiResult<void>> {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/member/${memberUserId}`,
@@ -291,15 +270,8 @@ export async function deleteMember(
       };
     }
 
-    // 204 No Content인 경우 빈 응답
-    let data: DeleteResponse;
-    if (response.status === 204) {
-      data = { id: memberUserId, deletedAt: new Date().toISOString() };
-    } else {
-      data = (await response.json()) as DeleteResponse;
-    }
     revalidatePath(`/${groupId}`);
-    return { success: true, data };
+    return { success: true, data: undefined };
   } catch {
     return {
       success: false,

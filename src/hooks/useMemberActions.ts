@@ -93,7 +93,10 @@ export function useMemberActions({
       }
 
       // 초대 링크 생성
-      const baseUrl = window.location.origin;
+      const baseUrl =
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.NEXT_PUBLIC_BASE_URL ||
+        "http://localhost:3000";
       const inviteLink = `${baseUrl}/invite?token=${result.token}`;
 
       // 클립보드에 복사
