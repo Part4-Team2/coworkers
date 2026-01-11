@@ -17,3 +17,13 @@ export const formatTime = (isoDate: string) => {
     timeZone: "Asia/Seoul",
   });
 };
+
+export const formatListHeaderDate = (isoDate: string) => {
+  const dateObj = new Date(isoDate);
+  return dateObj.toLocaleDateString("ko-KR", {
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+    timeZone: "Asia/Seoul",
+  });
+};
