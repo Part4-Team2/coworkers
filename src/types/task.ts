@@ -28,9 +28,4 @@ export interface Task {
     nickname: string;
     image: string | null;
   };
-
-  isToggle?: boolean;
-  onToggle?: (id: number) => void;
-  onClickKebab?: (id: number) => void;
-  variant?: "simple" | "detailed";
 }

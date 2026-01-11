@@ -6,6 +6,14 @@ import { formatDate, formatTime } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
 
+export interface ListProps extends Task {
+  onClick?: () => void;
+  isToggle?: boolean;
+  onToggle?: (id: number) => void;
+  onClickKebab?: (id: number) => void;
+  variant?: "simple" | "detailed";
+}
+
 export default function List({
   id, // 부모에서 사용
   isToggle = false,
