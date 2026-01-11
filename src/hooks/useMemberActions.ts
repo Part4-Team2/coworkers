@@ -101,6 +101,7 @@ export function useMemberActions({
       alert("초대 링크가 복사되었습니다!");
       resetModalState();
     } catch (error) {
+      console.error("[copyInviteLink]", error);
       alert("링크 복사에 실패했습니다. 다시 시도해주세요.");
     }
   }, [teamId, resetModalState]);

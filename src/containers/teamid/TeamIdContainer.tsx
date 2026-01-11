@@ -124,8 +124,8 @@ export default function TeamIdContainer({
   });
 
   // 할 일 목록 클릭 핸들러
-  const handleTodoListClick = () => {
-    router.push(`/${teamId}/tasklist`);
+  const handleTodoListClick = (todoId: number) => {
+    router.push(`/${teamId}/tasklist/${todoId}`);
   };
 
   return (
