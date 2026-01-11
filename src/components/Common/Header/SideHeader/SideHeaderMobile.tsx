@@ -21,8 +21,8 @@ function SideHeaderMobile({ isOpen, teams, onClick }: SideHeaderProps) {
   // Team 명을 클릭할때 소속 팀 화면으로 이동하는 함수입니다.
   // button이 아닌 Link로 변경할 수 있습니다.
   const handleClickTeam = (team: number) => {
-    router.push(`/${team}`);
     onClick();
+    router.push(`/${team}`);
   };
 
   return (
