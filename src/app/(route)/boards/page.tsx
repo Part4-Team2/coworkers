@@ -3,70 +3,18 @@
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
-import Article from "../../../components/Boards/Article";
 import ButtonFloating from "../../../components/Common/Button/ButtonFloating";
-import SVGIcon from "../../../components/Common/SVGIcon/SVGIcon";
-import Dropdown from "../../../components/Common/Dropdown/Dropdown";
 import BoardInput from "../../../components/Boards/BoardInput";
-import BestArticle from "../../../components/Boards/BestArticle";
-
-const ARRANGE: string[] = ["최신순", "좋아요 많은순"];
-
-// mockdata는 추후에 api 들어오면 삭제 예정입니다.
-type Mockdata = {
-  id: number;
-  nickname: string;
-  title: string;
-  createdAt: string;
-  avatarImageUrl?: string;
-  articleImageUrl?: string;
-  likeCount: number;
-};
-
-const MOCKDATA01: Mockdata = {
-  id: 1,
-  nickname: "우지은",
-  title: "게시글 제목입니다.",
-  createdAt: "2025.12.29",
-  avatarImageUrl: undefined,
-  articleImageUrl: undefined,
-  likeCount: 10000,
-};
-
-const MOCKDATA02: Mockdata = {
-  id: 2,
-  nickname: "우지우",
-  title: "게시글 제목입니다.",
-  createdAt: "2025.12.29",
-  avatarImageUrl: undefined,
-  likeCount: 9998,
-};
-
-const MOCKDATA03: Mockdata = {
-  id: 3,
-  nickname: "우지호",
-  title: "게시글 제목입니다.",
-  createdAt: "2025.12.29",
-  avatarImageUrl: undefined,
-  likeCount: 9997,
-};
-
-const MOCKMEMBERS = [MOCKDATA01, MOCKDATA02, MOCKDATA03];
+import BestArticleSection from "@/components/Boards/BestArticleSection";
+import ArticleSection from "@/components/Boards/ArticleSection";
 
 function BoardPage() {
   const router = useRouter();
-  const members = MOCKMEMBERS;
   const [inputVal, setInputVal] = useState("");
-  const [arrange, setArrange] = useState(ARRANGE[0]);
 
-  // 추후 함수는 글쓰기 페이지로 이동할 예정입니다.
+  // 글쓰기 버튼 누를시 글쓰기 페이지로 이동하는 함수입니다.
   const handleWriteClick = () => {
     router.push("/boards/writeArticle");
-  };
-
-  // 더보기 문구 클릭시 작동하는 함수입니다.
-  const handleMoreClick = () => {
-    console.log("더보기 클릭.");
   };
 
   return (
@@ -87,73 +35,11 @@ function BoardPage() {
               setInputVal(e.target.value)
             }
           />
-          <article className="flex flex-col gap-56">
-            <div className="flex justify-between items-center">
-              <span className="text-text-primary text-xl">베스트 게시글</span>
-              {/* 더보기 버튼 */}
-              <div
-                className="flex items-center cursor-pointer"
-                onClick={handleMoreClick}
-              >
-                <span className="text-sm text-slate-400 hover:text-slate-200">
-                  더보기
-                </span>
-                <SVGIcon icon="arrowRight" size="xxs" />
-              </div>
-            </div>
-            <div
-              className={clsx(
-                "grid grid-cols-1 grid-rows-1 sm:grid-cols-2 lg:grid-cols-3 gap-21 max-w-1200 mx-auto"
-              )}
-            >
-              {members.map((member, index) => (
-                //
-                <div
-                  key={member.id}
-                  className={clsx(
-                    ["block", "sm:block hidden", "hidden lg:block"][index]
-                  )}
-                >
-                  <BestArticle
-                    id={member.id}
-                    title={member.title}
-                    nickname={member.nickname}
-                    createdAt={member.createdAt}
-                    avatarImageUrl={member.avatarImageUrl}
-                    articleImageUrl={member.articleImageUrl}
-                    likeCount={member.likeCount}
-                  />
-                </div>
-              ))}
-            </div>
-          </article>
+          {/* 베스트 게시글 */}
+          <BestArticleSection />
           <div className="border-b border-b-border-primary/10"></div>
-          <article className="flex flex-col gap-32">
-            <div className="flex items-center justify-between">
-              <span className="text-text-primary text-2xl">게시글</span>
-              <Dropdown
-                options={ARRANGE}
-                onSelect={setArrange}
-                size="md"
-                trigger="text"
-                value={arrange}
-              />
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 gap-21 max-w-1200 mx-auto">
-              {members.map((member) => (
-                <Article
-                  id={member.id}
-                  key={member.id}
-                  title={member.title}
-                  nickname={member.nickname}
-                  createdAt={member.createdAt}
-                  avatarImageUrl={member.avatarImageUrl}
-                  articleImageUrl={member.articleImageUrl}
-                  likeCount={member.likeCount}
-                />
-              ))}
-            </div>
-          </article>
+          {/* 게시글 */}
+          <ArticleSection />
         </section>
         <div className="fixed right-24 bottom-61 z-30">
           <ButtonFloating

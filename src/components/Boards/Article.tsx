@@ -17,7 +17,7 @@ interface ArticleProps {
 
 const WRITEOPTIONS = ["수정하기", "삭제하기"];
 
-function Article({
+function ArticleComp({
   id,
   title,
   nickname,
@@ -94,4 +94,4 @@ function Article({
   );
 }
 
-export default Article;
+export default ArticleComp;
