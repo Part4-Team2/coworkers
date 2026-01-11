@@ -1,19 +1,28 @@
+"use client";
+
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 import SVGIcon from "../../SVGIcon/SVGIcon";
 
 interface SideHeaderProps {
   isOpen: boolean;
-  teams: string[];
+  teams: {
+    teamId: number;
+    teamName: string;
+    teamImage: string | null;
+  }[];
   onClick: () => void;
 }
 
 // Header 컴포 요소 중 팀 옆 토글 버튼 누를사 등장하는 사이드 바입니다.
 function SideHeaderMobile({ isOpen, teams, onClick }: SideHeaderProps) {
+  const router = useRouter();
+
   // Team 명을 클릭할때 소속 팀 화면으로 이동하는 함수입니다.
   // button이 아닌 Link로 변경할 수 있습니다.
-  const handleClickTeam = (team: string) => {
-    console.log(team);
+  const handleClickTeam = (team: number) => {
     onClick();
+    router.push(`/${team}`);
   };
 
   return (
@@ -34,11 +43,11 @@ function SideHeaderMobile({ isOpen, teams, onClick }: SideHeaderProps) {
           {teams.map((team) => {
             return (
               <button
-                key={team}
+                key={team.teamId}
                 className="cursor-pointer hover:bg-background-tertiary"
-                onClick={() => handleClickTeam(team)}
+                onClick={() => handleClickTeam(team.teamId)}
               >
-                {team}
+                {team.teamName}
               </button>
             );
           })}
