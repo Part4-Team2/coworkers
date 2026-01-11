@@ -200,6 +200,8 @@ export async function postUserResetPassword(
 이메일로 전달받은 링크에서 비밀번호 초기화
 
 POST user/send-reset-password-email 요청으로 발송한 메일의 링크에 담긴 토큰을 사용해야 합니다.
+
+토큰 유효 시간: 1시간
 */
 export async function patchUserResetPassword(data: ResetPasswordBody) {
   try {

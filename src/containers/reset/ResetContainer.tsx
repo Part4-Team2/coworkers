@@ -2,9 +2,11 @@
 
 import Form from "@/components/Common/Form/Form";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { InputConfig } from "@/components/Common/Form/types";
+import { patchUserResetPassword } from "@/api/user";
+import { ResetPasswordBody } from "@/types/api/user";
 
 interface ResetPasswordFormData {
   password: string;
@@ -13,8 +15,9 @@ interface ResetPasswordFormData {
 
 export default function ResetContainer() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [resetError, setResetError] = useState<string>("");
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
@@ -28,21 +31,36 @@ export default function ResetContainer() {
   const password = watch("password");
 
   const onSubmit = async (data: ResetPasswordFormData) => {
+    if (isSubmitting) return;
     setResetError("");
+    setIsSubmitting(true);
+    const token = searchParams.get("token");
+    if (!token) {
+      setResetError(
+        "링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
+      );
+      setIsSubmitting(false);
+      return;
+    }
+    const requestData: ResetPasswordBody = {
+      passwordConfirmation: data.confirmPassword,
+      password: data.password,
+      token: token,
+    };
     try {
-      // TODO: 실제 비밀번호 재설정 API 호출
-      // const response = await resetPasswordAPI(data);
-      // if (response.success) {
-      //   router.push("/login");
-      // } else {
-      //   setResetError(response.message || "비밀번호 재설정에 실패했습니다.");
-      // }
-
-      // 임시: 성공 시 로그인 페이지로 이동
-      // console.log("비밀번호 재설정 시도:", data);
-      router.push("/login");
+      const response = await patchUserResetPassword(requestData);
+      if ("error" in response) {
+        setResetError(
+          "링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
+        );
+        setIsSubmitting(false);
+        return;
+      }
+      router.push("/");
     } catch (error) {
       setResetError("비밀번호 재설정에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -115,6 +133,8 @@ export default function ResetContainer() {
           variant: "solid",
           size: "large",
           full: true,
+          disabled: isSubmitting,
+          loading: isSubmitting,
         }}
       />
     </div>

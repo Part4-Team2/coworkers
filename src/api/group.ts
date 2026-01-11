@@ -368,6 +368,9 @@ export async function getGroupInvitation(groupId: string) {
 
 /**
  * 초대 토큰으로 그룹 참여 수락
+ * GET {id}/invitation으로 생성한 토큰으로, 초대를 수락하는 엔드포인트
+ * token은 초대 링크에 포함되어있는 토큰, userEmail은 초대를 수락하는 유저의 이메일
+ * 링크 토큰 유효 시간: 3일 / 참고: jwt.io
  */
 export async function postGroupAcceptInvitation(data: {
   userEmail: string;
@@ -383,6 +386,7 @@ export async function postGroupAcceptInvitation(data: {
       const error = await response.json();
       return {
         error: true,
+        status: response.status,
         message: error.message || "초대 수락에 실패했습니다.",
       };
     }
@@ -391,6 +395,7 @@ export async function postGroupAcceptInvitation(data: {
   } catch {
     return {
       error: true,
+      status: 500,
       message: "서버 오류가 발생했습니다.",
     };
   }

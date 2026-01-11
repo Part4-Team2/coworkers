@@ -109,6 +109,7 @@ export default function AddTeamContainer() {
               <Avatar
                 imageUrl={previewUrl}
                 altText="팀 프로필"
+                variant="team"
                 size="xlarge"
                 isEditable={true}
                 onEditClick={handleImageClick}
@@ -147,11 +148,12 @@ export default function AddTeamContainer() {
           )
         }
         button={{
-          label: isSubmitting ? "생성 중..." : "생성하기",
+          label: "생성하기",
           variant: "solid",
           size: "large",
           full: true,
           disabled: isSubmitting,
+          loading: isSubmitting,
         }}
       />
       <FormFooter>

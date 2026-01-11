@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 
 export type ButtonVariant =
   | "solid"
@@ -19,6 +20,7 @@ export interface ButtonProps {
   width?: string;
   className?: string;
   disabled?: boolean;
+  loading?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   type?: "button" | "submit" | "reset";
 }
@@ -56,16 +58,19 @@ const Button: React.FC<ButtonProps> = ({
   width,
   className,
   disabled,
+  loading = false,
   onClick,
   type = "button",
 }) => {
   const base = clsx(
-    "inline-flex items-center justify-center font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-[1px] whitespace-nowrap",
+    "inline-flex items-center justify-center gap-8 font-semibold tracking-[-0.01em] transition-transform duration-75 active:translate-y-[1px] whitespace-nowrap",
     variant === "gradient" ? "rounded-[32px]" : "rounded-[12px]",
     variant === "unselected" && "border border-[#303d54]",
     className
   );
-  const disabledCls = clsx(disabled ? "cursor-not-allowed" : "cursor-pointer");
+  const disabledCls = clsx(
+    disabled || loading ? "cursor-not-allowed" : "cursor-pointer"
+  );
 
   // full이면 w-full, width prop이 있으면 그 값 사용 (고정 width)
   // width prop이 없으면 min-width만 설정하여 텍스트 길이에 따라 자동으로 커지도록 함
@@ -91,10 +96,17 @@ const Button: React.FC<ButtonProps> = ({
         disabledCls
       )}
       style={widthStyle}
-      disabled={disabled}
+      disabled={disabled || loading}
       onClick={onClick}
       type={type}
     >
+      {loading && (
+        <SVGIcon
+          icon="loading"
+          size={size === "large" ? "sm" : "xs"}
+          className="animate-spin"
+        />
+      )}
       {label}
     </button>
   );

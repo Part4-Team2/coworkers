@@ -6,14 +6,17 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InputConfig } from "@/components/Common/Form/types";
+import { postGroupAcceptInvitation } from "@/api/group";
 
 interface JoinTeamFormData {
   teamLink: string;
 }
 
-export default function JoinTeamContainer() {
+export default function JoinTeamContainer({ email }: { email: string }) {
   const router = useRouter();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [joinTeamError, setJoinTeamError] = useState<string>("");
   const {
     register,
     handleSubmit,
@@ -25,22 +28,49 @@ export default function JoinTeamContainer() {
   });
 
   const onSubmit = async (data: JoinTeamFormData) => {
+    if (isSubmitting) return;
+    setJoinTeamError("");
+    setIsSubmitting(true);
+
+    // URL에서 token 쿼리 파라미터 추출
+    let token = "";
     try {
-      // TODO: 실제 팀 참여 API 호출
-      // const response = await joinTeamAPI(data.teamLink);
-      // if (response.success) {
-      //   router.push(`/addteam/${response.teamId}`);
-      // } else if (response.error === "not_found") {
-      //   setError("teamLink", {
-      //     type: "manual",
-      //     message: "존재하지 않는 팀 링크입니다.",
-      //   });
-      // }
-      // 임시: 성공 시 팀 페이지로 이동
-      // console.log("팀 참여 시도:", data);
-      // router.push(`/addteam/${teamId}`);
+      const url = new URL(data.teamLink);
+      token = url.searchParams.get("token") || "";
     } catch (error) {
-      // console.error("팀 참여 실패:", error);
+      setJoinTeamError("올바른 URL 형식이 아닙니다.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!token) {
+      setJoinTeamError("토큰이 포함된 링크가 아닙니다.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const requestData: { userEmail: string; token: string } = {
+      userEmail: email,
+      token: token,
+    };
+
+    try {
+      const response = await postGroupAcceptInvitation(requestData);
+      if ("error" in response) {
+        if (response.status === 404) {
+          setJoinTeamError("존재하지 않는 팀 링크입니다.");
+        } else {
+          setJoinTeamError(
+            "초대 링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
+          );
+        }
+        return;
+      }
+      router.push(`/${response.groupId}`);
+    } catch (error) {
+      setJoinTeamError("팀 참여에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -67,8 +97,8 @@ export default function JoinTeamContainer() {
               required: "팀 링크는 필수 입력입니다.",
               maxLength: {
                 // 임의로 200자로 설정
-                value: 200,
-                message: "팀 링크는 200자 이하로 입력해주세요.",
+                value: 500,
+                message: "팀 링크는 500자 이하로 입력해주세요.",
               },
               pattern: {
                 value: /^https?:\/\/.+/,
@@ -85,8 +115,11 @@ export default function JoinTeamContainer() {
           variant: "solid",
           size: "large",
           full: true,
+          disabled: isSubmitting,
+          loading: isSubmitting,
         }}
       />
+      {joinTeamError && <div className="text-red-500">{joinTeamError}</div>}
       <FormFooter>공유받은 팀 링크를 입력해 참여할 수 있어요.</FormFooter>
     </div>
   );

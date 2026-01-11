@@ -10,7 +10,9 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { InputConfig } from "@/components/Common/Form/types";
 import { postSignin } from "@/api/auth";
+import { postUserResetPassword } from "@/api/user";
 import { SignInRequestBody } from "@/types/api/auth";
+import { SendResetPasswordEmailRequest } from "@/types/api/user";
 // login, signup은 API route가 아니라 서버 액션으로 구현
 interface LoginFormData {
   email: string;
@@ -21,10 +23,14 @@ interface ResetPasswordFormData {
   email: string;
 }
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
 export default function LoginContainer() {
   const router = useRouter();
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resetError, setResetError] = useState<string>("");
 
   const {
     register,
@@ -50,15 +56,18 @@ export default function LoginContainer() {
   };
 
   const onSubmit = async (data: LoginFormData) => {
+    if (isSubmitting) return;
     setLoginError("");
     const requestData: SignInRequestBody = {
       email: data.email,
       password: data.password,
     };
     try {
+      setIsSubmitting(true);
       const response = await postSignin(requestData);
       if ("error" in response) {
-        setLoginError(response.message);
+        setLoginError("이메일 혹은 비밀번호를 확인해주세요.");
+        setIsSubmitting(false);
         return;
       }
       // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
@@ -68,16 +77,32 @@ export default function LoginContainer() {
       setError("email", { type: "manual", message: "" });
       setError("password", { type: "manual", message: "" });
       setLoginError("이메일 혹은 비밀번호를 확인해주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const onResetSubmit = async (data: ResetPasswordFormData) => {
+    if (isSubmitting) return;
+
+    const requestData: SendResetPasswordEmailRequest = {
+      email: data.email,
+      redirectUrl: APP_URL,
+    };
+    setResetError("");
+    setIsSubmitting(true);
     try {
-      // TODO: 실제 비밀번호 재설정 API 호출
-      // console.log("비밀번호 재설정 링크 보내기:", data.email);
+      const response = await postUserResetPassword(requestData);
+      if ("error" in response) {
+        setResetError(response.message);
+        setIsSubmitting(false);
+        return;
+      }
       handleClose();
     } catch (error) {
-      // console.error("비밀번호 재설정 실패:", error);
+      setResetError("링크를 보내는데 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -174,6 +199,8 @@ export default function LoginContainer() {
             variant: "solid",
             size: "large",
             full: true,
+            disabled: isSubmitting,
+            loading: isSubmitting,
           }}
         />
         <FormFooter>
@@ -217,12 +244,18 @@ export default function LoginContainer() {
         primaryButton={{
           label: "링크 보내기",
           onClick: handleSubmitReset(onResetSubmit),
+          disabled: isSubmitting,
+          loading: isSubmitting,
         }}
         secondaryButton={{
           label: "닫기",
           onClick: handleClose,
         }}
-      />
+      >
+        {resetError && (
+          <p className="text-xs text-status-danger">{resetError}</p>
+        )}
+      </Modal>
     </>
   );
 }
