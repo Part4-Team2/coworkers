@@ -72,6 +72,17 @@ export async function postArticle(data: CreateArticle) {
   return response.json();
 }
 
+// 게시글 수정
+export async function patchArticle(data: CreateArticle) {
+  const response = await fetchApi(`${BASE_URL}/articles`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) throw new Error("게시글 수정 오류");
+  return response.json();
+}
+
 // 게시글 삭제
 export async function deletePostArticle(articleId: number) {
   const response = await fetchApi(`${BASE_URL}/articles/${articleId}`, {
@@ -111,6 +122,20 @@ export async function postComment(
   );
 
   if (!response.ok) throw new Error("댓글 올리기 오류");
+  return response.json();
+}
+
+// 댓글 수정
+export async function patchComment(
+  commentId: number,
+  data: CreateArticleComment
+) {
+  const response = await fetchApi(`${BASE_URL}/comments/${commentId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) throw new Error("댓글 수정 오류");
   return response.json();
 }
 
