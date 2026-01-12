@@ -84,7 +84,7 @@ export async function patchArticle(data: CreateArticle) {
 }
 
 // 게시글 삭제
-export async function deletePostArticle(articleId: number) {
+export async function deleteArticle(articleId: number) {
   const response = await fetchApi(`${BASE_URL}/articles/${articleId}`, {
     method: "DELETE",
   });

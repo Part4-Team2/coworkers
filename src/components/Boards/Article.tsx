@@ -5,7 +5,9 @@ import Avatar from "@/components/Common/Avatar/Avatar";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import ArticleImage from "./ArticleImage";
+import { useHeaderStore } from "@/store/headerStore";
 import { useRouter } from "next/navigation";
+import { deleteArticle } from "@/api/boards";
 
 interface ArticleProps {
   id: number;
@@ -32,12 +34,34 @@ function ArticleComp({
   writer,
 }: ArticleProps) {
   const router = useRouter();
+  const userId = useHeaderStore((state) => state.userId);
 
-  const handleKebabClick = (value: string) => {
-    if (value === WRITEOPTIONS[0]) console.log("수정하기 누름");
-    else console.log("삭제하기 누름");
+  // 게시글을 삭제하는 함수입니다.
+  const handleDeleteArticle = async () => {
+    if (userId !== writer.id) {
+      alert("작성자의 아이다와 현재 접속한 유저의 아이디가 서로 다릅니다");
+      return;
+    }
+
+    try {
+      await deleteArticle(id);
+      alert("게시글이 삭제되었습니다.");
+    } catch (error) {
+      console.error("게시글 삭제 오류", error);
+      alert("삭제 중 오류가 발생하였습니다.");
+    }
   };
 
+  // 케밥 리스트를 클릭하면 작동하는 함수입니다.
+  const handleKebabClick = (value: string) => {
+    if (value === WRITEOPTIONS[0]) console.log("수정하기 누름");
+    else {
+      console.log("삭제하기 누름");
+      handleDeleteArticle();
+    }
+  };
+
+  // id가 정수가 아닐 시 그냥 리턴
   if (typeof id !== "number") return null;
 
   return (
