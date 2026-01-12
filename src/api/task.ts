@@ -30,7 +30,9 @@ export async function postTasks(
     );
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({
+        message: "(반복)일정 생성에 실패했습니다.",
+      }));
       return {
         error: true,
         message: error.message || "(반복)일정 생성에 실패했습니다.",
@@ -199,7 +201,9 @@ export async function deleteTasks(
     );
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({
+        message: "반복 할 일 삭제에 실패했습니다.",
+      }));
       return {
         error: true,
         message: error.message || "반복 할 일 삭제에 실패했습니다.",
