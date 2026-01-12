@@ -7,9 +7,9 @@ import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import InputReply from "@/components/Tasklist/InputReply";
+import { ListProps } from "@/components/Tasklist/List/List";
 import Reply from "@/components/Tasklist/Reply";
 import useKebabMenu from "@/hooks/useKebabMenu";
-import { Task } from "@/types/task";
 import { formatDate, formatTime } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
@@ -17,7 +17,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
 type TaskDetailsContainerProps = {
-  task: Task;
+  task: ListProps;
   mode?: "page" | "sidebar";
   onClose?: () => void;
 };
@@ -50,7 +50,7 @@ export default function TaskDetailsContainer({
     },
     deleteModalTitle: (
       <>
-        &apos;{task.content}&apos; <br />할 일을 정말 삭제하시겠어요?
+        &apos;{task.name}&apos; <br />할 일을 정말 삭제하시겠어요?
       </>
     ),
   });
@@ -88,7 +88,7 @@ export default function TaskDetailsContainer({
           <h3
             className={clsx("text-xl font-bold", isComplete && "line-through")}
           >
-            {task.content}
+            {task.name}
           </h3>
           <div className="relative">
             <Dropdown
@@ -122,7 +122,7 @@ export default function TaskDetailsContainer({
             {task.writer?.nickname}
           </span>
           <span className="ml-auto text-text-secondary text-md font-regular">
-            {task.createdAt ? formatDate(task.createdAt) : "-"}
+            {task.updatedAt ? formatDate(task.updatedAt) : "-"}
           </span>
         </div>
 
