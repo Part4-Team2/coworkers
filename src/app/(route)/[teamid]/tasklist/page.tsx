@@ -8,8 +8,8 @@ import { TabItem } from "@/types";
 import { Metadata } from "next";
 
 type TaskListPageProps = {
-  params: Promise<{ teamid: number }>;
-  searchParams: Promise<{ tab: number; date?: string }>;
+  params: Promise<{ teamid: string }>;
+  searchParams: Promise<{ tab?: number; date?: string }>;
 };
 
 export async function generateMetadata({
@@ -39,7 +39,7 @@ export default async function TaskListPage({
   const baseDate = date ?? new Date().toISOString();
 
   // 모든 할일 목록 가져오기 (법인 설립, 법인 등기 등)
-  const taskListsResponse = await getGroup(groupId);
+  const taskListsResponse = await getGroup(Number(groupId));
 
   // 에러 났을 때 UI (TODO: 해당 사항에 대해 팀 컨벤션 정하기)
   if (!taskListsResponse || "error" in taskListsResponse) {
@@ -77,7 +77,7 @@ export default async function TaskListPage({
     title: list.name,
     content: (
       <TaskListContainer
-        groupId={groupId}
+        groupId={Number(groupId)}
         listId={list.id.toString()}
         baseDate={baseDate}
       />
