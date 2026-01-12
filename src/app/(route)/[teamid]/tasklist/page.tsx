@@ -9,7 +9,7 @@ import { Metadata } from "next";
 
 type TaskListPageProps = {
   params: Promise<{ teamid: string }>;
-  searchParams: Promise<{ tab?: number; date?: string }>;
+  searchParams: Promise<{ tab?: string; date?: string }>;
 };
 
 export async function generateMetadata({
