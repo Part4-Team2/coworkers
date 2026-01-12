@@ -39,8 +39,12 @@ function WriteArticle() {
       let imageUrl: string | null = null;
 
       if (articleImageFile) {
-        const { url } = await uploadImage(articleImageFile);
-        imageUrl = url;
+        const res = await uploadImage(articleImageFile);
+        if ("url" in res) {
+          imageUrl = res.url;
+        } else {
+          console.error("이미지 업로드 오류", res.message);
+        }
       }
 
       await postArticle({ content, title, image: imageUrl });
