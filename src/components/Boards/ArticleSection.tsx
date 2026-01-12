@@ -34,10 +34,14 @@ function ArticleSection() {
       page,
       pageSize: PAGE_SIZE,
       orderBy,
-    }).then((res) => {
-      setArticles(res.list);
-      setTotalPage(Math.ceil(res.totalCount / PAGE_SIZE));
-    });
+    })
+      .then((res) => {
+        setArticles(res.list);
+        setTotalPage(Math.ceil(res.totalCount / PAGE_SIZE));
+      })
+      .catch((error) => {
+        console.error("게시글 목록 불러오기 실패", error);
+      });
   }, [page, orderBy]);
 
   return (

@@ -15,10 +15,17 @@ async function ArticlePage({
 
   if (Number.isNaN(id)) notFound();
 
-  const [article, comments] = await Promise.all([
-    getArticle({ articleId: id }),
-    getArticleComments({ articleId: id, limit: PAGE_LIMIT }),
-  ]);
+  let article, comments;
+
+  try {
+    [article, comments] = await Promise.all([
+      getArticle({ articleId: id }),
+      getArticleComments({ articleId: id, limit: PAGE_LIMIT }),
+    ]);
+  } catch (error) {
+    console.log("게시글 불러오기 실패", error);
+    notFound();
+  }
 
   return (
     // Page Wrapper

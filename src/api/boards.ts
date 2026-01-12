@@ -43,6 +43,9 @@ export async function getArticles({
   if (keyword) params.set("keyword", keyword);
 
   const response = await fetchApi(`${BASE_URL}/articles?${params}`);
+
+  if (!response.ok) throw new Error("게시글 불러오기 오류");
+
   return response.json();
 }
 
@@ -50,7 +53,6 @@ export async function getArticles({
 export async function getArticle({
   articleId,
 }: GetArticleProps): Promise<Article> {
-  console.log(articleId);
   const response = await fetchApi(`${BASE_URL}/articles/${articleId}`, {
     method: "GET",
   });
@@ -114,7 +116,7 @@ export async function postComment(
 
 // 댓글 삭제
 export async function deleteComment(commentId: number) {
-  const response = await fetchApi(`${BASE_URL}/comment/${commentId}`, {
+  const response = await fetchApi(`${BASE_URL}/comments/${commentId}`, {
     method: "DELETE",
   });
 

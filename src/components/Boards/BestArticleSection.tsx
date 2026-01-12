@@ -15,7 +15,11 @@ function BestArticleSection() {
       page: 1,
       pageSize: 3,
       orderBy: "like",
-    }).then((res) => setArticles(res.list));
+    })
+      .then((res) => setArticles(res.list))
+      .catch((error) => {
+        console.error("베스트 게시글 불러오기 오류", error);
+      });
   }, []);
 
   return (
