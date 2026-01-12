@@ -30,8 +30,6 @@ function ArticleSection() {
   };
 
   useEffect(() => {
-    console.log("게시글 불러옵니다.");
-
     getArticles({
       page,
       pageSize: PAGE_SIZE,
@@ -55,18 +53,21 @@ function ArticleSection() {
         />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 gap-21 max-w-1200 mx-auto">
-        {articles.map((article) => (
-          <ArticleComp
-            id={article.id}
-            key={article.id}
-            title={article.title}
-            nickname={article.writer.nickname}
-            createdAt={article.createdAt}
-            avatarImageUrl={undefined}
-            articleImageUrl={article.image}
-            likeCount={article.likeCount}
-          />
-        ))}
+        {articles.map((article) => {
+          if (typeof article.id !== "number") return null;
+          return (
+            <ArticleComp
+              id={article.id}
+              key={article.id}
+              title={article.title}
+              writer={article.writer}
+              createdAt={article.createdAt}
+              avatarImageUrl={undefined}
+              articleImageUrl={article.image}
+              likeCount={article.likeCount}
+            />
+          );
+        })}
       </div>
       <div className={clsx("flex justify-center")}>
         <ArticlePagination

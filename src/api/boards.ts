@@ -1,9 +1,9 @@
 import { BASE_URL } from "@/constants/api";
+import { Article, GetArticles, CreateArticle } from "@/types/article";
 import {
   GetArticleComments,
   CreateArticleComment,
 } from "@/types/articleComment";
-import { Article, GetArticles, CreateArticle } from "@/types/article";
 
 // 자유게시판 페이지에 쓰이는 props입니다.
 interface GetArticlesProps {
@@ -43,7 +43,7 @@ export async function getArticles({
   }
 
   const query = params.toString();
-  const response = await fetch(`${BASE_URL}/articles?${query}`);
+  const response = await fetch(`/api/proxy/articles?${query}`);
   return response.json();
 }
 
@@ -51,7 +51,14 @@ export async function getArticles({
 export async function getArticle({
   articleId,
 }: GetArticleProps): Promise<Article> {
-  const response = await fetch(`${BASE_URL}/articles/${articleId}`);
+  const response = await fetch(`${BASE_URL}/articles/${articleId}`, {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("게시글 갖고오기 실패");
+  }
+
   return response.json();
 }
 
