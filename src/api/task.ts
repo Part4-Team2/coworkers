@@ -3,17 +3,30 @@
 import { BASE_URL } from "@/constants/api";
 import { fetchApi } from "@/utils/api";
 
+interface CreateTaskRequestBody {
+  name: string;
+  description?: string;
+  startDate?: string;
+  frequencyType?: string;
+  monthDay?: number;
+  weekDays?: number;
+}
+
 interface UpdateTaskRequestBody {
   name?: string;
   description?: string;
   done?: boolean;
 }
 
-export async function postTasks(groupId: string, taskListId: string) {
+export async function postTasks(
+  groupId: number,
+  taskListId: number,
+  data: CreateTaskRequestBody
+) {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}/tasks`,
-      { method: "POST", body: JSON.stringify({ groupId, taskListId }) }
+      { method: "POST", body: JSON.stringify(data) }
     );
 
     if (!response.ok) {
