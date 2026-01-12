@@ -6,18 +6,52 @@ import Input from "@/components/Common/Input/Input";
 import InputBox from "@/components/Common/Input/InputBox";
 import ArticleImageUpload from "@/components/Boards/ArticleImageUpload";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { postArticle } from "@/api/boards";
+import { postImage } from "@/api/image";
 
 // 게시글을 작성할 수 있는 페이지입니다. (이미 작성된 페이지의 경우 수정할 수 있습니다...)
 function WriteArticle() {
+  const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [articleImageUrl, setArticleImageUrl] = useState<string | null>(null);
+  const [articleImagePreview, setArticleImagePreview] = useState<string | null>(
+    null
+  );
   const [articleImageFile, setArticleImageFile] = useState<File | null>(null);
 
+  // 사용자가 이미지 파일을 올리면 url형식으로 변환합니다.
+  const uploadImage = async (file: File) => {
+    const res = await postImage(file);
+
+    if (!res) throw new Error("이미지 업로드 실패");
+
+    return res;
+  };
+
   // 게시글 작성하고 등록하면 작동하는 함수입니다.
-  const handleSubmitClick = () => {
-    console.log("Submit Button");
-    console.log(articleImageFile);
+  const handleSubmitClick = async () => {
+    console.log("게시글 올라갑니다");
+    if (!title.trim() || !content.trim()) return;
+
+    try {
+      let imageUrl: string | null = null;
+
+      if (articleImageFile) {
+        const res = await uploadImage(articleImageFile);
+        if ("url" in res) {
+          imageUrl = res.url;
+        } else {
+          console.error("이미지 업로드 오류", res.message);
+        }
+      }
+
+      await postArticle({ content, title, image: imageUrl });
+      router.push("/boards");
+    } catch (error) {
+      console.log("게시글 작성 오류", error);
+    }
   };
 
   return (
@@ -68,11 +102,13 @@ function WriteArticle() {
             <div>이미지</div>
             <ArticleImageUpload
               image={
-                typeof articleImageUrl === "string" ? articleImageUrl : null
+                typeof articleImagePreview === "string"
+                  ? articleImagePreview
+                  : null
               }
               onChange={(file, previewUrl) => {
                 setArticleImageFile(file);
-                setArticleImageUrl(previewUrl);
+                setArticleImagePreview(previewUrl);
               }}
             />
           </section>
