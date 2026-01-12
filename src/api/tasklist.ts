@@ -76,7 +76,7 @@ export async function patchTaskList(
   }
 }
 
-export async function deleteTaskList(groupId: string, id: string) {
+export async function deleteTaskList(groupId: number, id: string) {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists/${id}`,
@@ -112,11 +112,13 @@ export async function postTaskList(
       `${BASE_URL}/groups/${groupId}/task-lists`,
       {
         method: "POST",
-        body: JSON.stringify({ data }),
+        body: JSON.stringify(data),
       }
     );
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({
+        message: "할 일 목록 생성에 실패했습니다.",
+      }));
       return {
         error: true,
         message: error.message || "할 일 목록 생성에 실패했습니다.",
