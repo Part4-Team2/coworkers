@@ -162,7 +162,9 @@ export async function deleteTask(
     );
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({
+        message: "특정 할 일 삭제에 실패했습니다.",
+      }));
       return {
         error: true,
         message: error.message || "특정 할 일 삭제에 실패했습니다.",

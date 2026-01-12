@@ -83,7 +83,9 @@ export async function deleteTaskList(groupId: string, id: string) {
     );
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({
+        message: "할 일 목록 삭제에 실패했습니다.",
+      }));
       return {
         error: true,
         message: error.message || "할 일 목록 삭제에 실패했습니다.",
