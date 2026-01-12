@@ -31,7 +31,12 @@ export default function TaskListContainer({
       setLoading(true);
       try {
         const response = await getTasks(groupId, Number(listId), baseDate);
-        setTasks(response ?? []);
+        if (response && "error" in response) {
+          console.error("할 일 로드 실패:", response.message);
+          setTasks([]);
+        } else {
+          setTasks(response ?? []);
+        }
       } catch (err) {
         console.error("할 일 로드 실패", err);
         setTasks([]);
