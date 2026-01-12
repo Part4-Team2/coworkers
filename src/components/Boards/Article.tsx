@@ -43,13 +43,13 @@ function ArticleComp({
   return (
     <div
       className={clsx(
-        "w-343 h-162 sm:w-696 sm:h-176 lg:w-590",
+        "w-343 h-162 sm:w-696 sm:h-176 lg:w-590 relative",
         "bg-background-secondary hover:bg-background-tertiary px-32 py-24",
         "rounded-xl border border-text-primary/10"
       )}
       onClick={() => router.push(`/boards/${id}`)}
     >
-      <div className="h-full flex flex-col justify-between relative">
+      <div className="h-full flex flex-col justify-between ">
         <div className="flex justify-between items-center">
           <div
             className={clsx(
@@ -62,7 +62,7 @@ function ArticleComp({
           {articleImageUrl && <ArticleImage image={articleImageUrl} />}
         </div>
         <div
-          className="absolute top-0 right-0 cursor-pointer"
+          className="absolute top-10 right-10 cursor-pointer"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -75,6 +75,7 @@ function ArticleComp({
             trigger="icon"
             value={WRITEOPTIONS[0]}
             icon="kebabLarge"
+            listPosition="top-full right-0"
           />
         </div>
         <div className="flex gap-16 items-center text-slate-400 text-md">
