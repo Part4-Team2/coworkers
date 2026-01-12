@@ -1,6 +1,6 @@
 import { createMetadata } from "@/components/Common/Metadata/Metadata";
 import MyPageContainer from "@/containers/mypage/MyPageContainer";
-import { getUser } from "@/api/user";
+import { getUser } from "@/lib/api/user";
 import { redirect } from "next/navigation";
 
 export const metadata = createMetadata({

@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import ArticleClient from "@/components/Boards/ArticleClient";
 import { notFound } from "next/navigation";
-import { getArticleComments, getArticle } from "@/api/boards";
+import { getArticleComments, getArticle } from "@/lib/api/boards";
 
 const PAGE_LIMIT = 3;
 

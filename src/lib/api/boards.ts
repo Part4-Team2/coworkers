@@ -1,6 +1,6 @@
 "use server";
 
-import { BASE_URL } from "@/constants/api";
+import { BASE_URL } from "@/lib/api";
 import { Article, GetArticles, CreateArticle } from "@/types/article";
 import {
   GetArticleComments,

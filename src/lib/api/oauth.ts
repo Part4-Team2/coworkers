@@ -1,8 +1,8 @@
 "use server";
 
 import { fetchApi } from "@/utils/api";
-import { BASE_URL } from "@/constants/api";
-import { UpsertOauthAppRequestBody, OauthApp } from "@/types/api/oauth";
+import { BASE_URL } from "@/lib/api";
+import { UpsertOauthAppRequestBody, OauthApp } from "@/lib/types/oauth";
 
 /*
 간편 로그인 App 등록/수정

@@ -7,8 +7,8 @@ import InputBox from "@/components/Common/Input/InputBox";
 import ArticleImageUpload from "@/components/Boards/ArticleImageUpload";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { postArticle } from "@/api/boards";
-import { postImage } from "@/api/image";
+import { postArticle } from "@/lib/api/boards";
+import { postImage } from "@/lib/api/image";
 
 // 게시글을 작성할 수 있는 페이지입니다. (이미 작성된 페이지의 경우 수정할 수 있습니다...)
 function WriteArticle() {

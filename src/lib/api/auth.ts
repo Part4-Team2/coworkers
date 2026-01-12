@@ -1,6 +1,6 @@
 "use server";
 
-import { BASE_URL } from "@/constants/api";
+import { BASE_URL } from "@/lib/api";
 import { setAuthCookies } from "@/utils/cookies";
 import {
   SignInRequestBody,
@@ -8,7 +8,7 @@ import {
   SignUpRequestBody,
   SignUpResponse,
   SignInWithOauthRequestBody,
-} from "@/types/api/auth";
+} from "@/lib/types/auth";
 import { cookies } from "next/headers";
 
 export async function postSignup(data: SignUpRequestBody) {

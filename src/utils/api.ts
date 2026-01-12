@@ -1,4 +1,4 @@
-import { postRefreshToken } from "@/api/auth";
+import { postRefreshToken } from "@/lib/api/auth";
 import { getRefreshToken, createHeadersWithAuth } from "@/utils/cookies";
 // 진행 중인 토큰 리프레시 Promise를 저장
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

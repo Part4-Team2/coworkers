@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useHeaderStore } from "@/store/headerStore";
-import { logoutAction } from "@/api/auth";
+import { logoutAction } from "@/lib/api/auth";
 import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

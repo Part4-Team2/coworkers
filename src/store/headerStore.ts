@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getUser } from "@/api/user";
+import { getUser } from "@/lib/api/user";
 
 interface HeaderStoreState {
   isLogin: boolean;

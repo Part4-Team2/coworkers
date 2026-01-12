@@ -8,8 +8,8 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { InputConfig } from "@/components/Common/Form/types";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { postImage } from "@/api/image";
-import { patchGroup } from "@/api/group";
+import { postImage } from "@/lib/api/image";
+import { patchGroup } from "@/lib/api/group";
 
 interface EditTeamFormData {
   teamName: string;

@@ -2,14 +2,14 @@
 
 import { cookies } from "next/headers";
 import { fetchApi } from "@/utils/api";
-import { BASE_URL } from "@/constants/api";
+import { BASE_URL } from "@/lib/api";
 import { Role } from "@/types/schemas";
 import {
   UpdateUserRequestBody,
   SendResetPasswordEmailRequest,
   ResetPasswordBody,
   UpdatePasswordBody,
-} from "@/types/api/user";
+} from "@/lib/types/user";
 
 export async function getUser() {
   try {

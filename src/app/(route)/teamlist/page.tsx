@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import TeamListContainer from "@/containers/teamlist/TeamListContainer";
-import { getUserGroups } from "@/api/user";
+import { getUserGroups } from "@/lib/api/user";
 
 export const metadata: Metadata = {
   title: "팀 목록",

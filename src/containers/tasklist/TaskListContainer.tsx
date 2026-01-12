@@ -4,7 +4,7 @@ import List, { ListProps } from "@/components/Tasklist/List/List";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import TaskDetailsContainer from "./tasks/TaskDetailsContainer";
-import { getTasks } from "@/api/task";
+import { getTasks } from "@/lib/api/task";
 
 interface TaskListProps {
   groupId: number;

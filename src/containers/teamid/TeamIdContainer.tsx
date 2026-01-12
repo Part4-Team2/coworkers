@@ -9,7 +9,7 @@ import TeamHeader from "@/components/Team/TeamHeader";
 import Modal from "@/components/Common/Modal/Modal";
 import { Todo } from "@/types/todo";
 import { Member as MemberType } from "@/types/member";
-import { GroupDetailResponse } from "@/api/group";
+import { GroupDetailResponse } from "@/lib/api/group";
 import { useModalState, MODAL_TYPES } from "@/hooks/useModalState";
 import { useTeamActions } from "@/hooks/useTeamActions";
 import { useTodoActions } from "@/hooks/useTodoActions";

@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getGroupInvitation, deleteMember } from "@/api/group";
+import { getGroupInvitation, deleteMember } from "@/lib/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 import { Member as MemberType } from "@/types/member";
 

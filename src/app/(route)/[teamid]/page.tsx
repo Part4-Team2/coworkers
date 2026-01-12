@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import TeamIdContainer from "@/containers/teamid/TeamIdContainer";
 import { measureSSR } from "@/utils/measure";
-import { getUser } from "@/api/user";
-import { getGroup } from "@/api/group";
+import { getUser } from "@/lib/api/user";
+import { getGroup } from "@/lib/api/group";
 
 type Props = {
   params: Promise<{ teamid: string }>;

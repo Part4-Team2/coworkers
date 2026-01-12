@@ -1,6 +1,6 @@
 import { createMetadata } from "@/components/Common/Metadata/Metadata";
 import JoinTeamContainer from "@/containers/jointeam/JoinTeamContainer";
-import { getUser } from "@/api/user";
+import { getUser } from "@/lib/api/user";
 import { redirect } from "next/navigation";
 export const metadata = createMetadata({
   title: "팀 참여하기",

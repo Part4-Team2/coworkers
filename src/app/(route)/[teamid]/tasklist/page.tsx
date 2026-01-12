@@ -1,4 +1,4 @@
-import { getGroup } from "@/api/task";
+import { getGroup } from "@/lib/api/task";
 import TabContainer from "@/components/Tasklist/Tab/TabContainer";
 import ConditionalTaskAddButton from "@/containers/tasklist/ConditionalTaskAddButton";
 import DateNavigatorContainer from "@/containers/tasklist/DateNavigatorContainer";

@@ -9,10 +9,10 @@ import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { useForm } from "react-hook-form";
 import { InputConfig } from "@/components/Common/Form/types";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { postImage } from "@/api/image";
-import { patchUser, deleteUser, patchUserPassword } from "@/api/user";
+import { postImage } from "@/lib/api/image";
+import { patchUser, deleteUser, patchUserPassword } from "@/lib/api/user";
 import { useRouter } from "next/navigation";
-import { UpdatePasswordBody } from "@/types/api/user";
+import { UpdatePasswordBody } from "@/lib/types/user";
 
 interface NameFormData {
   name: string;

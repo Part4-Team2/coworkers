@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { fetchApi } from "@/utils/api";
-import { BASE_URL } from "@/constants/api";
-import { CreateGroupBody } from "@/types/api/group";
+import { BASE_URL } from "@/lib/api";
+import { CreateGroupBody } from "@/lib/types/group";
 import { Role } from "@/types/schemas";
 
 // 공통 API 응답 타입

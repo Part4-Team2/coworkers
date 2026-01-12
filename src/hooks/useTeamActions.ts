@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteGroup } from "@/api/group";
+import { deleteGroup } from "@/lib/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 
 interface UseTeamActionsProps {

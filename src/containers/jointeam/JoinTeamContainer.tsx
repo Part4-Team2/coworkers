@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InputConfig } from "@/components/Common/Form/types";
-import { postGroupAcceptInvitation } from "@/api/group";
+import { postGroupAcceptInvitation } from "@/lib/api/group";
 
 interface JoinTeamFormData {
   teamLink: string;

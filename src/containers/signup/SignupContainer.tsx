@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InputConfig } from "@/components/Common/Form/types";
-import { postSignup } from "@/api/auth";
-import { SignUpRequestBody } from "@/types/api/auth";
+import { postSignup } from "@/lib/api/auth";
+import { SignUpRequestBody } from "@/lib/types/auth";
 
 interface SignupFormData {
   name: string;

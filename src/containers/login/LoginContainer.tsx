@@ -9,10 +9,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { InputConfig } from "@/components/Common/Form/types";
-import { postSignin } from "@/api/auth";
-import { postUserResetPassword } from "@/api/user";
-import { SignInRequestBody } from "@/types/api/auth";
-import { SendResetPasswordEmailRequest } from "@/types/api/user";
+import { postSignin } from "@/lib/api/auth";
+import { postUserResetPassword } from "@/lib/api/user";
+import { SignInRequestBody } from "@/lib/types/auth";
+import { SendResetPasswordEmailRequest } from "@/lib/types/user";
 // login, signup은 API route가 아니라 서버 액션으로 구현
 interface LoginFormData {
   email: string;

@@ -1,7 +1,7 @@
 "use server";
 
 import { fetchApi } from "@/utils/api";
-import { BASE_URL } from "@/constants/api";
+import { BASE_URL } from "@/lib/api";
 
 export async function postImage(image: File) {
   try {

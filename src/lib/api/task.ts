@@ -1,6 +1,6 @@
 "use server";
 
-import { BASE_URL } from "@/constants/api";
+import { BASE_URL } from "@/lib/api";
 import { fetchApi } from "@/utils/api";
 
 interface CreateTaskRequestBody {

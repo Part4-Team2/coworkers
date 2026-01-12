@@ -2,7 +2,7 @@
 // 타입과 api 파일 위치는 수정
 // 해당 파일 사용 안된다면(다른 api로 사용이 다 가능하다면) 삭제
 
-import { BASE_URL } from "@/constants/api";
+import { BASE_URL } from "@/lib/api";
 import { fetchApi } from "@/utils/api";
 
 // 타입은 추후 별도로 분리

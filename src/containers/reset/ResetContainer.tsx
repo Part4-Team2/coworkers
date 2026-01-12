@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { InputConfig } from "@/components/Common/Form/types";
-import { patchUserResetPassword } from "@/api/user";
-import { ResetPasswordBody } from "@/types/api/user";
+import { patchUserResetPassword } from "@/lib/api/user";
+import { ResetPasswordBody } from "@/lib/types/user";
 
 interface ResetPasswordFormData {
   password: string;

@@ -8,9 +8,9 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { InputConfig } from "@/components/Common/Form/types";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { postGroup } from "@/api/group";
-import { postImage } from "@/api/image";
-import { CreateGroupBody } from "@/types/api/group";
+import { postGroup } from "@/lib/api/group";
+import { postImage } from "@/lib/api/image";
+import { CreateGroupBody } from "@/lib/types/group";
 
 interface AddTeamFormData {
   teamName: string;

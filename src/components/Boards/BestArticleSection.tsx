@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import BestArticle from "./BestArticle";
-import { getArticles } from "@/api/boards";
+import { getArticles } from "@/lib/api/boards";
 import { useEffect, useState } from "react";
 import { Article } from "@/types/article";
 
