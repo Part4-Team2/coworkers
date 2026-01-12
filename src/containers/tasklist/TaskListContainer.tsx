@@ -1,28 +1,46 @@
 "use client";
 
 import List, { ListProps } from "@/components/Tasklist/List/List";
-import { Task } from "@/types/task";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import TaskDetailsContainer from "./tasks/TaskDetailsContainer";
+import { getTasks } from "@/api/task";
 
 interface TaskListProps {
-  initialTasks?: Task[];
+  groupId: number;
+  listId: string;
+  baseDate: string;
 }
 
 export default function TaskListContainer({
-  initialTasks = [],
+  groupId,
+  listId,
+  baseDate,
 }: TaskListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [tasks, setTasks] = useState<ListProps[]>(initialTasks);
+  const [tasks, setTasks] = useState<ListProps[]>([]);
+  // TODO: 로딩 UI 팀 컨벤션 정해지면 수정
+  const [loading, setLoading] = useState(true);
 
-  // initialTasks가 변경되면 업데이트 (탭 전환 시)
+  // 탭 바뀔 때 마다 API 호출
   useEffect(() => {
-    setTasks(initialTasks);
-  }, [initialTasks]);
+    async function fetchTasks() {
+      setLoading(true);
+      try {
+        const response = await getTasks(groupId, Number(listId), baseDate);
+        setTasks(response ?? []);
+      } catch (err) {
+        console.error("할 일 로드 실패", err);
+        setTasks([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTasks();
+  }, [groupId, listId, baseDate]);
 
   const openTaskId = searchParams.get("task");
   const openTask = useMemo(
@@ -82,6 +100,8 @@ export default function TaskListContainer({
   const handleClickKebab = (id: number) => {
     // TODO: 케밥 메뉴 로직(useKebabMenu 사용)
   };
+
+  if (loading) return <div className="text-center p-40">로딩 중...</div>;
 
   if (tasks.length === 0) {
     return (

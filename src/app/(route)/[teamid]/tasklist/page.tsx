@@ -67,7 +67,9 @@ export default async function TaskListPage({
     title: list.name,
     content: (
       <TaskListContainer
-        initialTasks={list.id.toString() === activeTabId ? list.tasks : []}
+        groupId={groupId}
+        listId={list.id.toString()}
+        baseDate={baseDate}
       />
     ),
   }));
