@@ -17,6 +17,14 @@ export default function TabContainer({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
+  if (!tab || tab.length === 0) {
+    return (
+      <div className="text-text-default text-center mx-auto my-0 p-100">
+        아직 할 일 목록이 없습니다. <br /> 새로운 목록을 추가해주세요.
+      </div>
+    );
+  }
+
   // 어떤 탭을 실제로 보여줄지 결정(UI)
   const activeTabId = searchParams.get("tab") || defaultActiveId || tab[0]?.id;
 
@@ -32,14 +40,6 @@ export default function TabContainer({
 
     router.push(`${pathname}?${params.toString()}`);
   };
-
-  if (!tab || tab.length === 0) {
-    return (
-      <div className="text-text-default text-center mx-auto my-0 p-100">
-        아직 할 일 목록이 없습니다. <br /> 새로운 목록을 추가해주세요.
-      </div>
-    );
-  }
 
   return (
     <div>
