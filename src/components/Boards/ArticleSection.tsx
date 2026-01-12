@@ -4,8 +4,9 @@ import clsx from "clsx";
 import ArticleComp from "./Article";
 import ArticlePagination from "./ArticlePagination";
 import Dropdown from "../Common/Dropdown/Dropdown";
-import { getArticles } from "@/lib/api/boards";
+import { getArticles, deleteArticle } from "@/api/boards";
 import { useEffect, useState } from "react";
+import { useHeaderStore } from "@/store/headerStore";
 import { Article } from "@/types/article";
 
 const PAGE_SIZE = 6;
@@ -15,6 +16,8 @@ const ARRANGE: string[] = ["최신순", "좋아요 많은순"];
 
 // 나머지 게시글이 올라가는 section 입니다.
 function ArticleSection() {
+  const userId = useHeaderStore((state) => state.userId);
+
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
   const [orderBy, setOrderBy] = useState("recent");
@@ -27,6 +30,29 @@ function ArticleSection() {
     setPage(1);
     if (value === "최신순") setOrderBy("recent");
     else setOrderBy("like");
+  };
+
+  // 게시글을 삭제하는 함수입니다.
+  const handleDeleteArticle = async ({
+    articleId,
+    authorId,
+  }: {
+    articleId: number;
+    authorId: number;
+  }) => {
+    if (userId !== authorId) {
+      alert("권한이 없습니다.");
+      return;
+    }
+
+    try {
+      await deleteArticle(articleId);
+      // API call을 받으려다가 내 머리털 call 하게 생김..
+      setArticles((prev) => prev.filter((a) => a.id !== articleId));
+    } catch (error) {
+      console.error(error);
+      alert("삭제 중 오류 발생");
+    }
   };
 
   useEffect(() => {
@@ -61,14 +87,10 @@ function ArticleSection() {
           if (typeof article.id !== "number") return null;
           return (
             <ArticleComp
-              id={article.id}
               key={article.id}
-              title={article.title}
-              writer={article.writer}
-              createdAt={article.createdAt}
-              avatarImageUrl={undefined}
-              articleImageUrl={article.image}
-              likeCount={article.likeCount}
+              article={article}
+              currentUserId={userId}
+              onDelete={handleDeleteArticle}
             />
           );
         })}
