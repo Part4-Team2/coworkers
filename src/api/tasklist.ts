@@ -6,11 +6,14 @@ import { BASE_URL } from "@/constants/api";
 import { fetchApi } from "@/utils/api";
 
 // 타입은 추후 별도로 분리
+interface CreateTaskListRequestBody {
+  name: string;
+}
 interface UpdateTaskListRequestBody {
   name: string;
 }
 
-export async function getTaskList(groupId: string, id: string) {
+export async function getTaskList(groupId: number, id: string) {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists/${id}`,
@@ -100,13 +103,16 @@ export async function deleteTaskList(groupId: string, id: string) {
   }
 }
 
-export async function postTaskList(groupId: string) {
+export async function postTaskList(
+  groupId: number,
+  data: CreateTaskListRequestBody
+) {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists`,
       {
         method: "POST",
-        body: JSON.stringify(groupId),
+        body: JSON.stringify({ data }),
       }
     );
     if (!response.ok) {
