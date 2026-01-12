@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import TeamListContainer from "@/containers/teamlist/TeamListContainer";
+import { getUserGroups } from "@/api/user";
 
 export const metadata: Metadata = {
   title: "팀 목록",
@@ -12,6 +13,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function TeamListPage() {
-  return <TeamListContainer />;
+export default async function TeamListPage() {
+  const groupsData = await getUserGroups();
+
+  // 에러 처리: 에러 시 빈 배열로 처리
+  const groups = "error" in groupsData ? [] : groupsData;
+
+  return <TeamListContainer teams={groups} />;
 }

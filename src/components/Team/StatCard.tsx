@@ -1,5 +1,8 @@
+"use client";
+
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { IconMapTypes } from "@/components/Common/SVGIcon/iconMap";
+import { useCountAnimation } from "@/hooks/useCountAnimation";
 
 interface StatCardProps {
   title: string;
@@ -17,6 +20,8 @@ export default function StatCard({
   unit = "개",
 }: StatCardProps) {
   const validatedCount = validateCount(count);
+  const animatedCount = useCountAnimation(validatedCount, { duration: 1000 });
+
   return (
     <div className="flex items-center justify-between rounded-xl p-16 w-full min-h-80 bg-background-tertiary">
       <div className="flex flex-col gap-4 flex-1 min-w-0">
@@ -24,7 +29,7 @@ export default function StatCard({
           {title}
         </p>
         <p className="text-2xl font-bold text-brand-tertiary truncate">
-          {`${validatedCount}${unit}`}
+          {`${Math.floor(animatedCount)}${unit}`}
         </p>
       </div>
       <div className="shrink-0">

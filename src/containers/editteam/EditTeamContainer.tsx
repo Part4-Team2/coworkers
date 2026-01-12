@@ -8,6 +8,8 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { InputConfig } from "@/components/Common/Form/types";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { postImage } from "@/api/image";
+import { patchGroup } from "@/api/group";
 
 interface EditTeamFormData {
   teamName: string;
@@ -19,10 +21,6 @@ interface EditTeamContainerProps {
     teamName: string;
     profileImage?: string;
   };
-}
-
-interface UploadResponse {
-  url: string;
 }
 
 export default function EditTeamContainer({
@@ -52,84 +50,43 @@ export default function EditTeamContainer({
     },
   });
 
-  const uploadImage = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      const response = await fetch(`/${teamId}/images/upload`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        // 개발 환경: API 미구현 시 blob URL 사용
-        if (response.status === 404) {
-          if (!previewUrl) {
-            throw new Error("미리보기 이미지를 사용할 수 없습니다.");
-          }
-          return previewUrl;
-        }
-        throw new Error(`이미지 업로드 실패: ${response.status}`);
-      }
-
-      const data: UploadResponse = await response.json();
-      if (!data.url) {
-        throw new Error("업로드된 이미지 URL을 받지 못했습니다.");
-      }
-
-      return data.url;
-    } catch (error) {
-      // 네트워크 에러 (API 서버 없음) - 개발 환경
-      if (
-        error instanceof TypeError &&
-        error.message.includes("Failed to fetch")
-      ) {
-        if (!previewUrl) {
-          throw new Error("미리보기 이미지를 사용할 수 없습니다.");
-        }
-        return previewUrl;
-      }
-      throw error;
-    }
-  };
-
   const onSubmit = async (data: EditTeamFormData) => {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      let uploadedImageUrl = initialData?.profileImage;
+      let imageUrl: string | undefined = initialData?.profileImage;
 
-      // 새 이미지가 선택된 경우 업로드
+      // 새 이미지가 선택된 경우 postImage API로 업로드
       if (selectedFile) {
-        uploadedImageUrl = await uploadImage(selectedFile);
+        const uploadResult = await postImage(selectedFile);
+
+        if ("error" in uploadResult) {
+          throw new Error(uploadResult.message);
+        }
+
+        imageUrl = uploadResult.url;
       }
 
-      const updateData = {
-        ...data,
-        profileImage: uploadedImageUrl,
-      };
+      // 팀 수정 API 호출
+      const result = await patchGroup(teamId, {
+        name: data.teamName,
+        image: imageUrl,
+      });
 
-      // TODO: 실제 팀 수정 API 호출
-      // const response = await updateTeamAPI(teamId, updateData);
-      // if (response.success) {
-      //   router.push(`/${teamId}`);
-      // } else if (response.error === "duplicate") {
-      //   setError("teamName", {
-      //     type: "manual",
-      //     message: "이미 존재하는 이름입니다.",
-      //   });
-      //   return;
-      // }
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
-      // 임시: 성공 시 팀 페이지로 이동
-      console.log("팀 수정 시도:", { teamId, ...updateData });
+      // 성공 메시지 (나중에 Toast로 교체 예정)
+      alert("수정되었습니다!");
+
+      // 성공 시 팀 페이지로 이동
       router.push(`/${teamId}`);
     } catch (error) {
       console.error("팀 수정 실패:", error);
 
-      // 에러 메시지 개선
+      // 에러 메시지 설정
       const errorMessage =
         error instanceof Error ? error.message : "팀 수정에 실패했습니다.";
 
@@ -197,11 +154,11 @@ export default function EditTeamContainer({
           } as InputConfig,
         ]}
         button={{
-          label: isSubmitting ? "수정 중..." : "수정하기",
+          label: "수정하기",
           variant: "solid",
           size: "large",
           full: true,
-          disabled: isSubmitting,
+          loading: isSubmitting,
         }}
       />
       <FormFooter>

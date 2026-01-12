@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/Common/Button/Button";
 import TeamListItem from "@/components/Team/TeamListItem";
 import noAffiliationImage from "@/assets/img/no-affiliation.png";
-import type { Team } from "@/types/team";
 
 // 레이아웃 간격 상수
 const SPACING = {
@@ -14,19 +13,22 @@ const SPACING = {
   LIST_TO_BUTTONS: 60,
 } as const;
 
-// 임시 데이터 - 실제로는 API에서 받아올 데이터
-const MOCK_TEAMS: Team[] = [
-  { teamId: "1", name: "코드잇 프론트엔드팀", image: "" },
-  { teamId: "2", name: "디자인팀", image: "" },
-  { teamId: "3", name: "백엔드팀", image: "" },
-];
+interface TeamListContainerProps {
+  teams: Array<{
+    id: number;
+    name: string;
+    image: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+}
 
-export default function TeamListContainer() {
+export default function TeamListContainer({ teams }: TeamListContainerProps) {
   const router = useRouter();
-  const hasTeams = MOCK_TEAMS.length > 0; // 실제로는 팀 데이터 유무 확인
+  const hasTeams = teams.length > 0;
 
-  const handleTeamClick = (teamId: string) => {
-    router.push(`/${teamId}`);
+  const handleTeamClick = (groupId: number) => {
+    router.push(`/${groupId}`);
   };
 
   // 팀이 없는 경우
@@ -94,14 +96,22 @@ export default function TeamListContainer() {
 
       {/* 팀 목록 영역 */}
       <div className="w-full max-w-580 flex flex-col gap-10 p-24 pl-25 rounded-xl bg-background-secondary">
-        {MOCK_TEAMS.map((team) => (
-          <TeamListItem
-            key={team.teamId}
-            teamName={team.name}
-            teamImage={team.image}
-            onClick={() => handleTeamClick(team.teamId)}
-          />
-        ))}
+        {teams.map((team) => {
+          // 이미지가 없거나 example.com인 경우 undefined 처리 (기본 이미지 사용)
+          const isValidImage =
+            team.image &&
+            team.image.trim() !== "" &&
+            !team.image.startsWith("https://example.com");
+
+          return (
+            <TeamListItem
+              key={team.id}
+              teamName={team.name}
+              teamImage={isValidImage ? team.image! : undefined}
+              onClick={() => handleTeamClick(team.id)}
+            />
+          );
+        })}
       </div>
 
       {/* 버튼 영역 */}

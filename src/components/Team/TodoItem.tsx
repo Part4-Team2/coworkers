@@ -10,6 +10,7 @@ interface TodoItemProps {
   color: string;
   onEdit?: () => void;
   onDelete?: () => void;
+  onClick?: () => void;
 }
 
 const PROGRESS_CIRCLE_SIZE = 14;
@@ -65,6 +66,7 @@ const TodoItem = memo(function TodoItem({
   color,
   onEdit,
   onDelete,
+  onClick,
 }: TodoItemProps) {
   const blurActiveElement = useBlurActiveElement();
   const isCompleted = completedCount === totalCount;
@@ -91,7 +93,18 @@ const TodoItem = memo(function TodoItem({
       />
 
       <div className="flex items-center justify-between flex-1 pl-16 pr-8">
-        <span className="text-md font-medium leading-md text-text-primary truncate">
+        <span
+          className="text-md font-medium leading-md text-text-primary truncate cursor-pointer hover:text-brand-primary transition-colors"
+          onClick={onClick}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onClick?.();
+            }
+          }}
+        >
           {name}
         </span>
 
