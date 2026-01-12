@@ -33,7 +33,7 @@ export default function DoneListContainer() {
             <List
               key={task.id}
               id={task.id}
-              content={task.content}
+              name={task.name}
               onToggle={() => {}}
               onClickKebab={() => {}}
               isToggle={true}
