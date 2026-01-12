@@ -6,19 +6,31 @@ import { formatDate, formatTime } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
 
+export interface ListProps extends Task {
+  onClick?: () => void;
+  isToggle?: boolean;
+  onToggle?: (id: number) => void;
+  onClickKebab?: (id: number) => void;
+  variant?: "simple" | "detailed";
+}
+
 export default function List({
   id, // 부모에서 사용
   isToggle = false,
   onToggle,
-  content,
+  name,
   onClickKebab,
   variant,
   commentCount,
   frequency,
   date,
-}: Task) {
+  onClick,
+}: ListProps) {
   return (
-    <div className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-[8px]">
+    <div
+      onClick={onClick}
+      className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-[8px] cursor-pointer"
+    >
       <div className="flex items-center justify-between ">
         <div className="flex items-center gap-7">
           <button
@@ -36,7 +48,7 @@ export default function List({
               isToggle && "line-through"
             )}
           >
-            {content}
+            {name}
           </span>
 
           {variant === "detailed" && (
