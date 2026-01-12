@@ -20,7 +20,6 @@ function CommentSection({ articleId, comments, onCommentAdd }: Pageprops) {
 
   // 댓글 작성 후 버튼을 누르면 처리되는 함수입니다.
   const handleCommentSubmit = async () => {
-    console.log("댓글 버튼 작동");
     if (!content.trim()) return; // 댓글 내용 없으면 바로 리턴.
 
     try {

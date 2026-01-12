@@ -13,7 +13,7 @@ export interface ArticleComment {
 }
 
 export interface GetArticleComments {
-  nextCoursor: number;
+  nextCursor: number;
   list: ArticleComment[];
 }
 
