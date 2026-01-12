@@ -27,3 +27,10 @@ export const formatListHeaderDate = (isoDate: string) => {
     timeZone: "Asia/Seoul",
   });
 };
+
+// 날짜 이동 유틸
+export const addDays = (date: Date, diff: number) => {
+  const next = new Date(date);
+  next.setDate(date.getDate() + diff);
+  return next;
+};
