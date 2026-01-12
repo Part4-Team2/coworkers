@@ -57,6 +57,16 @@ export default async function TaskListPage({
   // 목록이 있을 때, 목록의 할 일 리스트 가져오기
   const taskLists = taskListsResponse.taskLists;
 
+  if (taskLists.length === 0) {
+    return (
+      <div className="p-24">
+        <p className="text-text-default text-center">
+          아직 할 일 목록이 없습니다. 새로운 목록을 추가해주세요.
+        </p>
+      </div>
+    );
+  }
+
   // 현재 선택된 탭 결정 + 어떤 content에 tasks를 넣을지 결정(데이터)
   // (쿼리스트링 tab 값에 맞는 탭(이전 페이지에서 클릭한 데이터랑 연결) ?? api taskLists값의 내 첫번째 데이터
   const activeTabId = taskListId?.toString() ?? taskLists[0].id.toString();
