@@ -62,9 +62,9 @@ export async function getArticle({
   return response.json();
 }
 
-// 게시글 버튼을 눌렀을 때 작동하는 함수입니다.
+// 게시글 작성하고 버튼을 눌렀을 때 작동하는 함수입니다.
 export async function postArticle(data: CreateArticle) {
-  const response = await fetch(`${BASE_URL}/articles`, {
+  const response = await fetch(`/api/proxy/articles`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
