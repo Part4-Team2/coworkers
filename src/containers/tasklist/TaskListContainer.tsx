@@ -35,7 +35,12 @@ export default function TaskListContainer({
           console.error("할 일 로드 실패:", response.message);
           setTasks([]);
         } else {
-          setTasks(response ?? []);
+          setTasks(
+            (response ?? []).map((task: ListProps) => ({
+              ...task,
+              isToggle: !!task.doneAt,
+            }))
+          );
         }
       } catch (err) {
         console.error("할 일 로드 실패", err);
