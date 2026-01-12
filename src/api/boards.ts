@@ -113,7 +113,7 @@ export async function postComment(
   articleId: number,
   data: CreateArticleComment
 ) {
-  const response = await fetch(`${BASE_URL}/articles/${articleId}/comments`, {
+  const response = await fetch(`/api/proxy/articles/${articleId}/comments`, {
     method: "POST",
     headers: {
       "Content-type": "application/json",
