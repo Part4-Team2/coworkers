@@ -1,11 +1,10 @@
 import { getGroup } from "@/api/task";
-import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import TabContainer from "@/components/Tasklist/Tab/TabContainer";
 import ConditionalTaskAddButton from "@/containers/tasklist/ConditionalTaskAddButton";
+import DateNavigatorContainer from "@/containers/tasklist/DateNavigatorContainer";
 import ListAddButtonContainer from "@/containers/tasklist/ListAddButtonContainer";
 import TaskListContainer from "@/containers/tasklist/TaskListContainer";
 import { TabItem } from "@/types";
-import { formatListHeaderDate } from "@/utils/date";
 import { Metadata } from "next";
 
 type TaskListPageProps = {
@@ -38,7 +37,6 @@ export default async function TaskListPage({
 
   // 리스트 페이지 헤더 날짜
   const baseDate = date ?? new Date().toISOString();
-  const formattedListDate = formatListHeaderDate(baseDate);
 
   // 모든 할일 목록 가져오기 (법인 설립, 법인 등기 등)
   const taskListsResponse = await getGroup(groupId);
@@ -80,14 +78,7 @@ export default async function TaskListPage({
         <div className="text-xl font-bold mt-40">할 일</div>
 
         <div className="flex justify-between">
-          <div className="flex gap-12 items-center">
-            <div className="text-lg font-medium">{formattedListDate}</div>
-            <div className="flex gap-4">
-              <SVGIcon icon="btnArrowLeft" size="xxs" />
-              <SVGIcon icon="btnArrowRight" size="xxs" />
-            </div>
-            <SVGIcon icon="btnCalendar" size="md" />
-          </div>
+          <DateNavigatorContainer baseDate={baseDate} />
           <ListAddButtonContainer />
         </div>
         {/* defaultActiveId={activeTabId} 는 수정될 수 있음 */}
