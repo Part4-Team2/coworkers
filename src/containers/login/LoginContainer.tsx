@@ -8,6 +8,7 @@ import Modal from "@/components/Common/Modal/Modal";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useHeaderStore } from "@/store/headerStore";
 import { InputConfig } from "@/components/Common/Form/types";
 import { postSignin } from "@/lib/api/auth";
 import { postUserResetPassword } from "@/lib/api/user";
@@ -27,6 +28,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export default function LoginContainer() {
   const router = useRouter();
+  const fetchUser = useHeaderStore((s) => s.fetchUser);
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,6 +73,7 @@ export default function LoginContainer() {
         return;
       }
       // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
+      await fetchUser();
       router.push("/");
       // 관련된 모든 처리는 서버에서 관리해야함! 현재는 클라이언트
     } catch (error) {

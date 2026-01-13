@@ -64,7 +64,7 @@ function ArticleClient({ article, comments, likes }: Pageprops) {
       {/* 댓글 영역 */}
       <CommentSection
         articleId={article.id}
-        comments={comments.list}
+        comments={comments}
         onCommentAdd={() => setCommentCount((prev) => prev + 1)}
       />
     </main>

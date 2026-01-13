@@ -28,7 +28,7 @@ function Header() {
 
   useEffect(() => {
     fetchUser();
-  }, [fetchUser]);
+  }, []);
 
   // Side Header의 팀명 클릭시 작동하는 함수입니다.
   const handleSideClick = () => {
