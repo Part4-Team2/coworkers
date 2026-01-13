@@ -39,7 +39,7 @@ export default async function TaskListPage({
   searchParams,
 }: TaskListPageProps) {
   const { teamid: groupId } = await params;
-  const { date, tab: taskListId } = await searchParams;
+  const { date, tab } = await searchParams;
 
   // 리스트 페이지 헤더 날짜
   const baseDate = date ?? new Date().toISOString();
@@ -75,7 +75,7 @@ export default async function TaskListPage({
 
   // 현재 선택된 탭 결정 + 어떤 content에 tasks를 넣을지 결정(데이터)
   // (쿼리스트링 tab 값에 맞는 탭(이전 페이지에서 클릭한 데이터랑 연결) ?? api taskLists값의 내 첫번째 데이터
-  const activeTabId = taskListId?.toString() ?? taskLists[0].id.toString();
+  const activeTabId = tab ?? taskLists[0].id.toString();
 
   // 활성 탭에만 데이터 전달
   const tabs: TabItem[] = taskLists.map((list) => ({
@@ -102,7 +102,7 @@ export default async function TaskListPage({
         {/* defaultActiveId={activeTabId} 는 수정될 수 있음 */}
         <TabContainer tab={tabs} defaultActiveId={activeTabId} />
       </div>
-      <ConditionalTaskAddButton />
+      <ConditionalTaskAddButton groupId={groupId} taskListId={activeTabId} />
     </div>
   );
 }
