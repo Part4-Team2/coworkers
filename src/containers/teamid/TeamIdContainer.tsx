@@ -10,10 +10,10 @@ import Modal from "@/components/Common/Modal/Modal";
 import { Todo } from "@/types/todo";
 import { Member as MemberType } from "@/types/member";
 import { GroupDetailResponse } from "@/lib/api/group";
-import { useModalState, MODAL_TYPES } from "@/hooks/useModalState";
-import { useTeamActions } from "@/hooks/useTeamActions";
-import { useTodoActions } from "@/hooks/useTodoActions";
-import { useMemberActions } from "@/hooks/useMemberActions";
+import { useModalState, MODAL_TYPES } from "@/hooks/Team/useModalState";
+import { useTeamActions } from "@/hooks/Team/useTeamActions";
+import { useTodoActions } from "@/hooks/Team/useTodoActions";
+import { useMemberActions } from "@/hooks/Team/useMemberActions";
 
 // 상수 정의
 const TODO_COLORS = [

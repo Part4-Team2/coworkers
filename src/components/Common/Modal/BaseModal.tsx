@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import clsx from "clsx";
 import { BaseModalProps } from "./types";
 import SVGIcon from "../SVGIcon/SVGIcon";
-import { useFocusTrap } from "../../../hooks/useFocusTrap";
+import { useFocusTrap } from "../../../hooks/Team/useFocusTrap";
 
 const BaseModal = ({
   isOpen,
