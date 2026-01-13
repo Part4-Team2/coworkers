@@ -7,21 +7,28 @@ import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import InputReply from "@/components/Tasklist/InputReply";
-import { ListProps } from "@/components/Tasklist/List/List";
 import Reply from "@/components/Tasklist/Reply";
 import useKebabMenu from "@/hooks/useKebabMenu";
+import { deleteTasks } from "@/lib/api/task";
+import { TaskDetail } from "@/lib/types/taskTest";
 import { formatDate, formatTime } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
 import { useState } from "react";
-
+interface TaskWithToggle extends TaskDetail {
+  isToggle: boolean; // doneAt나 doneBy 기반 UI 토글
+}
 type TaskDetailsContainerProps = {
-  task: ListProps;
+  task: TaskWithToggle;
+  groupId: number;
+  taskListId: number;
   onClose?: () => void;
 };
 
 export default function TaskDetailsContainer({
   task,
+  groupId,
+  taskListId,
   onClose,
 }: TaskDetailsContainerProps) {
   const [isComplete, setIsComplete] = useState(task.isToggle ?? false);
@@ -32,10 +39,32 @@ export default function TaskDetailsContainer({
       console.log("api PATCH 로직", newContent);
       // TODO: 실제 api 호출
     },
-    onDelete: () => {
-      console.log("api DELETE 로직");
-      // TODO: 실제 api 호출
-      onClose?.();
+    onDelete: async () => {
+      if (!task.id || !task.recurringId) {
+        console.error("삭제에 필요한 정보가 없습니다.");
+        return;
+      }
+
+      try {
+        // 반복할일 삭제
+        const result = await deleteTasks(
+          groupId,
+          taskListId,
+          task.id,
+          task.recurringId
+        );
+
+        if (result.error) {
+          alert(result.message); // 실패 시 알림
+          return;
+        }
+
+        // 삭제 성공 시 사이드바 닫기
+        onClose?.();
+      } catch (err) {
+        console.error(err);
+        alert("삭제 중 오류가 발생했습니다.");
+      }
     },
     deleteModalTitle: (
       <>

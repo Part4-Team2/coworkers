@@ -1,15 +1,20 @@
 "use client";
 
-import List, { ListProps } from "@/components/Tasklist/List/List";
+import List from "@/components/Tasklist/List/List";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import TaskDetailsContainer from "./tasks/TaskDetailsContainer";
-import { getTasks } from "@/lib/api/task";
+import { deleteTasks, getTasks, patchTask } from "@/lib/api/task";
+import { TaskDetail, TaskListItem } from "@/lib/types/taskTest";
 
 interface TaskListProps {
   groupId: number;
   listId: string;
   baseDate: string;
+}
+
+interface TaskWithToggle extends TaskDetail {
+  isToggle: boolean; // doneAt나 doneBy 기반 UI 토글
 }
 
 export default function TaskListContainer({
@@ -21,8 +26,7 @@ export default function TaskListContainer({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [tasks, setTasks] = useState<ListProps[]>([]);
-  // TODO: 로딩 UI 팀 컨벤션 정해지면 수정
+  const [tasks, setTasks] = useState<TaskWithToggle[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 탭 바뀔 때 마다 API 호출
@@ -36,9 +40,11 @@ export default function TaskListContainer({
           setTasks([]);
         } else {
           setTasks(
-            (response ?? []).map((task: ListProps) => ({
+            (response ?? []).map((task: TaskDetail) => ({
               ...task,
-              isToggle: !!task.doneAt,
+              isToggle: !!task.doneAt || (task.doneBy?.length ?? 0) > 0,
+              displayIndex: task.displayIndex,
+              recurringId: task.recurringId,
             }))
           );
         }
@@ -78,32 +84,42 @@ export default function TaskListContainer({
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // // Task 업데이트 (사이드바에서 수정 시)
-  // const handleUpdateTask = (taskId: number, updates: Partial<Task>) => {
-  //   setTasks((prevTasks) =>
-  //     prevTasks.map((task) =>
-  //       task.id === taskId ? { ...task, ...updates } : task
-  //     )
-  //   );
-
-  //   // TODO: API 호출
-  //   // await fetch(`/api/tasks/${taskId}`, {
-  //   //   method: 'PATCH',
-  //   //   body: JSON.stringify(updates)
-  //   // });
-  // };
-
   const handleToggle = (id: number) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
         task.id === id ? { ...task, isToggle: !task.isToggle } : task
       )
     );
-    // TODO: API 호출로 상태 업데이트
+    // TODO: API 호출 -> doneAt/doneBy 업데이트
   };
 
-  const handleClickKebab = (id: number) => {
-    // TODO: 케밥 메뉴 로직(useKebabMenu 사용)
+  const handleUpdateTask = async () => {
+    console.log("api PATCH 로직");
+  };
+
+  // Task 삭제
+  const handleDeleteTask = async (task: {
+    id: number;
+    recurringId: number;
+  }) => {
+    try {
+      const result = await deleteTasks(
+        groupId,
+        Number(listId),
+        task.id,
+        task.recurringId
+      );
+
+      if ("error" in result) {
+        alert(result.message);
+        return;
+      }
+
+      setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    } catch (err) {
+      console.error(err);
+      alert("삭제 중 오류가 발생했습니다.");
+    }
   };
 
   if (loading) return <div className="text-center p-40">로딩 중...</div>;
@@ -126,12 +142,15 @@ export default function TaskListContainer({
             name={task.name}
             isToggle={task.isToggle}
             onToggle={handleToggle}
-            onClickKebab={handleClickKebab}
             variant="detailed"
             commentCount={task.commentCount}
             frequency={task.frequency}
             date={task.date}
+            displayIndex={task.displayIndex}
+            recurringId={task.recurringId}
             onClick={() => handleTaskClick(task.id)}
+            onDeleteTask={handleDeleteTask}
+            onUpdateTask={handleUpdateTask}
           />
         ))}
       </div>
@@ -147,6 +166,8 @@ export default function TaskListContainer({
           >
             <TaskDetailsContainer
               task={openTask}
+              groupId={groupId}
+              taskListId={Number(listId)}
               onClose={handleCloseSidebar}
             />
           </div>

@@ -12,7 +12,6 @@ import ModalFooter from "@/components/Common/Modal/ModalFooter";
 import { formatDate, formatTime } from "@/utils/date";
 import { frequencyToEnum } from "@/constants/frequency";
 import { FrequencyType } from "@/types/schemas";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { postTasks } from "@/lib/api/task";
 import { getFrequencyText } from "@/utils/frequency";
@@ -43,13 +42,11 @@ export default function TaskCreateModal({
   onClose,
   onTaskCreated,
 }: TaskCreateModalProps) {
-  const router = useRouter();
-
   const today = new Date();
   const defaultTime = new Date();
   defaultTime.setHours(9, 0, 0, 0); // fix
 
-  const { register, setValue, watch, handleSubmit } = useForm<CreateTaskForm>({
+  const { setValue, watch, handleSubmit } = useForm<CreateTaskForm>({
     defaultValues: {
       name: "",
       description: "",

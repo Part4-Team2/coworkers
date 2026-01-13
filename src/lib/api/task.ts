@@ -5,7 +5,6 @@ import { fetchApi } from "@/utils/api";
 import {
   CreateTaskRequestBody,
   TaskDetail,
-  TaskListItem,
   TaskPatchResponse,
   UpdateTaskRequestBody,
 } from "../types/taskTest";
@@ -34,7 +33,7 @@ export async function getTasks(
   groupId: number,
   taskListId: number,
   date?: string
-): Promise<TaskListItem[] | { error: true; message: string }> {
+): Promise<TaskDetail[] | { error: true; message: string }> {
   const response = await fetchApi(
     `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}/tasks${date ? `?date=${date}` : ""}`
   );
@@ -46,7 +45,7 @@ export async function getTasks(
     return { error: true, message: error.message };
   }
 
-  return (await response.json()) as TaskListItem[];
+  return (await response.json()) as TaskDetail[];
 }
 
 export async function getSpecificTask(

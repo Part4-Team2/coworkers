@@ -1,31 +1,49 @@
 "use client";
 
+import Dropdown from "@/components/Common/Dropdown/Dropdown";
+import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
-import { Task } from "@/types/task";
+import useKebabMenu from "@/hooks/useKebabMenu";
+import { TaskListItem } from "@/lib/types/taskTest";
 import { formatDate, formatTime } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
 
-export interface ListProps extends Task {
+export interface ListProps extends TaskListItem {
   onClick?: () => void;
   isToggle?: boolean;
   onToggle?: (id: number) => void;
-  onClickKebab?: (id: number) => void;
   variant?: "simple" | "detailed";
+  onUpdateTask?: (taskId: number, updates: Partial<TaskListItem>) => void;
+  onDeleteTask?: (task: { id: number; recurringId: number }) => void;
 }
 
 export default function List({
-  id, // 부모에서 사용
+  id,
   isToggle = false,
   onToggle,
   name,
-  onClickKebab,
   variant,
   commentCount,
   frequency,
   date,
   onClick,
+  onUpdateTask,
+  onDeleteTask,
+  recurringId,
 }: ListProps) {
+  // useKebabMenu 훅은 여기서 각 task 별로 사용
+  const kebab = useKebabMenu({
+    initialContent: name,
+    onSave: (newContent) => onUpdateTask?.(id, { name: newContent }),
+    onDelete: () => onDeleteTask?.({ id, recurringId }),
+    deleteModalTitle: (
+      <>
+        &apos;{name}&apos; <br />할 일을 정말 삭제하시겠어요?
+      </>
+    ),
+  });
+
   return (
     <div
       onClick={onClick}
@@ -58,15 +76,36 @@ export default function List({
             </div>
           )}
         </div>
-        <button
+        <div
+          className="relative"
           onClick={(e) => {
             e.stopPropagation();
-            onClickKebab?.(id);
           }}
-          aria-label="옵션 메뉴 열기"
         >
-          <SVGIcon icon="kebabSmall" />
-        </button>
+          <Dropdown
+            options={kebab.dropdownOptions}
+            size="md"
+            trigger="icon"
+            icon="kebabLarge"
+            listPosition="absolute right-0 top-full mt-5"
+            onSelect={kebab.handleDropdownSelect}
+          />
+        </div>
+        <Modal
+          isOpen={kebab.isModalOpen}
+          onClose={kebab.handleModalClose}
+          title={kebab.deleteModalTitle}
+          description={kebab.deleteModalDescription}
+          primaryButton={{
+            label: "삭제하기",
+            onClick: kebab.handleDeleteConfirm,
+            variant: "danger",
+          }}
+          secondaryButton={{
+            label: "닫기",
+            onClick: kebab.handleModalClose,
+          }}
+        />
       </div>
 
       {variant === "detailed" && (

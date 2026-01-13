@@ -18,11 +18,11 @@ export interface TaskListItem {
 export interface TaskDetail extends TaskListItem {
   updatedAt: string;
   deletedAt?: string;
-  writer: Array<{
+  writer: {
     image: string | null;
     nickname: string;
     id: number;
-  }>;
+  };
   doneBy?: Array<{
     user: {
       image: string;
@@ -60,3 +60,5 @@ export interface UpdateTaskRequestBody {
   description?: string;
   done?: boolean;
 }
+
+export type TaskDeletePayload = Pick<TaskListItem, "id" | "recurringId">;
