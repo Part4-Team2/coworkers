@@ -21,7 +21,7 @@ interface Pageprops {
 function CommentSection({ articleId, comments, onCommentAdd }: Pageprops) {
   const [commentList, setCommentList] = useState(comments.list);
   const [cursor, setCursor] = useState<number | undefined>(comments.nextCursor);
-  const [hasNext, setHasNext] = useState(true); // cursor 존재 여부로 다음 댓글 fetching합니다.
+  const [hasNext, setHasNext] = useState(!!comments.nextCursor); // cursor 존재 여부로 다음 댓글 fetching합니다.
   const [content, setContent] = useState("");
 
   // 댓글 작성 후 버튼을 누르면 처리되는 함수입니다.

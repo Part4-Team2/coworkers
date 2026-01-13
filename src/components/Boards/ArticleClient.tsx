@@ -39,7 +39,7 @@ function ArticleClient({ article, comments, likes }: Pageprops) {
         setLikeCount((prev) => prev - 1);
         setIsLike((prev) => !prev);
       } catch (error) {
-        console.error("좋아요 추가 오류", error);
+        console.error("좋아요 삭제 오류", error);
       }
     }
   };

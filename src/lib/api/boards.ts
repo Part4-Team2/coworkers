@@ -165,6 +165,6 @@ export async function deleteLike(articleId: number) {
     method: "DELETE",
   });
 
-  if (!response.ok) throw new Error("좋아요 추가 오류");
+  if (!response.ok) throw new Error("좋아요 삭제 오류");
   return response.json();
 }

@@ -7,19 +7,18 @@ import InputBox from "@/components/Common/Input/InputBox";
 import ArticleImageUpload from "@/components/Boards/ArticleImageUpload";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useHeaderStore } from "@/store/headerStore";
 import { patchArticle, getArticle } from "@/lib/api/boards";
 import { postImage } from "@/lib/api/image";
 
 // 게시글을 수정할 수 있는 페이지입니다.
 function EditArticle() {
-  const userId = useHeaderStore((state) => state.userId);
   const router = useRouter();
 
   const params = useParams<{ articleId: string }>();
   const articleId = Number(params.articleId);
 
-  const [loading, setLoading] = useState(true); // 로딩 state는 로딩페이지 같은거 있을 때 활용하면 좋을듯
+  // 로딩 state는 로딩페이지 같은거 있을 때 활용하면 좋을듯
+  // const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [articleImagePreview, setArticleImagePreview] = useState<string | null>(
@@ -64,32 +63,23 @@ function EditArticle() {
 
   // 수정의 경우 useEffect가 실행이됩니다.
   useEffect(() => {
-    console.log("use Effect 실행!");
     if (!articleId) return;
-    console.log("use Effect 시작!");
 
     const fetchArticle = async () => {
       try {
         const article = await getArticle({ articleId });
-        if (userId !== article.writer.id) {
-          alert("수정 권한이 없습니다.");
-          router.replace("/boards");
-        }
         setTitle(article.title);
         setContent(article.content);
         setArticleImagePreview(article.image ?? null);
-        console.log(title, content);
       } catch (error) {
         console.error(error);
         alert("게시글 갖고오기 오류, 다시 자유게시판으로 돌아갑니다."); // 오류 처리는 나중에 toast로 대체 예정
         router.replace("/boards");
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchArticle();
-  }, [articleId, userId]);
+  }, []);
 
   return (
     // Page Wrapper
