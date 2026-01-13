@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 import ButtonFloating from "../../../components/Common/Button/ButtonFloating";
 import BoardInput from "../../../components/Boards/BoardInput";
@@ -10,6 +10,7 @@ import ArticleSection from "@/components/Boards/ArticleSection";
 
 function BoardPage() {
   const router = useRouter();
+  // const searchParams = useSearchParams();
   const [inputVal, setInputVal] = useState("");
 
   // 글쓰기 버튼 누를시 글쓰기 페이지로 이동하는 함수입니다.

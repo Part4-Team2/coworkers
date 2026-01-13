@@ -32,19 +32,22 @@ function ArticleSection() {
     else setOrderBy("like");
   };
 
+  // 안좋은 구조다.
   useEffect(() => {
-    getArticles({
-      page,
-      pageSize: PAGE_SIZE,
-      orderBy,
-    })
-      .then((res) => {
+    const loadArticles = async () => {
+      try {
+        const res = await getArticles({
+          page,
+          pageSize: PAGE_SIZE,
+          orderBy,
+        });
         setArticles(res.list);
         setTotalPage(Math.ceil(res.totalCount / PAGE_SIZE));
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("게시글 목록 불러오기 실패", error);
-      });
+      }
+    };
+    loadArticles();
   }, [page, orderBy]);
 
   return (
