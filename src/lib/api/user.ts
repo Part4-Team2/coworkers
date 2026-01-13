@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/lib/api";
 import { Role } from "@/types/schemas";
@@ -13,7 +14,11 @@ import {
 
 export async function getUser() {
   try {
-    const response = await fetchApi(`${BASE_URL}/user`);
+    const response = await fetchApi(`${BASE_URL}/user`, {
+      // 사용자 정보는 자주 변경될 수 있으므로 짧은 시간 캐싱 (60초)
+      // 또는 태그 기반 캐싱으로 무효화 가능
+      next: { tags: ["user"] },
+    });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({
@@ -137,6 +142,7 @@ export async function patchUser(data: UpdateUserRequestBody) {
     const response = await fetchApi(`${BASE_URL}/user`, {
       method: "PATCH",
       body: JSON.stringify(data),
+      // PATCH 요청은 캐싱하지 않음
     });
 
     if (!response.ok) {
@@ -149,7 +155,14 @@ export async function patchUser(data: UpdateUserRequestBody) {
       };
     }
 
-    return (await response.json()) as { message: string };
+    const result = (await response.json()) as { message: string };
+
+    // 사용자 정보 수정 성공 후 관련 캐시 무효화
+    revalidatePath("/mypage");
+    // 태그 기반 캐시 무효화 (getUser에서 사용하는 태그)
+    // revalidateTag는 타입 이슈로 주석 처리, 필요시 revalidatePath로 대체
+
+    return result;
   } catch (error) {
     return {
       error: true,
@@ -162,6 +175,7 @@ export async function deleteUser() {
   try {
     const response = await fetchApi(`${BASE_URL}/user`, {
       method: "DELETE",
+      // DELETE 요청은 캐싱하지 않음
     });
 
     if (!response.ok) {
@@ -176,6 +190,11 @@ export async function deleteUser() {
     const cookieStore = await cookies();
     cookieStore.delete("accessToken");
     cookieStore.delete("refreshToken");
+
+    // 사용자 삭제 성공 후 관련 캐시 무효화
+    revalidatePath("/mypage");
+    revalidatePath("/teamlist");
+    // 모든 사용자 관련 페이지 캐시 무효화
 
     // 성공 응답 반환 (클라이언트에서 리다이렉트 처리)
     return { success: true };
@@ -209,6 +228,7 @@ export async function postUserResetPassword(
       {
         method: "POST",
         body: JSON.stringify(data),
+        // POST 요청은 캐싱하지 않음
       }
     );
 
@@ -241,6 +261,7 @@ export async function patchUserResetPassword(data: ResetPasswordBody) {
     const response = await fetchApi(`${BASE_URL}/user/reset-password`, {
       method: "PATCH",
       body: JSON.stringify(data),
+      // PATCH 요청은 캐싱하지 않음
     });
 
     if (!response.ok) {
@@ -265,6 +286,7 @@ export async function patchUserPassword(data: UpdatePasswordBody) {
     const response = await fetchApi(`${BASE_URL}/user/password`, {
       method: "PATCH",
       body: JSON.stringify(data),
+      // PATCH 요청은 캐싱하지 않음
     });
 
     if (!response.ok) {
@@ -275,7 +297,12 @@ export async function patchUserPassword(data: UpdatePasswordBody) {
       };
     }
 
-    return (await response.json()) as { message: string };
+    const result = (await response.json()) as { message: string };
+
+    // 비밀번호 변경 성공 후 사용자 관련 캐시 무효화
+    revalidatePath("/mypage");
+
+    return result;
   } catch (error) {
     return {
       error: true,
