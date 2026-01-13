@@ -6,7 +6,7 @@ export async function proxy(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
 
   // /login 페이지 처리
-  if (pathname === "/login") {
+  if (pathname === "/login" || pathname === "/signup") {
     // accessToken이 없으면 로그인 페이지 접근 허용 (getUser() 호출 없이)
     if (!accessToken) {
       return NextResponse.next();
@@ -48,5 +48,6 @@ export const config = {
     "/teamlist",
     "/boards/writeArticle",
     "/login",
+    "/signup",
   ],
 };

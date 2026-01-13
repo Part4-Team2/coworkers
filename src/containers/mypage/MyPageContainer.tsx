@@ -216,108 +216,110 @@ export default function MyPageContainer({
   };
 
   return (
-    <div className="w-full flex flex-col lg:items-center">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        className="hidden"
-        aria-label="프로필 이미지 선택"
-      />
-      <Form
-        centered={false}
-        topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
-        onSubmit={handleSubmitName(onNameSubmit)}
-        profile={
-          <div className="w-full flex flex-col gap-4 sm:gap-6 lg:gap-8">
-            <label className="text-lg sm:text-xl font-bold">계정 설정</label>
-            <div className="relative inline-block w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64">
-              <Avatar
-                imageUrl={previewUrl}
-                altText="사용자 프로필"
-                size="xlarge"
-                isEditable={true}
-                onEditClick={handleImageClick}
-              />
+    <div className="w-full flex flex-col items-center px-16 sm:px-0">
+      <div className="w-full max-w-600 flex flex-col items-center">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="hidden"
+          aria-label="프로필 이미지 선택"
+        />
+        <Form
+          centered={false}
+          topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
+          onSubmit={handleSubmitName(onNameSubmit)}
+          profile={
+            <div className="w-full flex flex-col gap-4 sm:gap-6 lg:gap-8">
+              <label className="text-lg sm:text-xl font-bold">계정 설정</label>
+              <div className="relative inline-block w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64">
+                <Avatar
+                  imageUrl={previewUrl}
+                  altText="사용자 프로필"
+                  size="xlarge"
+                  isEditable={true}
+                  onEditClick={handleImageClick}
+                />
+              </div>
             </div>
-          </div>
-        }
-        register={registerName}
-        errors={nameErrors}
-        trigger={triggerName}
-        input={[
-          {
-            name: "name",
-            label: "이름",
-            placeholder: "이름을 입력해주세요.",
-            variant: nameErrors.name ? "error" : "default",
-            size: "large",
-            type: "text",
-            full: true,
-            onKeyDown: handleNameKeyDown,
-            registerOptions: {
-              required: "이름은 필수 입력입니다.",
-              maxLength: {
-                value: 20,
-                message: "이름은 최대 20자까지 가능합니다.",
+          }
+          register={registerName}
+          errors={nameErrors}
+          trigger={triggerName}
+          input={[
+            {
+              name: "name",
+              label: "이름",
+              placeholder: "이름을 입력해주세요.",
+              variant: nameErrors.name ? "error" : "default",
+              size: "large",
+              type: "text",
+              full: true,
+              onKeyDown: handleNameKeyDown,
+              registerOptions: {
+                required: "이름은 필수 입력입니다.",
+                maxLength: {
+                  value: 20,
+                  message: "이름은 최대 20자까지 가능합니다.",
+                },
               },
-            },
-            message: nameErrors.name?.message,
-            showError: !!nameErrors.name,
-          } as InputConfig,
-          {
-            label: "이메일",
-            placeholder: "이메일을 입력해주세요.",
-            variant: "default",
-            size: "large",
-            type: "email",
-            full: true,
-            value: initialEmail || "",
-            disabled: true,
-          } as InputConfig,
-          {
-            label: "비밀번호",
-            placeholder: "비밀번호를 입력해주세요.",
-            variant: "default",
-            size: "large",
-            type: "password",
-            rightElement: (
-              <Button
-                label="변경하기"
-                variant="solid"
-                size="xSmall"
-                onClick={() => setOpenModal("password-change")}
-              />
-            ),
-            full: true,
-            disabled: true,
-          } as InputConfig,
-        ]}
-        option={
-          <div className="flex flex-col gap-4">
-            {nameError && (
-              <p className="w-full text-xs text-status-danger">{nameError}</p>
-            )}
-            <div
-              className="text-status-danger text-base sm:text-lg cursor-pointer hover:opacity-80 flex items-center gap-6 sm:gap-8 py-6 sm:py-8"
-              onClick={() => setOpenModal("withdraw")}
-            >
-              <SVGIcon icon="secession" />
-              <span>회원 탈퇴하기</span>
+              message: nameErrors.name?.message,
+              showError: !!nameErrors.name,
+            } as InputConfig,
+            {
+              label: "이메일",
+              placeholder: "이메일을 입력해주세요.",
+              variant: "default",
+              size: "large",
+              type: "email",
+              full: true,
+              value: initialEmail || "",
+              disabled: true,
+            } as InputConfig,
+            {
+              label: "비밀번호",
+              placeholder: "비밀번호를 입력해주세요.",
+              variant: "default",
+              size: "large",
+              type: "password",
+              rightElement: (
+                <Button
+                  label="변경하기"
+                  variant="solid"
+                  size="xSmall"
+                  onClick={() => setOpenModal("password-change")}
+                />
+              ),
+              full: true,
+              disabled: true,
+            } as InputConfig,
+          ]}
+          option={
+            <div className="flex flex-col gap-4">
+              {nameError && (
+                <p className="w-full text-xs text-status-danger">{nameError}</p>
+              )}
+              <div
+                className="text-status-danger text-base sm:text-lg cursor-pointer hover:opacity-80 flex items-center gap-6 sm:gap-8 py-6 sm:py-8"
+                onClick={() => setOpenModal("withdraw")}
+              >
+                <SVGIcon icon="secession" />
+                <span>회원 탈퇴하기</span>
+              </div>
             </div>
-          </div>
-        }
-        optionAlign="start"
-        button={{
-          label: "수정하기",
-          variant: "solid",
-          size: "large",
-          full: true,
-          disabled: isSubmitting || !hasChanges,
-          loading: isSubmitting,
-        }}
-      />
+          }
+          optionAlign="start"
+          button={{
+            label: "수정하기",
+            variant: "solid",
+            size: "large",
+            full: true,
+            disabled: isSubmitting || !hasChanges,
+            loading: isSubmitting,
+          }}
+        />
+      </div>
 
       {/* 비밀번호 변경 모달 */}
       <Modal
