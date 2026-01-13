@@ -148,3 +148,23 @@ export async function deleteComment(commentId: number) {
   if (!response.ok) throw new Error("댓글 삭제 오류");
   return response.json();
 }
+
+// 게시글 좋아요
+export async function postLike(articleId: number) {
+  const response = await fetchApi(`${BASE_URL}/articles/${articleId}/like`, {
+    method: "POST",
+  });
+
+  if (!response.ok) throw new Error("좋아요 추가 오류");
+  return response.json();
+}
+
+// 게시글 좋아요 취소
+export async function deleteLike(articleId: number) {
+  const response = await fetchApi(`${BASE_URL}/articles/${articleId}/like`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) throw new Error("좋아요 추가 오류");
+  return response.json();
+}

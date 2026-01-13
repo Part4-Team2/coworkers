@@ -23,6 +23,7 @@ function ArticleHeader({ article, currentUserId }: Props) {
   // 게시글을 삭제하는 함수입니다.
   const handleDeleteArticle = async ({ articleId }: { articleId: number }) => {
     try {
+      // 현재 삭제 버튼을 누르면 재차 확인없이 바로 API 호출합니다.
       await deleteArticle(articleId);
       // API call 성공하면 자유게시판으로 이동합니다.
       alert("삭제 성공, 자유게시판으로 이동합니다.");
@@ -41,12 +42,10 @@ function ArticleHeader({ article, currentUserId }: Props) {
     }
 
     if (value === "수정하기") {
-      console.log("수정하기 누름");
       router.push(`/boards/${articleId}/edit`);
     }
 
     if (value === "삭제하기") {
-      console.log("삭제하기 누름");
       handleDeleteArticle({ articleId });
     }
   };
