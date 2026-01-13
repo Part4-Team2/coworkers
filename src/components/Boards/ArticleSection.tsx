@@ -4,7 +4,7 @@ import clsx from "clsx";
 import ArticleComp from "./Article";
 import ArticlePagination from "./ArticlePagination";
 import Dropdown from "../Common/Dropdown/Dropdown";
-import { getArticles } from "@/api/boards";
+import { getArticles } from "@/lib/api/boards";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useHeaderStore } from "@/store/headerStore";

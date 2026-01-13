@@ -5,7 +5,11 @@ import Button from "../Common/Button/Button";
 import Comment from "./Comment";
 import InputBox from "../Common/Input/InputBox";
 import { GetArticleComments } from "@/types/articleComment";
-import { getArticleComments, postComment, deleteComment } from "@/api/boards";
+import {
+  getArticleComments,
+  postComment,
+  deleteComment,
+} from "@/lib/api/boards";
 import { useState } from "react";
 
 interface Pageprops {

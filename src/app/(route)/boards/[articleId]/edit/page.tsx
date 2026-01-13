@@ -8,8 +8,8 @@ import ArticleImageUpload from "@/components/Boards/ArticleImageUpload";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useHeaderStore } from "@/store/headerStore";
-import { patchArticle, getArticle } from "@/api/boards";
-import { postImage } from "@/api/image";
+import { patchArticle, getArticle } from "@/lib/api/boards";
+import { postImage } from "@/lib/api/image";
 
 // 게시글을 수정할 수 있는 페이지입니다.
 function EditArticle() {

@@ -8,7 +8,7 @@ import { Article } from "@/types/article";
 import { useState } from "react";
 import { useHeaderStore } from "@/store/headerStore";
 import { GetArticleComments } from "@/types/articleComment";
-import { postLike, deleteLike } from "@/api/boards";
+import { postLike, deleteLike } from "@/lib/api/boards";
 
 interface Pageprops {
   article: Article;

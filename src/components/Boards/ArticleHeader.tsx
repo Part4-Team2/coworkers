@@ -5,7 +5,7 @@ import Avatar from "../Common/Avatar/Avatar";
 import SVGIcon from "../Common/SVGIcon/SVGIcon";
 import Dropdown from "../Common/Dropdown/Dropdown";
 import { useRouter } from "next/navigation";
-import { deleteArticle } from "@/api/boards";
+import { deleteArticle } from "@/lib/api/boards";
 import { Article } from "@/types/article";
 
 interface Props {
