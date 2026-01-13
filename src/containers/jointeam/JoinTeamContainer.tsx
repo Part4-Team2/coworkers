@@ -97,7 +97,7 @@ export default function JoinTeamContainer({ email }: { email: string }) {
               registerOptions: {
                 required: "팀 링크는 필수 입력입니다.",
                 maxLength: {
-                  // 임의로 200자로 설정
+                  // 임의로 500자로 설정
                   value: 500,
                   message: "팀 링크는 500자 이하로 입력해주세요.",
                 },
