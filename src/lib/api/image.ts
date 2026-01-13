@@ -11,6 +11,7 @@ export async function postImage(image: File) {
     const response = await fetchApi(`${BASE_URL}/images/upload`, {
       method: "POST",
       body: formData,
+      // POST 요청은 캐싱하지 않음 (이미지 업로드는 상태 변경 작업)
     });
 
     if (!response.ok) {
