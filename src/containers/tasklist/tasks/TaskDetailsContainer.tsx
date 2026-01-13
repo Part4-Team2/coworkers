@@ -13,24 +13,17 @@ import useKebabMenu from "@/hooks/useKebabMenu";
 import { formatDate, formatTime } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
-import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
 type TaskDetailsContainerProps = {
   task: ListProps;
-  mode?: "page" | "sidebar";
   onClose?: () => void;
 };
 
 export default function TaskDetailsContainer({
   task,
-  mode = "page",
   onClose,
 }: TaskDetailsContainerProps) {
-  const router = useRouter();
-  const params = useParams();
-  const teamid = params.teamid as string;
-
   const [isComplete, setIsComplete] = useState(task.isToggle ?? false);
 
   const kebab = useKebabMenu({
@@ -42,11 +35,7 @@ export default function TaskDetailsContainer({
     onDelete: () => {
       console.log("api DELETE 로직");
       // TODO: 실제 api 호출
-      if (mode === "sidebar") {
-        onClose?.();
-      } else {
-        router.push(`/${teamid}/tasklist`);
-      }
+      onClose?.();
     },
     deleteModalTitle: (
       <>
@@ -60,18 +49,11 @@ export default function TaskDetailsContainer({
     // TODO: api 호출, 업데이트될 때 tasklist페이지도 함께 업데이트되도록
   };
 
-  const handleXButton = () => {
-    if (mode === "sidebar") {
-      onClose?.();
-    } else {
-      router.push(`/${teamid}/tasklist`);
-    }
-  };
-
   return (
     <>
       <div className="flex flex-col gap-16 p-40">
-        <SVGIcon icon="x" onClick={handleXButton} />
+        <SVGIcon icon="x" onClick={onClose} />
+
         {isComplete && (
           <div className="flex items-center gap-6">
             <SVGIcon

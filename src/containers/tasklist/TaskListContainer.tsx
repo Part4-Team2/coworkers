@@ -60,12 +60,7 @@ export default function TaskListContainer({
 
   // 사이드바 열릴 때 배경 스크롤 방지
   useEffect(() => {
-    if (openTask) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
+    document.body.style.overflow = openTask ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -140,6 +135,7 @@ export default function TaskListContainer({
           />
         ))}
       </div>
+
       {openTask && (
         <div
           onClick={handleCloseSidebar}
@@ -151,7 +147,6 @@ export default function TaskListContainer({
           >
             <TaskDetailsContainer
               task={openTask}
-              mode="sidebar"
               onClose={handleCloseSidebar}
             />
           </div>
