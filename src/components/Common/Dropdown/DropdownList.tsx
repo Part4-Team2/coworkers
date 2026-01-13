@@ -28,7 +28,7 @@ export default function DropdownList({
     <ul
       className={clsx(
         sizeClass[size],
-        "absolute z-50 bg-background-secondary border rounded-xl overflow-hidden",
+        "absolute z-50 bg-background-secondary border rounded-xl overflow-y-auto max-h-160",
         position
       )}
     >
