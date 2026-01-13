@@ -28,7 +28,6 @@ export default function ListCreateModal({
     setLoading(true);
 
     const response = await postTaskList(groupId, { name });
-    console.log("response from API:", response);
 
     if (!response || "error" in response) {
       alert(response?.error || "목록 생성 실패");
