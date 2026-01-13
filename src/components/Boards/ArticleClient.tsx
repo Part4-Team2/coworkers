@@ -5,6 +5,7 @@ import ArticleHeader from "./ArticleHeader";
 import CommentSection from "./CommentSection";
 import { Article } from "@/types/article";
 import { useState } from "react";
+import { useHeaderStore } from "@/store/headerStore";
 import { GetArticleComments } from "@/types/articleComment";
 
 interface Pageprops {
@@ -13,6 +14,7 @@ interface Pageprops {
 }
 
 function ArticleClient({ article, comments }: Pageprops) {
+  const userId = useHeaderStore((state) => state.userId);
   const [commentCount, setCommentCount] = useState(article.commentCount);
   const [likeCount, setLikeCount] = useState(article.likeCount);
 
@@ -27,13 +29,7 @@ function ArticleClient({ article, comments }: Pageprops) {
       {/* 게시글 영역 */}
       <section className={clsx("flex flex-col gap-16 py-24")}>
         {/* 게시글 제목 영역 */}
-        <ArticleHeader
-          title={article.title}
-          nickname={article.writer.nickname}
-          date={article.createdAt}
-          commentCount={commentCount}
-          likeCount={likeCount}
-        />
+        <ArticleHeader article={article} currentUserId={userId} />
         {/* 게시글 본문 영역 */}
         <div className="text-text-secondary text-base">{article.content}</div>
       </section>
