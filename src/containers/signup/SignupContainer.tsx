@@ -63,12 +63,6 @@ export default function SignupContainer() {
     }
   };
 
-  const handleGoogleSignup = () => {
-    // TODO: 구글 회원가입 구현
-    // console.log("구글 회원가입");
-    // router.push("/oauth/signup/google");
-  };
-
   const handleKakaoSignup = () => {
     // TODO: 카카오 회원가입 구현
     // console.log("카카오 회원가입");
@@ -184,11 +178,7 @@ export default function SignupContainer() {
           loading: isSubmitting,
         }}
       />
-      <SocialForm
-        text="간편 회원가입하기"
-        onGoogle={handleGoogleSignup}
-        onKakao={handleKakaoSignup}
-      />
+      <SocialForm text="간편 회원가입하기" onKakao={handleKakaoSignup} />
     </div>
   );
 }
