@@ -15,15 +15,21 @@ type TaskListPageProps = {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ teamid?: number }>;
+  params: Promise<{ teamid: string }>;
 }): Promise<Metadata> {
-  const { teamid } = await params;
+  const { teamid: groupId } = await params;
+
+  const taskListsResponse = await getGroup(groupId);
+  const teamName = taskListsResponse.success
+    ? taskListsResponse.data.name
+    : "팀";
+
   return {
-    title: `${teamid}팀 리스트 페이지`,
-    description: `${teamid}팀의 할 일 리스트를 확인할 수 있는 페이지입니다.`,
+    title: `${teamName}팀의 할 일 리스트`,
+    description: `${teamName}팀의 할 일 리스트를 확인할 수 있는 페이지입니다.`,
     openGraph: {
-      title: `${teamid}팀 리스트 페이지`,
-      description: `${teamid}팀의 할 일 리스트를 확인할 수 있는 페이지입니다.`,
+      title: `${teamName}팀의 할 일 리스트`,
+      description: `${teamName}팀의 할 일 리스트를 확인할 수 있는 페이지입니다.`,
     },
   };
 }
