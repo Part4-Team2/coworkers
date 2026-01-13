@@ -11,36 +11,29 @@ import { Article } from "@/types/article";
 interface ArticleProps {
   article: Article;
   currentUserId: number | null;
-
-  onDelete: (args: { articleId: number; authorId: number }) => Promise<void>;
-  onEdit?: (articleId: number) => void;
-  onLike?: (articleId: number) => void;
 }
 
 const WRITEOPTIONS = ["수정하기", "삭제하기"];
 
-function ArticleComp({
-  article,
-  currentUserId,
-  onDelete,
-  onEdit,
-  onLike,
-}: ArticleProps) {
+function ArticleComp({ article, currentUserId }: ArticleProps) {
   const router = useRouter();
   const isAuthor = currentUserId === article.writer.id;
 
   // 케밥 리스트를 클릭하면 작동하는 함수입니다.
   const handleKebabClick = async (value: string) => {
-    if (!isAuthor) return;
+    if (!isAuthor) {
+      alert("게시글 수정/삭제 권한이 없습니다.");
+      return;
+    }
 
-    if (value === "수정하기") console.log("수정하기 누름");
+    if (value === "수정하기") {
+      console.log("수정하기 누름");
+      router.push(`/boards/${article.id}/edit`);
+    }
 
     if (value === "삭제하기") {
       console.log("삭제하기 누름");
-      await onDelete({
-        articleId: article.id,
-        authorId: article.writer.id,
-      });
+      router.push(`/boards/${article.id}`);
     }
   };
 

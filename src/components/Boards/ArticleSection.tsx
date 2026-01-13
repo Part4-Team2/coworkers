@@ -4,7 +4,7 @@ import clsx from "clsx";
 import ArticleComp from "./Article";
 import ArticlePagination from "./ArticlePagination";
 import Dropdown from "../Common/Dropdown/Dropdown";
-import { getArticles, deleteArticle } from "@/api/boards";
+import { getArticles } from "@/api/boards";
 import { useEffect, useState } from "react";
 import { useHeaderStore } from "@/store/headerStore";
 import { Article } from "@/types/article";
@@ -30,29 +30,6 @@ function ArticleSection() {
     setPage(1);
     if (value === "최신순") setOrderBy("recent");
     else setOrderBy("like");
-  };
-
-  // 게시글을 삭제하는 함수입니다.
-  const handleDeleteArticle = async ({
-    articleId,
-    authorId,
-  }: {
-    articleId: number;
-    authorId: number;
-  }) => {
-    if (userId !== authorId) {
-      alert("권한이 없습니다.");
-      return;
-    }
-
-    try {
-      await deleteArticle(articleId);
-      // API call을 받으려다가 내 머리털 call 하게 생김..
-      setArticles((prev) => prev.filter((a) => a.id !== articleId));
-    } catch (error) {
-      console.error(error);
-      alert("삭제 중 오류 발생");
-    }
   };
 
   useEffect(() => {
@@ -90,7 +67,6 @@ function ArticleSection() {
               key={article.id}
               article={article}
               currentUserId={userId}
-              onDelete={handleDeleteArticle}
             />
           );
         })}

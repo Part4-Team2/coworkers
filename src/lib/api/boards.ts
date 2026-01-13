@@ -73,8 +73,8 @@ export async function postArticle(data: CreateArticle) {
 }
 
 // 게시글 수정
-export async function patchArticle(data: CreateArticle) {
-  const response = await fetchApi(`${BASE_URL}/articles`, {
+export async function patchArticle(articleId: number, data: CreateArticle) {
+  const response = await fetchApi(`${BASE_URL}/articles/${articleId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
