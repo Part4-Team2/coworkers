@@ -89,9 +89,7 @@ function CommentSection({ articleId, comments, onCommentAdd }: Pageprops) {
                 writerId={comment.writer.id}
                 nickname={comment.writer.nickname}
                 avatarImageUrl={comment.writer.image}
-                onDelete={(id) => {
-                  deleteCommentClick(id);
-                }}
+                onDelete={deleteCommentClick}
               />
             </div>
           ))}

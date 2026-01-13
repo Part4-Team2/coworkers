@@ -36,11 +36,6 @@ function ArticleHeader({ article, currentUserId }: Props) {
 
   // 게시글 수정하기 삭제하기를 다루는 임시함수 입니다.
   const handleArticleClick = (value: string) => {
-    if (!isAuthor) {
-      alert("게시글 수정/삭제 권한이 없습니다.");
-      return;
-    }
-
     if (value === "수정하기") {
       router.push(`/boards/${articleId}/edit`);
     }
@@ -56,15 +51,17 @@ function ArticleHeader({ article, currentUserId }: Props) {
       <div className={clsx("flex justify-between")}>
         <span className="text-2lg">{article.title}</span>
         <span>
-          <Dropdown
-            options={ARTICLEDATA}
-            onSelect={handleArticleClick}
-            value={ARTICLEDATA[0]}
-            size="md"
-            trigger="icon"
-            icon="kebabLarge"
-            listPosition="top-full right-0"
-          />
+          {isAuthor && (
+            <Dropdown
+              options={ARTICLEDATA}
+              onSelect={handleArticleClick}
+              value={ARTICLEDATA[0]}
+              size="md"
+              trigger="icon"
+              icon="kebabLarge"
+              listPosition="top-full right-0"
+            />
+          )}
         </span>
       </div>
       <div className="border-b border-b-text-primary/10"></div>

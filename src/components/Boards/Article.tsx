@@ -68,15 +68,17 @@ function ArticleComp({ article, currentUserId }: ArticleProps) {
             e.stopPropagation();
           }}
         >
-          <Dropdown
-            options={WRITEOPTIONS}
-            onSelect={handleKebabClick}
-            size="md"
-            trigger="icon"
-            value={WRITEOPTIONS[0]}
-            icon="kebabLarge"
-            listPosition="top-full right-0"
-          />
+          {isAuthor && (
+            <Dropdown
+              options={WRITEOPTIONS}
+              onSelect={handleKebabClick}
+              size="md"
+              trigger="icon"
+              value={WRITEOPTIONS[0]}
+              icon="kebabLarge"
+              listPosition="top-full right-0"
+            />
+          )}
         </div>
         <div className="flex gap-16 items-center text-slate-400 text-md">
           <div className="flex gap-12 items-center text-text-primary">
