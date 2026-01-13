@@ -106,12 +106,6 @@ export default function LoginContainer() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // TODO: 구글 로그인 구현
-    // console.log("구글 로그인");
-    // router.push("/oauth/login/google");
-  };
-
   const handleKakaoLogin = () => {
     // TODO: 카카오 로그인 구현
     // console.log("카카오 로그인");
@@ -214,11 +208,7 @@ export default function LoginContainer() {
             </Link>
           </span>
         </FormFooter>
-        <SocialForm
-          text="간편 로그인하기"
-          onGoogle={handleGoogleLogin}
-          onKakao={handleKakaoLogin}
-        />
+        <SocialForm text="간편 로그인하기" onKakao={handleKakaoLogin} />
       </div>
       {/* 비밀번호 재설정 모달 */}
       <Modal
