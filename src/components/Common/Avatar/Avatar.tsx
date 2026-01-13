@@ -1,6 +1,7 @@
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import clsx from "clsx";
 import Image from "next/image";
+import { useSvgImage } from "@/hooks/useSvgImage";
 
 const AVATAR_SIZE_MAP = {
   small: 24,
@@ -26,6 +27,7 @@ export default function Avatar({
   variant,
 }: AvatarProps) {
   const pixelSize = AVATAR_SIZE_MAP[size];
+  const { processedUrl, isLoading, error, isSvg } = useSvgImage(imageUrl);
 
   const defaultIcon = variant === "team" ? "img" : "avatar";
   const AvatarContent = (
@@ -41,14 +43,23 @@ export default function Avatar({
         )}
         style={{ width: pixelSize, height: pixelSize }}
       >
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={altText}
-            width={pixelSize}
-            height={pixelSize}
-            className="w-full h-full object-cover"
-          />
+        {processedUrl && !error && !isLoading ? (
+          isSvg ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={processedUrl}
+              alt={altText}
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <Image
+              src={processedUrl}
+              alt={altText}
+              width={pixelSize}
+              height={pixelSize}
+              className="w-full h-full object-cover"
+            />
+          )
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <SVGIcon icon={defaultIcon} size={pixelSize} />

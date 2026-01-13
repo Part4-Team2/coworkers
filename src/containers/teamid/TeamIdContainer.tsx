@@ -15,15 +15,15 @@ import { useTeamActions } from "@/hooks/Team/useTeamActions";
 import { useTodoActions } from "@/hooks/Team/useTodoActions";
 import { useMemberActions } from "@/hooks/Team/useMemberActions";
 
-// 상수 정의
+// 상수 정의 - globals.css의 CSS 변수 참조
 const TODO_COLORS = [
-  "#A855F7",
-  "#3B82F6",
-  "#06B6D4",
-  "#EC4899",
-  "#F43F5E",
-  "#F97316",
-  "#EAB308",
+  "var(--color-point-purple)",
+  "var(--color-point-blue)",
+  "var(--color-point-cyan)",
+  "var(--color-point-pink)",
+  "var(--color-point-rose)",
+  "var(--color-point-orange)",
+  "var(--color-point-yellow)",
 ];
 
 interface TeamIdContainerProps {
@@ -125,7 +125,7 @@ export default function TeamIdContainer({
 
   // 할 일 목록 클릭 핸들러
   const handleTodoListClick = (todoId: number) => {
-    router.push(`/${teamId}/tasklist/${todoId}`);
+    router.push(`/${teamId}/tasklist?tab=${todoId}`);
   };
 
   return (
@@ -135,6 +135,7 @@ export default function TeamIdContainer({
         <div className="mb-24">
           <TeamHeader
             teamName={teamName}
+            userRole={userRole}
             onEdit={
               userRole === "ADMIN" ? teamActions.navigateToEdit : undefined
             }
