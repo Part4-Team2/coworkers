@@ -1,4 +1,4 @@
-import { getGroup } from "@/lib/api/task";
+import { getGroup } from "@/lib/api/group";
 import TabContainer from "@/components/Tasklist/Tab/TabContainer";
 import ConditionalTaskAddButton from "@/containers/tasklist/ConditionalTaskAddButton";
 import DateNavigatorContainer from "@/containers/tasklist/DateNavigatorContainer";
@@ -39,7 +39,7 @@ export default async function TaskListPage({
   const baseDate = date ?? new Date().toISOString();
 
   // 모든 할일 목록 가져오기 (법인 설립, 법인 등기 등)
-  const taskListsResponse = await getGroup(Number(groupId));
+  const taskListsResponse = await getGroup(groupId);
 
   // 에러 났을 때 UI (TODO: 해당 사항에 대해 팀 컨벤션 정하기)
   if (!taskListsResponse || "error" in taskListsResponse) {
@@ -47,7 +47,7 @@ export default async function TaskListPage({
       <div className="p-24">
         <h1 className="text-xl font-bold text-red-500">데이터 로드 실패</h1>
         <p>
-          {taskListsResponse?.message ||
+          {taskListsResponse?.error ||
             "할 일 목록 및 정보를 불러올 수 없습니다."}
         </p>
       </div>
@@ -55,7 +55,7 @@ export default async function TaskListPage({
   }
 
   // 목록이 있을 때, 목록의 할 일 리스트 가져오기
-  const taskLists = taskListsResponse.taskLists;
+  const taskLists = taskListsResponse.data.taskLists;
 
   if (taskLists.length === 0) {
     return (
