@@ -9,6 +9,7 @@ import Button from "@/components/Common/Button/Button";
 import { BaseModal } from "@/components/Common/Modal";
 import ModalHeader from "@/components/Common/Modal/ModalHeader";
 import ModalFooter from "@/components/Common/Modal/ModalFooter";
+import { formatDate, formatTime } from "@/utils/date";
 
 interface TaskCreateModalProps {
   isOpen: boolean;
@@ -37,24 +38,12 @@ export default function TaskCreateModal({
   const [dropdownOption, setDropdownOption] = useState(FREQ_OPTION[0]);
   const [taskMemo, setTaskMemo] = useState("");
   // const selectedStartDate = useMemo(() => isDateTouched ? format(startDate) : "",[startDate, isDateTouched])
-  // 리스트에서 쓰는 로직이랑 비교
-  const formatDate = (date: Date | null) => {
-    if (!date) return "";
-    return date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    });
-  };
-
-  const formatTime = (date: Date | null) => {
-    if (!date) return "";
-    return date.toLocaleTimeString("ko-KR", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
+  const formattedDate = isDateTouched
+    ? formatDate(startDate.toISOString())
+    : "";
+  const formattedTime = isTimeTouched
+    ? formatTime(startTime.toISOString())
+    : "";
 
   const handleCreateButton = () => {
     // 할일 생성 로직(api 연동) 추후 추가
@@ -94,9 +83,9 @@ export default function TaskCreateModal({
                 <Input
                   label="시작 날짜"
                   labelClassName="sr-only"
-                  placeholder={formatDate(today)}
+                  placeholder={formatDate(today.toISOString())}
                   readOnly
-                  value={isDateTouched ? formatDate(startDate) : ""}
+                  value={formattedDate}
                   onClick={() => {
                     setShowDatePicker(!showDatePicker);
                     setShowTimePicker(false);
@@ -129,7 +118,7 @@ export default function TaskCreateModal({
                   labelClassName="sr-only"
                   placeholder="오후 3:00"
                   readOnly
-                  value={isTimeTouched ? formatTime(startTime) : ""}
+                  value={formattedTime}
                   onClick={() => {
                     setShowTimePicker(!showTimePicker);
                     setShowDatePicker(false);
