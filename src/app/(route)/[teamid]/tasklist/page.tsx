@@ -20,9 +20,7 @@ export async function generateMetadata({
   const { teamid: groupId } = await params;
 
   const taskListsResponse = await getGroup(groupId);
-  const teamName = taskListsResponse.success
-    ? taskListsResponse.data.name
-    : "팀";
+  const teamName = taskListsResponse.success ? taskListsResponse.data.name : "";
 
   return {
     title: `${teamName}팀의 할 일 리스트`,
