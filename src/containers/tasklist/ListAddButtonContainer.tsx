@@ -4,7 +4,11 @@ import ListCreateModal from "@/components/Tasklist/ListCreateModal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { useState } from "react";
 
-export default function ListAddButtonContainer() {
+export default function ListAddButtonContainer({
+  groupId,
+}: {
+  groupId: string;
+}) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleAddListButton = () => {
@@ -28,7 +32,11 @@ export default function ListAddButtonContainer() {
         />
         새로운 목록 추가하기
       </button>
-      <ListCreateModal isOpen={isModalOpen} onClose={handleModalClose} />
+      <ListCreateModal
+        groupId={groupId}
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+      />
     </div>
   );
 }

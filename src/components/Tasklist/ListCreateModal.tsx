@@ -4,20 +4,43 @@ import Input from "@/components/Common/Input/Input";
 import { BaseModal } from "@/components/Common/Modal";
 import ModalFooter from "@/components/Common/Modal/ModalFooter";
 import ModalHeader from "@/components/Common/Modal/ModalHeader";
+import { postTaskList } from "@/lib/api/tasklist";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface HandleModalProps {
+  groupId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function ListCreateModal({ isOpen, onClose }: HandleModalProps) {
-  const [listName, setListName] = useState<string>("");
+export default function ListCreateModal({
+  groupId,
+  isOpen,
+  onClose,
+}: HandleModalProps) {
+  const [name, setName] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleCreateButton = () => {
-    // 목록 생성 로직(api 연동) 추후 추가
+  const handleSubmit = async () => {
+    if (!name.trim()) return;
+    setLoading(true);
+
+    const response = await postTaskList(groupId, { name });
+    console.log("response from API:", response);
+
+    if (!response || "error" in response) {
+      alert(response?.error || "목록 생성 실패");
+      setLoading(false);
+      return;
+    }
+
     onClose();
+    setName("");
+    setTimeout(() => router.refresh(), 150);
   };
+
   return (
     <BaseModal
       isOpen={isOpen}
@@ -36,14 +59,18 @@ export default function ListCreateModal({ isOpen, onClose }: HandleModalProps) {
           label="목록 이름"
           labelClassName="mb-0 pb-8 text-lg font-medium text-text-primary"
           placeholder="목록 이름을 입력해주세요."
-          value={listName}
+          value={name}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            setListName(e.target.value);
+            setName(e.target.value);
           }}
         />
       </form>
       <ModalFooter
-        primaryButton={{ label: "만들기", onClick: handleCreateButton }}
+        primaryButton={{
+          label: loading ? "생성 중..." : "만들기",
+          onClick: handleSubmit,
+          disabled: loading,
+        }}
       />
     </BaseModal>
   );

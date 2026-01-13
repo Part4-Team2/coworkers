@@ -97,7 +97,7 @@ export default async function TaskListPage({
 
         <div className="flex justify-between">
           <DateNavigatorContainer baseDate={baseDate} />
-          <ListAddButtonContainer />
+          <ListAddButtonContainer groupId={groupId} />
         </div>
         {/* defaultActiveId={activeTabId} 는 수정될 수 있음 */}
         <TabContainer tab={tabs} defaultActiveId={activeTabId} />
