@@ -1,5 +1,6 @@
 import Image from "next/image";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+import { useSvgImage } from "@/hooks/useSvgImage";
 
 interface TeamListItemProps {
   teamName: string;
@@ -12,6 +13,8 @@ export default function TeamListItem({
   teamImage,
   onClick,
 }: TeamListItemProps) {
+  const { processedUrl, isLoading, error, isSvg } = useSvgImage(teamImage);
+
   return (
     <button
       onClick={onClick}
@@ -19,8 +22,22 @@ export default function TeamListItem({
       className="flex items-center gap-12 w-full py-7 px-8 rounded-lg bg-slate-700 cursor-pointer"
     >
       <div className="w-32 h-32 rounded-lg overflow-hidden shrink-0 bg-slate-600 relative">
-        {teamImage ? (
-          <Image src={teamImage} alt={teamName} fill className="object-cover" />
+        {processedUrl && !error && !isLoading ? (
+          isSvg ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={processedUrl}
+              alt={teamName}
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <Image
+              src={processedUrl}
+              alt={teamName}
+              fill
+              className="object-cover"
+            />
+          )
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <SVGIcon icon="image" size={20} />

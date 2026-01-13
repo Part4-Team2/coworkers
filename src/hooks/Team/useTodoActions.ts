@@ -71,87 +71,83 @@ export function useTodoActions({
 
   // API 호출 함수들
   const confirmCreate = useCallback(async () => {
-    if (modalState.todoListName.trim() && !isLoading) {
-      setIsLoading(true);
-      try {
-        const result = await createTaskList(teamId, modalState.todoListName);
+    if (!modalState.todoListName.trim()) return;
 
-        if (!result.success) {
-          alert(result.error);
-          return;
-        }
+    setIsLoading(true);
+    try {
+      const result = await createTaskList(teamId, modalState.todoListName);
 
-        alert("할 일 목록이 생성되었습니다.");
-        resetModalState();
-        router.refresh();
-      } catch (error) {
-        console.error("[createTaskList]", error);
-        alert("할 일 목록 생성 중 오류가 발생했습니다.");
-      } finally {
-        setIsLoading(false);
+      if (!result.success) {
+        alert(result.error);
+        return;
       }
+
+      alert("할 일 목록이 생성되었습니다.");
+      resetModalState();
+      router.refresh();
+    } catch (error) {
+      console.error("[createTaskList]", error);
+      alert("할 일 목록 생성 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
-  }, [modalState.todoListName, teamId, isLoading, router]);
+  }, [modalState.todoListName, teamId, resetModalState, router]);
 
   const confirmEdit = useCallback(async () => {
-    if (
-      modalState.selectedTodo &&
-      modalState.todoListName.trim() &&
-      !isLoading
-    ) {
-      setIsLoading(true);
-      try {
-        const result = await updateTaskList(
-          teamId,
-          modalState.selectedTodo.id,
-          modalState.todoListName
-        );
+    if (!modalState.selectedTodo || !modalState.todoListName.trim()) return;
 
-        if (!result.success) {
-          alert(result.error);
-          return;
-        }
+    setIsLoading(true);
+    try {
+      const result = await updateTaskList(
+        teamId,
+        modalState.selectedTodo.id,
+        modalState.todoListName
+      );
 
-        alert("할 일 목록이 수정되었습니다.");
-        resetModalState();
-        router.refresh();
-      } catch (error) {
-        console.error("[updateTaskList]", error);
-        alert("할 일 목록 수정 중 오류가 발생했습니다.");
-      } finally {
-        setIsLoading(false);
+      if (!result.success) {
+        alert(result.error);
+        return;
       }
+
+      alert("할 일 목록이 수정되었습니다.");
+      resetModalState();
+      router.refresh();
+    } catch (error) {
+      console.error("[updateTaskList]", error);
+      alert("할 일 목록 수정 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   }, [
     modalState.selectedTodo,
     modalState.todoListName,
     teamId,
-    isLoading,
+    resetModalState,
     router,
   ]);
 
   const confirmDelete = useCallback(async () => {
-    if (modalState.todoToDelete !== null && !isLoading) {
-      setIsLoading(true);
-      try {
-        const result = await deleteTaskList(teamId, modalState.todoToDelete);
+    if (modalState.todoToDelete === null) return;
 
-        if (!result.success) {
-          alert(result.error);
-          return;
-        }
+    setIsLoading(true);
+    try {
+      const result = await deleteTaskList(teamId, modalState.todoToDelete);
 
-        alert("할 일 목록이 삭제되었습니다.");
-        resetModalState();
-        router.refresh();
-      } catch (error) {
-        console.error("[deleteTaskList]", error);
-        alert("할 일 목록 삭제 중 오류가 발생했습니다.");
-      } finally {
-        setIsLoading(false);
+      if (!result.success) {
+        alert(result.error);
+        return;
       }
+
+      alert("할 일 목록이 삭제되었습니다.");
+      resetModalState();
+      router.refresh();
+    } catch (error) {
+      console.error("[deleteTaskList]", error);
+      alert("할 일 목록 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
-  }, [modalState.todoToDelete, teamId, isLoading, router]);
+  }, [modalState.todoToDelete, teamId, resetModalState, router]);
 
   // Input 변경 핸들러
   const handleNameChange = useCallback(

@@ -84,7 +84,7 @@ const TodoItem = memo(function TodoItem({
 
   return (
     <div
-      className="flex items-center h-40 rounded-xl bg-background-secondary"
+      className="flex items-center h-40 rounded-xl bg-background-secondary group"
       role="listitem"
     >
       <div
@@ -93,8 +93,8 @@ const TodoItem = memo(function TodoItem({
       />
 
       <div className="flex items-center justify-between flex-1 pl-16 pr-8">
-        <span
-          className="text-md font-medium leading-md text-text-primary truncate cursor-pointer hover:text-brand-primary transition-colors"
+        <div
+          className="flex-1 cursor-pointer"
           onClick={onClick}
           role="button"
           tabIndex={0}
@@ -105,14 +105,17 @@ const TodoItem = memo(function TodoItem({
             }
           }}
         >
-          {name}
-        </span>
+          <span className="text-md font-medium leading-md text-text-primary group-hover:text-brand-primary transition-colors truncate block">
+            {name}
+          </span>
+        </div>
 
         <div className="flex items-center gap-12 shrink-0">
           {/* 진행률 */}
           <div
             className="flex items-center gap-6 px-8 py-4 rounded-xl bg-background-primary"
             aria-label={`진행률 ${completedCount}/${totalCount}`}
+            onClick={(e) => e.stopPropagation()}
           >
             {isCompleted ? (
               <SVGIcon
@@ -129,14 +132,16 @@ const TodoItem = memo(function TodoItem({
           </div>
 
           {/* 케밥 메뉴 */}
-          <Dropdown
-            options={[DROPDOWN_ACTIONS.EDIT, DROPDOWN_ACTIONS.DELETE]}
-            onSelect={handleSelect}
-            size="md"
-            trigger="icon"
-            icon="kebabSmall"
-            listPosition="top-[calc(100%+8px)] right-0"
-          />
+          <div onClick={(e) => e.stopPropagation()}>
+            <Dropdown
+              options={[DROPDOWN_ACTIONS.EDIT, DROPDOWN_ACTIONS.DELETE]}
+              onSelect={handleSelect}
+              size="md"
+              trigger="icon"
+              icon="kebabSmall"
+              listPosition="top-[calc(100%+8px)] right-0"
+            />
+          </div>
         </div>
       </div>
     </div>
