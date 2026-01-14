@@ -10,6 +10,7 @@ import { InputConfig } from "@/components/Common/Form/types";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { postImage } from "@/lib/api/image";
 import { patchGroup } from "@/lib/api/group";
+import { useHeaderStore } from "@/store/headerStore";
 
 interface EditTeamFormData {
   teamName: string;
@@ -43,12 +44,26 @@ export default function EditTeamContainer({
     formState: { errors },
     trigger,
     setError,
+    watch,
   } = useForm<EditTeamFormData>({
     mode: "onBlur",
     defaultValues: {
       teamName: initialData?.teamName || "",
     },
   });
+
+  const teamName = watch("teamName");
+  const fetchUser = useHeaderStore((s) => s.fetchUser);
+  // 팀 이름이 기본값과 동일한지 확인
+  const isTeamNameUnchanged =
+    teamName?.trim() === initialData?.teamName?.trim();
+
+  // 이미지가 변경되었는지 확인 (selectedFile이 있거나 previewUrl이 초기값과 다르면 변경됨)
+  const isImageUnchanged =
+    !selectedFile && previewUrl === initialData?.profileImage;
+
+  // 둘 다 변경되지 않았으면 버튼 비활성화
+  const isFormUnchanged = isTeamNameUnchanged && isImageUnchanged;
 
   const onSubmit = async (data: EditTeamFormData) => {
     if (isSubmitting) return;
@@ -81,6 +96,7 @@ export default function EditTeamContainer({
       // 성공 메시지 (나중에 Toast로 교체 예정)
       alert("수정되었습니다!");
 
+      await fetchUser();
       // 성공 시 팀 페이지로 이동
       router.push(`/${teamId}`);
     } catch (error) {
@@ -160,6 +176,7 @@ export default function EditTeamContainer({
             variant: "solid",
             size: "large",
             full: true,
+            disabled: isSubmitting || isFormUnchanged,
             loading: isSubmitting,
           }}
         />
