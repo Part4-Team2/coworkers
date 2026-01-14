@@ -147,7 +147,11 @@ function Header() {
               icon="user"
               listPosition="top-full right-0"
             />
-            <div className={clsx("overflow-hidden text-ellipsis line-clamp-1")}>
+            <div
+              className={clsx(
+                "max-w-100 overflow-hidden text-ellipsis whitespace-nowrap"
+              )}
+            >
               {nickname}
             </div>
           </div>
