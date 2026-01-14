@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "@/components/Common/Input/Input";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import InputBox from "@/components/Common/Input/InputBox";
@@ -13,9 +13,14 @@ import { formatDate, formatTime } from "@/utils/date";
 import { frequencyToEnum } from "@/constants/frequency";
 import { FrequencyType } from "@/types/schemas";
 import { useForm } from "react-hook-form";
-import { postTasks } from "@/lib/api/task";
+import { patchTask, postTasks } from "@/lib/api/task";
 import { getFrequencyText } from "@/utils/frequency";
-import { CreateTaskRequestBody } from "@/lib/types/taskTest";
+import {
+  CreateTaskRequestBody,
+  TaskDetail,
+  TaskPatchResponse,
+  UpdateTaskRequestBody,
+} from "@/lib/types/taskTest";
 
 interface TaskCreateModalProps {
   groupId: string;
@@ -23,6 +28,8 @@ interface TaskCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onTaskCreated?: () => void;
+  onTaskUpdated?: (updatedTask: TaskPatchResponse) => void;
+  taskToEdit?: TaskDetail;
 }
 
 interface CreateTaskForm {
@@ -41,6 +48,8 @@ export default function TaskCreateModal({
   isOpen,
   onClose,
   onTaskCreated,
+  onTaskUpdated,
+  taskToEdit,
 }: TaskCreateModalProps) {
   const today = new Date();
   const defaultTime = new Date();
@@ -48,13 +57,25 @@ export default function TaskCreateModal({
 
   const { setValue, watch, handleSubmit } = useForm<CreateTaskForm>({
     defaultValues: {
-      name: "",
-      description: "",
-      startDate: today,
-      startTime: defaultTime,
-      frequencyType: FrequencyType.ONCE,
+      name: taskToEdit?.name || "",
+      description: taskToEdit?.description || "",
+      startDate: taskToEdit ? new Date(taskToEdit.date) : today,
+      startTime: taskToEdit ? new Date(taskToEdit.date) : defaultTime,
+      frequencyType: taskToEdit?.frequency || FrequencyType.ONCE,
     },
   });
+
+  useEffect(() => {
+    if (!taskToEdit) return;
+
+    setValue("name", taskToEdit.name || "");
+    setValue("description", taskToEdit.description || "");
+
+    const dateObj = new Date(taskToEdit.date);
+    setValue("startDate", dateObj);
+    setValue("startTime", dateObj);
+    setValue("frequencyType", taskToEdit.frequency);
+  }, [taskToEdit, setValue]);
 
   const watchName = watch("name");
   const watchStartDate = watch("startDate");
@@ -64,8 +85,18 @@ export default function TaskCreateModal({
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [weekDays, setWeekDays] = useState<number[]>([]); // 0~6
-  const [monthDay, setMonthDay] = useState<number | null>(null);
+  const [weekDays, setWeekDays] = useState<number[]>(() => {
+    if (taskToEdit?.frequency === FrequencyType.WEEKLY) {
+      return taskToEdit.weekDays ?? [];
+    }
+    return [];
+  }); // 0~6
+  const [monthDay, setMonthDay] = useState<number | null>(() => {
+    if (taskToEdit?.frequency === FrequencyType.MONTHLY) {
+      return taskToEdit.monthDay ?? new Date(taskToEdit.date).getDate();
+    }
+    return null;
+  });
 
   const onSubmit = async (form: CreateTaskForm) => {
     const merged = new Date(
@@ -77,6 +108,31 @@ export default function TaskCreateModal({
       )
     );
 
+    // 수정 모드
+    if (taskToEdit) {
+      const updateBody: UpdateTaskRequestBody = {
+        name: form.name,
+        description: form.description,
+      };
+
+      const result = await patchTask(
+        Number(groupId),
+        Number(taskListId),
+        taskToEdit.id,
+        updateBody
+      );
+
+      if ("error" in result) {
+        alert(result.message);
+        return;
+      }
+
+      onTaskUpdated?.(result);
+      onClose();
+      return;
+    }
+
+    // 생성 모드
     let body: CreateTaskRequestBody;
 
     switch (form.frequencyType) {
@@ -159,9 +215,12 @@ export default function TaskCreateModal({
     }
   };
 
+  // 반복 설정은 수정하지 못하도록 막고(api 불가), 이름과 설명만 수정 가능하게
+  const isEditMode = !!taskToEdit;
+
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} className="px-16 py-32">
-      <ModalHeader title="할 일 만들기" />
+      <ModalHeader title={isEditMode ? "할 일 수정하기" : "할 일 만들기"} />
       <div className="text-center text-text-default text-md font-medium pt-16 pb-24">
         할 일은 실제로 행동 가능한 작업 중심으로 <br /> 작성해주시면 좋습니다.
       </div>
@@ -183,143 +242,147 @@ export default function TaskCreateModal({
               }
             />
           </section>
-          <section>
-            <h3 className="text-lg font-medium text-text-primary mb-16">
-              시작 날짜 및 시간
-            </h3>
-            <div className="flex gap-8">
-              <div className="flex-[2] min-w-0 relative">
-                <Input
-                  label="시작 날짜"
-                  labelClassName="sr-only"
-                  placeholder={formatDate(today.toISOString())}
-                  readOnly
-                  value={formatDate(watchStartDate.toISOString())}
-                  onClick={() => {
-                    setShowDatePicker(!showDatePicker);
-                    // setShowTimePicker(false);
-                  }}
-                  className="cursor-pointer"
-                />
+          {!isEditMode && (
+            <>
+              <section>
+                <h3 className="text-lg font-medium text-text-primary mb-16">
+                  시작 날짜 및 시간
+                </h3>
+                <div className="flex gap-8">
+                  <div className="flex-[2] min-w-0 relative">
+                    <Input
+                      label="시작 날짜"
+                      labelClassName="sr-only"
+                      placeholder={formatDate(today.toISOString())}
+                      readOnly
+                      value={formatDate(watchStartDate.toISOString())}
+                      onClick={() => {
+                        setShowDatePicker(!showDatePicker);
+                        // setShowTimePicker(false);
+                      }}
+                      className="cursor-pointer"
+                    />
 
-                {showDatePicker && (
-                  <div className="absolute top-full mt-8 z-50">
-                    <div className="bg-background-secondary rounded-xl p-16 border-1 border-interaction-hover">
-                      <DatePicker
-                        selected={watchStartDate}
-                        onChange={(date: Date | null) => {
-                          if (!date) return;
-                          setValue("startDate", date);
-                          setShowDatePicker(false);
-                        }}
-                        inline
-                        formatWeekDay={(day) => day.substring(0, 3)}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-[1] min-w-0 relative">
-                <Input
-                  label="시작 시간"
-                  labelClassName="sr-only"
-                  placeholder="오후 3:00"
-                  readOnly
-                  value={formatTime(watchStartTime.toISOString())}
-                  onClick={() => {
-                    setShowTimePicker(!showTimePicker);
-                    // setShowDatePicker(false);
-                  }}
-                  className="cursor-pointer"
-                />
-
-                {showTimePicker && (
-                  <div className="absolute top-full mt-8 right-0 z-50">
-                    <div className="flex gap-14 bg-background-secondary rounded-xl p-16 border-1 border-interaction-hover">
-                      {/* 오전/오후 */}
-                      <div className="flex flex-col gap-8">
-                        <Button
-                          label="오전"
-                          width="78px"
-                          variant={
-                            watchStartTime.getHours() < 12
-                              ? "solid"
-                              : "unselected"
-                          }
-                          onClick={() => {
-                            const newTime = new Date(watchStartTime);
-                            if (newTime.getHours() >= 12)
-                              newTime.setHours(newTime.getHours() - 12);
-                            setValue("startTime", newTime);
-                          }}
-                        />
-                        <Button
-                          label="오후"
-                          width="78px"
-                          variant={
-                            watchStartTime.getHours() >= 12
-                              ? "solid"
-                              : "unselected"
-                          }
-                          onClick={() => {
-                            const newTime = new Date(watchStartTime);
-                            if (newTime.getHours() < 12)
-                              newTime.setHours(newTime.getHours() + 12);
-                            setValue("startTime", newTime);
-                          }}
-                        />
+                    {showDatePicker && (
+                      <div className="absolute top-full mt-8 z-50">
+                        <div className="bg-background-secondary rounded-xl p-16 border-1 border-interaction-hover">
+                          <DatePicker
+                            selected={watchStartDate}
+                            onChange={(date: Date | null) => {
+                              if (!date) return;
+                              setValue("startDate", date);
+                              setShowDatePicker(false);
+                            }}
+                            inline
+                            formatWeekDay={(day) => day.substring(0, 3)}
+                          />
+                        </div>
                       </div>
-
-                      {/* 시간 목록 */}
-                      <div className="h-[152px] w-[220px] rounded-xl bg-[#18212f] overflow-y-auto custom-scrollbar pr-2">
-                        {Array.from({ length: 24 }, (_, i) => [i, i + 0.5])
-                          .flat()
-                          .map((hour) => {
-                            const hours = Math.floor(hour);
-                            const minutes = (hour % 1) * 60;
-
-                            const isAM = watchStartTime.getHours() < 12;
-                            const timeIsAM = hours < 12;
-                            if (isAM !== timeIsAM) return null;
-
-                            const displayHours = hours % 12 || 12;
-                            const displayMinutes = minutes
-                              .toString()
-                              .padStart(2, "0");
-
-                            const isSelected =
-                              watchStartTime.getHours() === hours &&
-                              watchStartTime.getMinutes() === minutes;
-
-                            return (
-                              <button
-                                key={`${hours}-${minutes}`}
-                                type="button"
-                                onClick={() => {
-                                  const newTime = new Date(watchStartTime);
-                                  newTime.setHours(hours, minutes, 0, 0);
-                                  setValue("startTime", newTime);
-                                  setShowTimePicker(false);
-                                }}
-                                className={clsx(
-                                  "w-full text-left pl-16 py-10 rounded-lg",
-                                  isSelected
-                                    ? "bg-interaction-primary text-brand-primary"
-                                    : "text-text-default hover:bg-interaction-hover"
-                                )}
-                              >
-                                {displayHours}:{displayMinutes}
-                              </button>
-                            );
-                          })}
-                      </div>
-                    </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-          </section>
+
+                  <div className="flex-[1] min-w-0 relative">
+                    <Input
+                      label="시작 시간"
+                      labelClassName="sr-only"
+                      placeholder="오후 3:00"
+                      readOnly
+                      value={formatTime(watchStartTime.toISOString())}
+                      onClick={() => {
+                        setShowTimePicker(!showTimePicker);
+                        // setShowDatePicker(false);
+                      }}
+                      className="cursor-pointer"
+                    />
+
+                    {showTimePicker && (
+                      <div className="absolute top-full mt-8 right-0 z-50">
+                        <div className="flex gap-14 bg-background-secondary rounded-xl p-16 border-1 border-interaction-hover">
+                          {/* 오전/오후 */}
+                          <div className="flex flex-col gap-8">
+                            <Button
+                              label="오전"
+                              width="78px"
+                              variant={
+                                watchStartTime.getHours() < 12
+                                  ? "solid"
+                                  : "unselected"
+                              }
+                              onClick={() => {
+                                const newTime = new Date(watchStartTime);
+                                if (newTime.getHours() >= 12)
+                                  newTime.setHours(newTime.getHours() - 12);
+                                setValue("startTime", newTime);
+                              }}
+                            />
+                            <Button
+                              label="오후"
+                              width="78px"
+                              variant={
+                                watchStartTime.getHours() >= 12
+                                  ? "solid"
+                                  : "unselected"
+                              }
+                              onClick={() => {
+                                const newTime = new Date(watchStartTime);
+                                if (newTime.getHours() < 12)
+                                  newTime.setHours(newTime.getHours() + 12);
+                                setValue("startTime", newTime);
+                              }}
+                            />
+                          </div>
+
+                          {/* 시간 목록 */}
+                          <div className="h-[152px] w-[220px] rounded-xl bg-[#18212f] overflow-y-auto custom-scrollbar pr-2">
+                            {Array.from({ length: 24 }, (_, i) => [i, i + 0.5])
+                              .flat()
+                              .map((hour) => {
+                                const hours = Math.floor(hour);
+                                const minutes = (hour % 1) * 60;
+
+                                const isAM = watchStartTime.getHours() < 12;
+                                const timeIsAM = hours < 12;
+                                if (isAM !== timeIsAM) return null;
+
+                                const displayHours = hours % 12 || 12;
+                                const displayMinutes = minutes
+                                  .toString()
+                                  .padStart(2, "0");
+
+                                const isSelected =
+                                  watchStartTime.getHours() === hours &&
+                                  watchStartTime.getMinutes() === minutes;
+
+                                return (
+                                  <button
+                                    key={`${hours}-${minutes}`}
+                                    type="button"
+                                    onClick={() => {
+                                      const newTime = new Date(watchStartTime);
+                                      newTime.setHours(hours, minutes, 0, 0);
+                                      setValue("startTime", newTime);
+                                      setShowTimePicker(false);
+                                    }}
+                                    className={clsx(
+                                      "w-full text-left pl-16 py-10 rounded-lg",
+                                      isSelected
+                                        ? "bg-interaction-primary text-brand-primary"
+                                        : "text-text-default hover:bg-interaction-hover"
+                                    )}
+                                  >
+                                    {displayHours}:{displayMinutes}
+                                  </button>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
           <section>
             <h3 className="text-lg font-medium text-text-primary mb-16">
               반복 설정
@@ -389,7 +452,10 @@ export default function TaskCreateModal({
         </form>
       </div>
       <ModalFooter
-        primaryButton={{ label: "만들기", onClick: handleSubmit(onSubmit) }}
+        primaryButton={{
+          label: isEditMode ? "수정하기" : "만들기",
+          onClick: handleSubmit(onSubmit),
+        }}
       />
     </BaseModal>
   );

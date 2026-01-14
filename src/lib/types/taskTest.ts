@@ -1,5 +1,32 @@
 import { FrequencyType } from "@/types/schemas";
-import { TaskRecurringCreateDto } from "./task";
+export interface TaskRecurringCreateDto {
+  MonthlyRecurringCreateBody: {
+    name: string;
+    description?: string;
+    startDate: string;
+    frequencyType: string; // [MONTHLY]
+    monthDay: number;
+  };
+  WeeklyRecurringCreateBody: {
+    name: string;
+    description?: string;
+    startDate: string;
+    frequencyType: string; // [WEEKLY]
+    weekDays: number[];
+  };
+  DailyRecurringCreateBody: {
+    name: string;
+    description?: string;
+    startDate: string;
+    frequencyType: string; // [DAILY]
+  };
+  OnceRecurringCreateBody: {
+    name: string;
+    description?: string;
+    startDate: string;
+    frequencyType: string; // [ONCE]
+  };
+}
 
 // 리스트용 Task (목록 조회 API 응답)
 export interface TaskListItem {
@@ -30,6 +57,8 @@ export interface TaskDetail extends TaskListItem {
       id: number;
     };
   }>;
+  weekDays?: number[];
+  monthDay?: number;
 }
 
 // (POST body 분기 타입 정확하게)

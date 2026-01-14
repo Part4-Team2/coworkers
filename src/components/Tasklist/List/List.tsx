@@ -16,27 +16,33 @@ export interface ListProps extends TaskListItem {
   variant?: "simple" | "detailed";
   onUpdateTask?: (taskId: number, updates: Partial<TaskListItem>) => void;
   onDeleteTask?: (task: { id: number; recurringId: number }) => void;
+  onEditTask?: (taskId: number) => void;
 }
 
-export default function List({
-  id,
-  isToggle = false,
-  onToggle,
-  name,
-  variant,
-  commentCount,
-  frequency,
-  date,
-  onClick,
-  onUpdateTask,
-  onDeleteTask,
-  recurringId,
-}: ListProps) {
+export default function List(props: ListProps) {
+  const {
+    id,
+    isToggle = false,
+    onToggle,
+    name,
+    variant,
+    commentCount,
+    frequency,
+    date,
+    onClick,
+    onUpdateTask,
+    onDeleteTask,
+    recurringId,
+    onEditTask,
+    ...rest
+  } = props;
+
   // useKebabMenu 훅은 여기서 각 task 별로 사용
   const kebab = useKebabMenu({
     initialContent: name,
     onSave: (newContent) => onUpdateTask?.(id, { name: newContent }),
     onDelete: () => onDeleteTask?.({ id, recurringId }),
+    onEdit: () => onEditTask?.(id),
     deleteModalTitle: (
       <>
         &apos;{name}&apos; <br />할 일을 정말 삭제하시겠어요?

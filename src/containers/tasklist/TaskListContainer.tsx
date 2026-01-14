@@ -4,8 +4,14 @@ import List from "@/components/Tasklist/List/List";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import TaskDetailsContainer from "./tasks/TaskDetailsContainer";
-import { deleteTasks, getTasks, patchTask } from "@/lib/api/task";
-import { TaskDetail, TaskListItem } from "@/lib/types/taskTest";
+import {
+  deleteTasks,
+  getSpecificTask,
+  getTasks,
+  patchTask,
+} from "@/lib/api/task";
+import { TaskDetail } from "@/lib/types/taskTest";
+import TaskCreateModal from "@/components/Tasklist/TaskCreateModal";
 
 interface TaskListProps {
   groupId: number;
@@ -28,33 +34,32 @@ export default function TaskListContainer({
 
   const [tasks, setTasks] = useState<TaskWithToggle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editTask, setEditTask] = useState<TaskDetail | undefined>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchTasks = async () => {
+    setLoading(true);
+    try {
+      const response = await getTasks(groupId, Number(listId), baseDate);
+      if (response && "error" in response) {
+        setTasks([]);
+      } else {
+        setTasks(
+          (response ?? []).map((task: TaskDetail) => ({
+            ...task,
+            isToggle: !!task.doneAt || (task.doneBy?.length ?? 0) > 0,
+          }))
+        );
+      }
+    } catch {
+      setTasks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 탭 바뀔 때 마다 API 호출
   useEffect(() => {
-    async function fetchTasks() {
-      setLoading(true);
-      try {
-        const response = await getTasks(groupId, Number(listId), baseDate);
-        if (response && "error" in response) {
-          console.error("할 일 로드 실패:", response.message);
-          setTasks([]);
-        } else {
-          setTasks(
-            (response ?? []).map((task: TaskDetail) => ({
-              ...task,
-              isToggle: !!task.doneAt || (task.doneBy?.length ?? 0) > 0,
-              displayIndex: task.displayIndex,
-              recurringId: task.recurringId,
-            }))
-          );
-        }
-      } catch (err) {
-        console.error("할 일 로드 실패", err);
-        setTasks([]);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchTasks();
   }, [groupId, listId, baseDate]);
 
@@ -93,8 +98,37 @@ export default function TaskListContainer({
     // TODO: API 호출 -> doneAt/doneBy 업데이트
   };
 
-  const handleUpdateTask = async () => {
-    console.log("api PATCH 로직");
+  const handleUpdateTask = async (
+    taskId: number,
+    updates: Partial<TaskDetail>
+  ) => {
+    try {
+      const result = await patchTask(groupId, Number(listId), taskId, updates);
+
+      if ("error" in result) {
+        alert(result.message);
+        return;
+      }
+
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, ...result } : t))
+      );
+    } catch (err) {
+      console.error(err);
+      alert("업데이트 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleOpenEditModal = async (taskId: number) => {
+    const detail = await getSpecificTask(groupId, Number(listId), taskId);
+
+    if ("error" in detail) {
+      alert(detail.message);
+      return;
+    }
+
+    setEditTask(detail);
+    setIsModalOpen(true);
   };
 
   // Task 삭제
@@ -151,8 +185,27 @@ export default function TaskListContainer({
             onClick={() => handleTaskClick(task.id)}
             onDeleteTask={handleDeleteTask}
             onUpdateTask={handleUpdateTask}
+            onEditTask={handleOpenEditModal}
           />
         ))}
+        <TaskCreateModal
+          groupId={groupId.toString()}
+          taskListId={listId}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditTask(undefined);
+          }}
+          taskToEdit={editTask}
+          onTaskUpdated={(updatedTask) => {
+            setTasks((prev) =>
+              prev.map((t) =>
+                t.id === updatedTask.id ? { ...t, ...updatedTask } : t
+              )
+            );
+          }}
+          onTaskCreated={() => fetchTasks()}
+        />
       </div>
 
       {openTask && (
