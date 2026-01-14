@@ -1,0 +1,96 @@
+"use client";
+
+import { useEffect, useState, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { postSigninKakao } from "@/lib/api/auth";
+import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+
+export default function KakaoOAuthCallbackPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [error, setError] = useState<string | null>(null);
+  const isProcessing = useRef(false);
+
+  useEffect(() => {
+    const handleCallback = async () => {
+      if (isProcessing.current) {
+        return;
+      }
+      isProcessing.current = true;
+
+      const code = searchParams.get("code");
+      const state = searchParams.get("state");
+
+      console.log("=== 카카오 OAuth 콜백 ===");
+      console.log("code:", code);
+      console.log("state:", state);
+
+      if (!code) {
+        console.error("인증 코드를 받지 못했습니다.");
+        setError("인증 코드를 받지 못했습니다.");
+        setTimeout(() => router.push("/login"), 2000);
+        return;
+      }
+
+      try {
+        const APP_URL =
+          process.env.NEXT_PUBLIC_APP_URL ||
+          process.env.NEXT_PUBLIC_BASE_URL ||
+          window.location.origin;
+        const redirectUri = `${APP_URL}/oauth/kakao`;
+
+        console.log("redirectUri:", redirectUri);
+        console.log("postSigninKakao 호출 시작...");
+
+        const response = await postSigninKakao({
+          token: code,
+          redirectUri,
+          state: state || undefined,
+        });
+
+        console.log("postSigninKakao 응답:", response);
+
+        if ("error" in response) {
+          console.error("카카오 로그인 실패:", response.message);
+          setError(response.message || "카카오 로그인에 실패했습니다.");
+          setTimeout(() => router.push("/login"), 2000);
+          return;
+        }
+
+        console.log("카카오 로그인 성공!");
+        // 로그인 성공 시 홈으로 리다이렉트
+        router.push("/");
+      } catch (err) {
+        console.error("로그인 처리 중 오류:", err);
+        setError("로그인 처리 중 오류가 발생했습니다.");
+        setTimeout(() => router.push("/login"), 2000);
+      }
+    };
+
+    handleCallback();
+  }, [searchParams, router]);
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background-primary">
+        <div className="flex flex-col items-center gap-16">
+          <p className="text-status-danger text-md">{error}</p>
+          <p className="text-text-secondary text-sm">
+            로그인 페이지로 이동합니다...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-background-primary">
+      <div className="flex flex-col items-center gap-16">
+        <div className="animate-spin">
+          <SVGIcon icon="loading" size="xl" />
+        </div>
+        <p className="text-text-secondary text-md">카카오 로그인 처리 중...</p>
+      </div>
+    </div>
+  );
+}

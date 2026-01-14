@@ -114,7 +114,7 @@ export async function postRefreshToken(data: { refreshToken: string }) {
 
 export async function postSigninKakao(data: SignInWithOauthRequestBody) {
   try {
-    const response = await fetch(`${BASE_URL}/auth/signIn/kakao`, {
+    const response = await fetch(`${BASE_URL}/auth/signIn/KAKAO`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

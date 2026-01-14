@@ -7,7 +7,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InputConfig } from "@/components/Common/Form/types";
 import { postSignup } from "@/lib/api/auth";
+import { postOauthApps } from "@/lib/api/oauth";
 import { SignUpRequestBody } from "@/lib/types/auth";
+import { OauthProvider } from "@/lib/types/oauth";
 
 interface SignupFormData {
   name: string;
@@ -63,10 +65,43 @@ export default function SignupContainer() {
     }
   };
 
-  const handleKakaoSignup = () => {
-    // TODO: 카카오 회원가입 구현
-    // console.log("카카오 회원가입");
-    // router.push("/oauth/signup/kakao");
+  const handleKakaoSignup = async () => {
+    // 카카오 OAuth 인증 URL로 리다이렉트 (로그인과 동일한 플로우)
+    const APP_URL =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      "http://localhost:3000";
+    const redirectUri = `${APP_URL}/oauth/kakao`;
+    const state = Math.random().toString(36).substring(2, 15); // CSRF 방지를 위한 state
+
+    const kakaoClientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
+
+    if (!kakaoClientId) {
+      console.error("카카오 REST API 키가 설정되지 않았습니다.");
+      alert("카카오 로그인 설정이 필요합니다.");
+      return;
+    }
+
+    // 백엔드에 카카오 OAuth 앱 자동 등록 시도
+    try {
+      await postOauthApps({
+        provider: OauthProvider.KAKAO,
+        appKey: kakaoClientId,
+        appSecret: null,
+      });
+      console.log("카카오 OAuth 앱 등록 완료");
+    } catch (error) {
+      // 등록 실패해도 진행 (이미 등록되어 있을 수 있음)
+      console.warn(
+        "카카오 OAuth 앱 등록 실패 (이미 등록되어 있을 수 있음):",
+        error
+      );
+    }
+
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&state=${state}`;
+
+    // 카카오 인증 페이지로 리다이렉트
+    window.location.href = kakaoAuthUrl;
   };
 
   return (
