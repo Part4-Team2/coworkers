@@ -372,8 +372,8 @@ export async function getGroupInvitation(groupId: string) {
       };
     }
 
-    // API가 토큰 문자열을 직접 반환
-    const token = await response.text();
+    // API가 토큰 문자열을 직접 반환 (큰따옴표 제거)
+    const token = (await response.text()).replace(/^"|"$/g, "");
     return { token };
   } catch {
     return {

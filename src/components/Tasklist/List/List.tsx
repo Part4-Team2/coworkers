@@ -12,6 +12,7 @@ export interface ListProps extends Task {
   onToggle?: (id: number) => void;
   onClickKebab?: (id: number) => void;
   variant?: "simple" | "detailed";
+  hideKebab?: boolean;
 }
 
 export default function List({
@@ -25,11 +26,12 @@ export default function List({
   frequency,
   date,
   onClick,
+  hideKebab = false,
 }: ListProps) {
   return (
     <div
       onClick={onClick}
-      className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-[8px] cursor-pointer"
+      className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-lg cursor-pointer"
     >
       <div className="flex items-center justify-between ">
         <div className="flex items-center gap-7">
@@ -58,15 +60,17 @@ export default function List({
             </div>
           )}
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onClickKebab?.(id);
-          }}
-          aria-label="옵션 메뉴 열기"
-        >
-          <SVGIcon icon="kebabSmall" />
-        </button>
+        {!hideKebab && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClickKebab?.(id);
+            }}
+            aria-label="옵션 메뉴 열기"
+          >
+            <SVGIcon icon="kebabSmall" />
+          </button>
+        )}
       </div>
 
       {variant === "detailed" && (

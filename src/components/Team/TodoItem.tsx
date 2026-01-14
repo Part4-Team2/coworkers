@@ -132,7 +132,10 @@ const TodoItem = memo(function TodoItem({
           </div>
 
           {/* 케밥 메뉴 */}
-          <div onClick={(e) => e.stopPropagation()}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center justify-center"
+          >
             <Dropdown
               options={[DROPDOWN_ACTIONS.EDIT, DROPDOWN_ACTIONS.DELETE]}
               onSelect={handleSelect}
