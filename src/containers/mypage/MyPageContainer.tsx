@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Form from "@/components/Common/Form/Form";
 import Avatar from "@/components/Common/Avatar/Avatar";
 import Button from "@/components/Common/Button/Button";
@@ -13,7 +13,6 @@ import { postImage } from "@/lib/api/image";
 import { patchUser, deleteUser, patchUserPassword } from "@/lib/api/user";
 import { useRouter } from "next/navigation";
 import { UpdatePasswordBody } from "@/lib/types/user";
-import { useHeaderStore } from "@/store/headerStore";
 
 interface NameFormData {
   name: string;
@@ -40,7 +39,6 @@ export default function MyPageContainer({
   const [nameError, setNameError] = useState<string>("");
   const [passwordChangeError, setPasswordChangeError] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
 
   const {
     previewUrl,
@@ -48,7 +46,6 @@ export default function MyPageContainer({
     handleImageClick,
     handleImageChange,
     selectedFile,
-    resetImage,
   } = useImageUpload(initialImage ?? undefined);
 
   const {
@@ -65,26 +62,12 @@ export default function MyPageContainer({
   });
 
   const currentName = watchName("name");
-  const fetchUser = useHeaderStore((s) => s.fetchUser);
-
-  // initialImage가 변경되면 (fetchUser 후) uploadedImageUrl 초기화
-  useEffect(() => {
-    if (uploadedImageUrl && initialImage === uploadedImageUrl) {
-      setUploadedImageUrl(null);
-    }
-  }, [initialImage, uploadedImageUrl]);
 
   // 변경사항이 있는지 확인
   const hasNameChanged = currentName !== initialNickname;
-  // 이미지 변경 확인:
-  // 1. selectedFile이 있으면 변경됨
-  // 2. previewUrl이 initialImage와 다르고, 업로드된 이미지 URL이 아닌 경우 변경됨
-  //    (업로드된 이미지 URL이면 이미 적용된 것이므로 변경사항 없음)
   const hasImageChanged =
     selectedFile !== null ||
-    (previewUrl &&
-      previewUrl !== (initialImage || undefined) &&
-      (!uploadedImageUrl || previewUrl !== uploadedImageUrl));
+    (previewUrl && previewUrl !== (initialImage || undefined));
   const hasChanges = hasNameChanged || hasImageChanged;
 
   const {
@@ -164,17 +147,7 @@ export default function MyPageContainer({
         }
 
         // 성공 피드백 및 데이터 갱신
-        await fetchUser();
-
-        // 이미지 업로드 성공 후 이미지 상태 초기화
-        if (shouldUpdateImage && uploadedImageUrl) {
-          // 업로드된 이미지 URL 저장 (hasImageChanged 계산에 사용)
-          setUploadedImageUrl(uploadedImageUrl);
-          // 이미지 상태 리셋 (selectedFile을 null로 만들고 previewUrl을 업로드된 URL로 설정)
-          resetImage();
-          // resetImage()는 initialImageUrl로 되돌리므로,
-          // fetchUser() 후 새로운 initialImage가 전달되면 자동으로 업데이트됨
-        }
+        router.refresh(); // 서버에서 최신 데이터 가져오기
       }
     } catch (error) {
       setNameError("업데이트에 실패했습니다. 다시 시도해주세요.");

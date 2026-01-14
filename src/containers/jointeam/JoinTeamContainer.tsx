@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InputConfig } from "@/components/Common/Form/types";
 import { postGroupAcceptInvitation } from "@/lib/api/group";
-import { useHeaderStore } from "@/store/headerStore";
 
 interface JoinTeamFormData {
   teamLink: string;
@@ -27,8 +26,6 @@ export default function JoinTeamContainer({ email }: { email: string }) {
   } = useForm<JoinTeamFormData>({
     mode: "onBlur",
   });
-
-  const fetchUser = useHeaderStore((s) => s.fetchUser);
 
   const onSubmit = async (data: JoinTeamFormData) => {
     if (isSubmitting) return;
@@ -66,7 +63,6 @@ export default function JoinTeamContainer({ email }: { email: string }) {
         );
         return;
       }
-      await fetchUser();
       router.push(`/${response.groupId}`);
     } catch (error) {
       setJoinTeamError("팀 참여에 실패했습니다. 다시 시도해주세요.");

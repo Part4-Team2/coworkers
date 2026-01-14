@@ -11,7 +11,6 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import { postGroup } from "@/lib/api/group";
 import { postImage } from "@/lib/api/image";
 import { CreateGroupBody } from "@/lib/types/group";
-import { useHeaderStore } from "@/store/headerStore";
 
 interface AddTeamFormData {
   teamName: string;
@@ -36,13 +35,9 @@ export default function AddTeamContainer() {
     formState: { errors },
     trigger,
     setError,
-    watch,
   } = useForm<AddTeamFormData>({
     mode: "onBlur",
   });
-
-  const teamName = watch("teamName");
-  const fetchUser = useHeaderStore((s) => s.fetchUser);
 
   const onSubmit = async (data: AddTeamFormData) => {
     if (isSubmitting) return;
@@ -80,7 +75,8 @@ export default function AddTeamContainer() {
         setAddTeamError(response.message);
         return;
       }
-      await fetchUser();
+
+      // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
       router.push(`/${response.id}`);
     } catch (error) {
       setAddTeamError("팀 생성에 실패했습니다. 다시 시도해주세요.");
@@ -157,7 +153,7 @@ export default function AddTeamContainer() {
             variant: "solid",
             size: "large",
             full: true,
-            disabled: isSubmitting || !teamName?.trim(),
+            disabled: isSubmitting,
             loading: isSubmitting,
           }}
         />
