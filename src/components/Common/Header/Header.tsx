@@ -5,7 +5,7 @@ import { useHeaderStore } from "@/store/headerStore";
 import { logoutAction } from "@/lib/api/auth";
 import clsx from "clsx";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Dropdown from "../Dropdown/Dropdown";
 import SVGIcon from "../SVGIcon/SVGIcon";
 import SideHeaderMobile from "./SideHeader/SideHeaderMobile";
@@ -16,7 +16,8 @@ const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로�
 
 function Header() {
   const router = useRouter();
-  // 추후에 CSS 가상선택자 or focus로 바꿔보자.
+  const pathname = usePathname();
+
   const [isSideOpen, setIsSideOpen] = useState<boolean>(false);
   const isLogin = useHeaderStore((s) => s.isLogin);
   const nickname = useHeaderStore((s) => s.nickname);
@@ -27,8 +28,23 @@ function Header() {
   const clearUser = useHeaderStore((s) => s.clearUser);
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    if (!pathname) {
+      fetchUser(); // 초기 로드
+      return;
+    }
+
+    // 해당 페이지의 경우 유저 정보를 갱신합니다.
+    const shouldRefetch =
+      pathname === "/teamlist" || // 팀 목록 - 팀 생성이나 삭제 후 갱신
+      pathname === "/mypage" || // 마이페이지 - 유저 정보 수정 후 갱신
+      pathname === "/addteam" || // 팀 생성 페이지 이후 갱신
+      pathname.match(/^\/\d+$/) || // 팀 상세 (/[teamid]) - 팀 수정 후 갱신
+      pathname.match(/^\/\d+\/edit$/); // 팀 수정 페이지
+
+    if (shouldRefetch) {
+      fetchUser();
+    }
+  }, [pathname, fetchUser]);
 
   // Side Header의 팀명 클릭시 작동하는 함수입니다.
   const handleSideClick = () => {
@@ -78,10 +94,7 @@ function Header() {
       >
         <div className="cursor-pointer flex items-center gap-40">
           <div className="flex items-center gap-16">
-            <div
-              className={teams.length > 0 ? "sm:hidden" : "hidden"}
-              onClick={handleSideClick}
-            >
+            <div className={clsx("sm:hidden")} onClick={handleSideClick}>
               <SVGIcon icon="gnbMenu" />
             </div>
             <Link href="/">
@@ -91,7 +104,6 @@ function Header() {
           {isLogin && teams.length > 0 && (
             <div className="relative">
               <div className="hidden sm:flex gap-10">
-                {/* 여기에도 네비게이팅 달아야댐 */}
                 <div onClick={activeTeamClick}>{activeTeam?.teamName}</div>
                 <div className="cursor-pointer" onClick={handleSideClick}>
                   <SVGIcon icon="toggle" />
@@ -115,11 +127,11 @@ function Header() {
               />
             </div>
           )}
-          {isLogin && (
+          <div className={clsx("hidden sm:block")}>
             <Link href="/boards" className="hidden sm:block cursor-pointer">
               자유게시판
             </Link>
-          )}
+          </div>
         </div>
         {/* 팀명 옆 토글 버튼을 누르면 사이드바가 나옵니다 */}
 
@@ -135,7 +147,9 @@ function Header() {
               icon="user"
               listPosition="top-full right-0"
             />
-            <div>{nickname || "사용자"}</div>
+            <div className={clsx("overflow-hidden text-ellipsis line-clamp-1")}>
+              {nickname}
+            </div>
           </div>
         )}
       </div>
