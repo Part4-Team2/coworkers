@@ -67,7 +67,7 @@ export default function AddTeamContainer() {
 
       const requestData: CreateGroupBody = {
         name: data.teamName,
-        image: uploadedImageUrl,
+        ...(uploadedImageUrl && { image: uploadedImageUrl }),
       };
 
       const response = await postGroup(requestData);
@@ -142,7 +142,7 @@ export default function AddTeamContainer() {
               showError: !!errors.teamName || !!addTeamError,
             } as InputConfig,
           ]}
-          optionAlign="end"
+          optionAlign="start"
           option={
             addTeamError && (
               <p className="text-xs text-status-danger">{addTeamError}</p>
