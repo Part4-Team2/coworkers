@@ -60,12 +60,17 @@ function ArticleClient({ article, comments, likes }: Pageprops) {
         <div className="text-text-secondary text-base">{article.content}</div>
       </section>
       {/* 게시글 좋아요 클릭 영역 */}
-      <ArticleLike onLikeClick={handleLikeClick} isLike={isLike} />
+      <ArticleLike
+        onLikeClick={handleLikeClick}
+        isLike={isLike}
+        likeCount={likeCount}
+      />
       {/* 댓글 영역 */}
       <CommentSection
         articleId={article.id}
         comments={comments}
         onCommentAdd={() => setCommentCount((prev) => prev + 1)}
+        onCommentDelete={() => setCommentCount((prev) => prev - 1)}
       />
     </main>
   );

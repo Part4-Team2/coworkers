@@ -75,11 +75,12 @@ function EditArticle() {
         console.error(error);
         alert("게시글 갖고오기 오류, 다시 자유게시판으로 돌아갑니다."); // 오류 처리는 나중에 toast로 대체 예정
         router.replace("/boards");
+        return;
       }
     };
 
     fetchArticle();
-  }, []);
+  }, [articleId, router]);
 
   return (
     // Page Wrapper
@@ -93,7 +94,7 @@ function EditArticle() {
       >
         <main className="flex flex-col gap-40">
           <section className="flex justify-between items-center">
-            <span className="text-xl">게시글 쓰기</span>
+            <span className="text-xl">게시글 수정하기</span>
             <div className="hidden sm:block">
               <Button label="등록" width="184px" onClick={handleSubmitClick} />
             </div>

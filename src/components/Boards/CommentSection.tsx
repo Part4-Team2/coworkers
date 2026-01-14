@@ -16,9 +16,15 @@ interface Pageprops {
   articleId: number;
   comments: GetArticleComments;
   onCommentAdd: () => void;
+  onCommentDelete: () => void;
 }
 
-function CommentSection({ articleId, comments, onCommentAdd }: Pageprops) {
+function CommentSection({
+  articleId,
+  comments,
+  onCommentAdd,
+  onCommentDelete,
+}: Pageprops) {
   const [commentList, setCommentList] = useState(comments.list);
   const [cursor, setCursor] = useState<number | undefined>(comments.nextCursor);
   const [hasNext, setHasNext] = useState(!!comments.nextCursor); // cursor 존재 여부로 다음 댓글 fetching합니다.
@@ -47,6 +53,7 @@ function CommentSection({ articleId, comments, onCommentAdd }: Pageprops) {
 
     setCommentList(data.list);
     setCursor(data.nextCursor);
+    setHasNext(!!data.nextCursor);
   };
 
   // 댓글이 3개 넘는 경우에 새로운 댓글을 갖고옵니다.
@@ -63,17 +70,18 @@ function CommentSection({ articleId, comments, onCommentAdd }: Pageprops) {
     });
 
     setCommentList((prev) => [...prev, ...res.list]);
+    setCursor(res.nextCursor);
     if (!res.nextCursor) setHasNext(false);
   };
 
   // 댓글 삭제하면 삭제한 상태로 렌더링합니다.
   const deleteCommentClick = async (deleteId: number) => {
-    console.log("Delete Comment");
     try {
       await deleteComment(deleteId);
       setCommentList((prev) =>
         prev.filter((comment) => comment.id !== deleteId)
       );
+      onCommentDelete();
     } catch (error) {
       console.error("삭제하기 오류", error);
     }
