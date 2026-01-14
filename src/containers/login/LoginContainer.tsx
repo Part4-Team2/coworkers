@@ -46,6 +46,7 @@ export default function LoginContainer() {
     register: registerReset,
     handleSubmit: handleSubmitReset,
     formState: { errors: resetErrors },
+    setError: setResetErrorField,
   } = useForm<ResetPasswordFormData>({
     mode: "onBlur",
   });
@@ -53,6 +54,7 @@ export default function LoginContainer() {
   const handleClose = () => {
     setOpenModal(null);
     setLoginError("");
+    setResetError("");
   };
 
   const onSubmit = async (data: LoginFormData) => {
@@ -94,13 +96,30 @@ export default function LoginContainer() {
     try {
       const response = await postUserResetPassword(requestData);
       if ("error" in response) {
-        setResetError(response.message);
+        // "User not found" 에러 메시지를 "회원가입되지 않은 이메일입니다."로 변경
+        let errorMessage =
+          response.message || "비밀번호 재설정 이메일 전송에 실패했습니다.";
+        if (errorMessage.toLowerCase().includes("user not found")) {
+          errorMessage = "회원가입되지 않은 이메일입니다.";
+        }
+
+        setResetError(errorMessage);
+        // 인풋에도 에러 표시
+        setResetErrorField("email", {
+          type: "manual",
+          message: errorMessage,
+        });
         setIsSubmitting(false);
         return;
       }
       handleClose();
     } catch (error) {
-      setResetError("링크를 보내는데 실패했습니다. 다시 시도해주세요.");
+      const errorMessage = "링크를 보내는데 실패했습니다. 다시 시도해주세요.";
+      setResetError(errorMessage);
+      setResetErrorField("email", {
+        type: "manual",
+        message: errorMessage,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -233,7 +252,7 @@ export default function LoginContainer() {
           label: "이메일",
           placeholder: "이메일을 입력하세요.",
           type: "email",
-          variant: resetErrors.email ? "error" : "default",
+          variant: resetErrors.email || resetError ? "error" : "default",
           ...registerReset("email", {
             required: "이메일은 필수 입력입니다.",
             pattern: {
@@ -241,8 +260,7 @@ export default function LoginContainer() {
               message: "이메일 형식으로 작성해 주세요.",
             },
           }),
-          message: resetErrors.email?.message,
-          showError: !!resetErrors.email,
+          showError: !!resetErrors.email || !!resetError,
         }}
         primaryButton={{
           label: "링크 보내기",
