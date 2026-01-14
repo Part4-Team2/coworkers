@@ -275,6 +275,21 @@ export default function TaskListContainer({
               groupId={groupId}
               taskListId={Number(listId)}
               onClose={handleCloseSidebar}
+              onTaskUpdated={(updatedTask) => {
+                setTasks((prev) =>
+                  prev.map((t) =>
+                    t.id === updatedTask.id
+                      ? {
+                          ...t,
+                          ...updatedTask,
+                          isToggle:
+                            !!updatedTask.doneAt ||
+                            (updatedTask.doneBy?.length ?? 0) > 0,
+                        }
+                      : t
+                  )
+                );
+              }}
             />
           </div>
         </div>
