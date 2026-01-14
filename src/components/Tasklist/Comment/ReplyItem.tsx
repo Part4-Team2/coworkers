@@ -1,10 +1,10 @@
 "use client";
 
-import Avatar from "../Common/Avatar/Avatar";
-import Button from "../Common/Button/Button";
-import { Modal } from "../Common/Modal";
+import Avatar from "../../Common/Avatar/Avatar";
+import Button from "../../Common/Button/Button";
+import { Modal } from "../../Common/Modal";
 import useKebabMenu from "@/hooks/useKebabMenu";
-import Dropdown from "../Common/Dropdown/Dropdown";
+import Dropdown from "../../Common/Dropdown/Dropdown";
 import { CommentResponse } from "@/lib/types/comment";
 import { useSearchParams } from "next/navigation";
 import { deleteComment, patchComment } from "@/lib/api/comment";

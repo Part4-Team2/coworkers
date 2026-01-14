@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import SVGIcon from "../Common/SVGIcon/SVGIcon";
+import SVGIcon from "../../Common/SVGIcon/SVGIcon";
 import { CommentResponse } from "@/lib/types/comment";
 import { createComment } from "@/lib/api/comment";
 
