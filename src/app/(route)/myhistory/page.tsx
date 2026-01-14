@@ -1,6 +1,15 @@
+import { createMetadata } from "@/components/Common/Metadata/Metadata";
 import { measureSSR } from "@/utils/measure";
 import { getUserHistory } from "@/lib/api/user";
 import DoneListContainer from "@/containers/myhistory/DoneListContainer";
+
+export const metadata = createMetadata({
+  title: "마이 히스토리",
+  description:
+    "완료한 할 일 목록을 날짜별로 확인하세요. 나의 작업 히스토리를 한눈에 볼 수 있습니다.",
+  url: "/myhistory",
+  alt: "Coworkers - 마이 히스토리",
+});
 
 export default async function MyHistoryPage() {
   // getUserHistory가 이미 캐싱되므로 중복 측정 불필요
