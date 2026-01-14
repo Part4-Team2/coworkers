@@ -37,7 +37,7 @@ export async function getComments(
   }
 }
 
-export async function createTaskList(
+export async function createComment(
   taskId: string,
   content: string
 ): Promise<ApiResult<CommentResponse>> {
