@@ -206,10 +206,56 @@ export async function deleteUser() {
   }
 }
 
+/**
+ * 사용자의 완료된 할 일 목록 조회
+ */
+export async function getUserHistory() {
+  try {
+    const response = await fetchApi(`${BASE_URL}/user/history`, {
+      next: {
+        tags: ["user-history"],
+        revalidate: 300, // 5분간 캐시
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "완료된 할 일 목록을 가져오는데 실패했습니다.",
+      }));
+      return {
+        error: true as const,
+        message:
+          error.message || "완료된 할 일 목록을 가져오는데 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as {
+      tasksDone: Array<{
+        displayIndex: number;
+        writerId: number;
+        userId: number;
+        deletedAt: string | null;
+        frequency: string;
+        description: string;
+        name: string;
+        recurringId: number;
+        doneAt: string;
+        date: string;
+        updatedAt: string;
+        id: number;
+      }>;
+    };
+  } catch (error) {
+    return {
+      error: true as const,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
+
 /*
 GET /{teamId}/user/groups
 GET /{teamId}/user/memberships
-GET /{teamId}/user/history
 추가해 주시면 됩니다!
 */
 
