@@ -89,13 +89,59 @@ export default function TaskListContainer({
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const handleToggle = (id: number) => {
+  const handleToggle = async (id: number) => {
+    // 현재 task의 done 상태 확인
+    const currentTask = tasks.find((task) => task.id === id);
+    if (!currentTask) return;
+
+    const newDoneState = !currentTask.isToggle;
+
+    // 낙관적 업데이트 (UI 먼저 변경)
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
-        task.id === id ? { ...task, isToggle: !task.isToggle } : task
+        task.id === id ? { ...task, isToggle: newDoneState } : task
       )
     );
-    // TODO: API 호출 -> doneAt/doneBy 업데이트
+
+    try {
+      // API 호출
+      const result = await patchTask(groupId, Number(listId), id, {
+        done: newDoneState,
+      });
+
+      if ("error" in result) {
+        // 에러 발생 시 원래 상태로 롤백
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.id === id ? { ...task, isToggle: currentTask.isToggle } : task
+          )
+        );
+        alert(result.message);
+        return;
+      }
+
+      // 성공 시 서버 응답으로 업데이트
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === id
+            ? {
+                ...task,
+                ...result,
+                isToggle: !!result.doneAt || (task.doneBy?.length ?? 0) > 0,
+              }
+            : task
+        )
+      );
+    } catch (err) {
+      // 네트워크 에러 시 롤백
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === id ? { ...task, isToggle: currentTask.isToggle } : task
+        )
+      );
+      console.error(err);
+      alert("할 일 상태 변경에 실패했습니다.");
+    }
   };
 
   const handleUpdateTask = async (
@@ -200,7 +246,14 @@ export default function TaskListContainer({
           onTaskUpdated={(updatedTask) => {
             setTasks((prev) =>
               prev.map((t) =>
-                t.id === updatedTask.id ? { ...t, ...updatedTask } : t
+                t.id === updatedTask.id
+                  ? {
+                      ...t,
+                      ...updatedTask,
+                      isToggle:
+                        !!updatedTask.doneAt || (t.doneBy?.length ?? 0) > 0,
+                    }
+                  : t
               )
             );
           }}
