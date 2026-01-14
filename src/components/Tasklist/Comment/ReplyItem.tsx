@@ -28,14 +28,17 @@ export default function ReplyItem({
     onSave: async (newContent) => {
       if (!taskId) return;
 
+      onUpdate(comment.id, newContent);
+
+      kebab.handleCancelEdit();
+
       const res = await patchComment(taskId, String(comment.id), {
         content: newContent,
       });
 
-      if (res.success) {
-        onUpdate(comment.id, newContent); // 부모 상태 업데이트
-      } else {
+      if (!res.success) {
         alert(res.error);
+        onUpdate(comment.id, comment.content); // rollback
       }
     },
     onDelete: async () => {
