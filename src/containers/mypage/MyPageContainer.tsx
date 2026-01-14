@@ -216,7 +216,7 @@ export default function MyPageContainer({
   };
 
   return (
-    <div className="w-full flex flex-col items-center px-16 sm:px-0">
+    <div className="w-full flex flex-col items-center px-16 sm:px-24 lg:px-0">
       <div className="w-full max-w-600 flex flex-col items-center">
         <input
           ref={fileInputRef}
