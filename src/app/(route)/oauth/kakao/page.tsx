@@ -4,8 +4,10 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { postSigninKakao } from "@/lib/api/auth";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
+import { useHeaderStore } from "@/store/headerStore";
 
 export default function KakaoOAuthCallbackPage() {
+  const fetchUser = useHeaderStore((state) => state.fetchUser);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,6 @@ export default function KakaoOAuthCallbackPage() {
   useEffect(() => {
     // code가 없으면 처리하지 않음
     if (!code) {
-      console.error("인증 코드를 받지 못했습니다.");
       setError("인증 코드를 받지 못했습니다.");
       setTimeout(() => router.push("/login"), 2000);
       return;
@@ -27,13 +28,11 @@ export default function KakaoOAuthCallbackPage() {
 
     // 이미 처리한 코드면 중복 처리 방지 (가장 중요!)
     if (processedCodeRef.current === code) {
-      console.log("이미 처리된 인가 코드입니다.");
       return;
     }
 
     // 이미 처리 중이면 중복 처리 방지
     if (isProcessing.current) {
-      console.log("이미 처리 중입니다.");
       return;
     }
 
@@ -41,10 +40,6 @@ export default function KakaoOAuthCallbackPage() {
     processedCodeRef.current = code; // 처리 시작 전에 코드 저장
 
     const handleCallback = async () => {
-      console.log("=== 카카오 OAuth 콜백 ===");
-      console.log("code:", code);
-      console.log("state:", state);
-
       try {
         const APP_URL =
           process.env.NEXT_PUBLIC_APP_URL ||
@@ -52,29 +47,20 @@ export default function KakaoOAuthCallbackPage() {
           window.location.origin;
         const redirectUri = `${APP_URL}/oauth/kakao`;
 
-        console.log("redirectUri:", redirectUri);
-        console.log("postSigninKakao 호출 시작...");
-
         const response = await postSigninKakao({
           token: code,
           redirectUri,
           state: state || undefined,
         });
 
-        console.log("postSigninKakao 응답:", response);
-
         if ("error" in response) {
-          console.error("카카오 로그인 실패:", response.message);
           setError(response.message || "카카오 로그인에 실패했습니다.");
           setTimeout(() => router.push("/login"), 2000);
           return;
         }
-
-        console.log("카카오 로그인 성공!");
-        // 로그인 성공 시 홈으로 리다이렉트
+        await fetchUser();
         router.push("/");
-      } catch (err) {
-        console.error("로그인 처리 중 오류:", err);
+      } catch (error) {
         setError("로그인 처리 중 오류가 발생했습니다.");
         setTimeout(() => router.push("/login"), 2000);
       } finally {
