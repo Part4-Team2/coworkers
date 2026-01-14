@@ -5,6 +5,7 @@ import Form from "@/components/Common/Form/Form";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useHeaderStore } from "@/store/headerStore";
 import { InputConfig } from "@/components/Common/Form/types";
 import { postSignup } from "@/lib/api/auth";
 import { SignUpRequestBody } from "@/lib/types/auth";
@@ -18,6 +19,7 @@ interface SignupFormData {
 
 export default function SignupContainer() {
   const router = useRouter();
+  const fetchUser = useHeaderStore((s) => s.fetchUser);
   const [signupError, setSignupError] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,6 +53,8 @@ export default function SignupContainer() {
         setIsSubmitting(false);
         return;
       }
+
+      await fetchUser();
       router.push("/");
     } catch (error) {
       const errorMessage =

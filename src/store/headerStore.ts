@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { getUser } from "@/lib/api/user";
 
 interface HeaderStoreState {
+  userId: number | null;
   isLogin: boolean;
   nickname: string | null;
   profileImage: string | null;
@@ -20,6 +21,7 @@ interface HeaderStoreState {
 
 // 헤더에서 쓰이는 전역상태 관리입니다.
 export const useHeaderStore = create<HeaderStoreState>((set) => ({
+  userId: null,
   isLogin: false,
   nickname: null,
   profileImage: null,
@@ -32,6 +34,7 @@ export const useHeaderStore = create<HeaderStoreState>((set) => ({
 
     if ("error" in res) {
       set({
+        userId: null,
         isLogin: false,
         nickname: null,
         profileImage: null,
@@ -50,6 +53,7 @@ export const useHeaderStore = create<HeaderStoreState>((set) => ({
     // 팀 소속이 없을 때 전역상태 설정
     if (teams.length === 0) {
       set({
+        userId: res.id,
         isLogin: true,
         nickname: res.nickname,
         profileImage: res.image,
@@ -70,6 +74,7 @@ export const useHeaderStore = create<HeaderStoreState>((set) => ({
         : null;
 
     set({
+      userId: res.id,
       isLogin: true,
       nickname: res.nickname,
       profileImage: res.image,
@@ -81,6 +86,7 @@ export const useHeaderStore = create<HeaderStoreState>((set) => ({
   // 로그아웃 하면 작동하는 전역 함수입니다.
   clearUser: () => {
     set({
+      userId: null,
       isLogin: false,
       nickname: null,
       profileImage: null,
