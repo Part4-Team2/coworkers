@@ -10,12 +10,13 @@ import { Article } from "@/types/article";
 
 interface Props {
   article: Article;
+  commentCount: number;
   currentUserId: number | null;
 }
 
 const ARTICLEDATA = ["수정하기", "삭제하기"];
 
-function ArticleHeader({ article, currentUserId }: Props) {
+function ArticleHeader({ article, commentCount, currentUserId }: Props) {
   const articleId = article.id;
   const router = useRouter();
   const isAuthor = currentUserId === article.writer.id;
@@ -80,7 +81,7 @@ function ArticleHeader({ article, currentUserId }: Props) {
         <div className="flex gap-16">
           <div className="flex gap-4 items-center">
             <SVGIcon icon="comment" size={14} />
-            <span>{article.commentCount}</span>
+            <span>{commentCount}</span>
           </div>
           <div className="flex gap-4 items-center cursor-pointer">
             <SVGIcon icon="heart" size={14} />

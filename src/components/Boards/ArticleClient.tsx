@@ -55,7 +55,11 @@ function ArticleClient({ article, comments, likes }: Pageprops) {
       {/* 게시글 영역 */}
       <section className={clsx("flex flex-col gap-16 py-24")}>
         {/* 게시글 제목 영역 */}
-        <ArticleHeader article={article} currentUserId={userId} />
+        <ArticleHeader
+          article={article}
+          commentCount={commentCount}
+          currentUserId={userId}
+        />
         {/* 게시글 본문 영역 */}
         <div className="text-text-secondary text-base">{article.content}</div>
       </section>
