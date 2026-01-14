@@ -6,4 +6,4 @@ export type CommentResponse = {
   createdAt: string;
   content: string;
   id: number;
-}[];
+};

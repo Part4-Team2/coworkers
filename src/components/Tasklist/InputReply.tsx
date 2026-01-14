@@ -2,16 +2,39 @@
 
 import { useState } from "react";
 import SVGIcon from "../Common/SVGIcon/SVGIcon";
+import { CommentResponse } from "@/lib/types/comment";
+import { createComment } from "@/lib/api/comment";
 
-export default function InputReply() {
+type InputReplyProps = {
+  taskId: number | string;
+  onCreate?: (newComment: CommentResponse) => void;
+};
+
+export default function InputReply({ taskId, onCreate }: InputReplyProps) {
   const [commentText, setCommentText] = useState("");
   const isActive = commentText.trim().length > 0;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActive) return;
 
-    // TODO: api 호출로 댓글 제출
+    try {
+      const result = await createComment(String(taskId), commentText.trim());
+
+      if (!result.success || !result.data) {
+        alert("댓글 생성 실패");
+        return;
+      }
+
+      // UI 업데이트 콜백 실행
+      onCreate?.(result.data);
+
+      // 입력창 초기화
+      setCommentText("");
+    } catch (err) {
+      console.error(err);
+      alert("댓글 생성 중 오류가 발생했습니다.");
+    }
   };
 
   return (

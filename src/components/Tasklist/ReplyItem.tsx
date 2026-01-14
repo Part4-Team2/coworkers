@@ -10,7 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { deleteComment, patchComment } from "@/lib/api/comment";
 
 type CommentItemProps = {
-  comment: CommentResponse[0];
+  comment: CommentResponse;
   onUpdate: (id: number, newContent: string) => void;
   onRemove: (id: number) => void;
 };

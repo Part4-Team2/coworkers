@@ -13,7 +13,7 @@ export type ApiResult<T> =
 
 export async function getComments(
   taskId: string
-): Promise<ApiResult<CommentResponse>> {
+): Promise<ApiResult<CommentResponse[]>> {
   try {
     const response = await fetchApi(`${BASE_URL}/tasks/${taskId}/comments`);
 
@@ -27,7 +27,7 @@ export async function getComments(
       };
     }
 
-    const data = (await response.json()) as CommentResponse;
+    const data = (await response.json()) as CommentResponse[];
     return { success: true, data };
   } catch {
     return {

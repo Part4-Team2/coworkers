@@ -1,23 +1,22 @@
 "use client";
 
 import ReplyItem from "./ReplyItem";
-import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getComments } from "@/lib/api/comment";
 import { CommentResponse } from "@/lib/types/comment";
+import InputReply from "./InputReply";
 
-export default function Reply() {
-  const searchParams = useSearchParams();
-  const taskId = searchParams.get("task");
-
-  const [comments, setComments] = useState<CommentResponse>([]);
+type ReplyProps = {
+  taskId: number | string;
+};
+export default function Reply({ taskId }: ReplyProps) {
+  const [comments, setComments] = useState<CommentResponse[]>([]);
 
   useEffect(() => {
     if (!taskId) return;
 
-    getComments(taskId).then((res) => {
+    getComments(String(taskId)).then((res) => {
       if (res.success) {
-        console.log(res.data);
         setComments(res.data);
       }
     });
@@ -37,6 +36,10 @@ export default function Reply() {
     setComments((prev) => prev.filter((c) => c.id !== id));
   };
 
+  const handleAdd = (comment: CommentResponse) => {
+    setComments((prev) => [...prev, comment]);
+  };
+
   if (!comments.length) {
     return (
       <div className="mt-16 text-text-secondary text-sm">
@@ -47,6 +50,8 @@ export default function Reply() {
 
   return (
     <div>
+      <InputReply taskId={taskId} onCreate={handleAdd} />
+
       {comments.map((comment) => (
         <ReplyItem
           key={comment.id}

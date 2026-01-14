@@ -6,7 +6,6 @@ import ButtonFloating from "@/components/Common/Button/ButtonFloating";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
-import InputReply from "@/components/Tasklist/InputReply";
 import Reply from "@/components/Tasklist/Reply";
 import useKebabMenu from "@/hooks/useKebabMenu";
 import { deleteTasks, patchTask } from "@/lib/api/task";
@@ -42,6 +41,7 @@ export default function TaskDetailsContainer({
   const [editedDescription, setEditedDescription] = useState(
     taskData.description || ""
   );
+
   const kebab = useKebabMenu({
     initialContent: task.description || "",
     onSave: async () => {
@@ -299,8 +299,7 @@ export default function TaskDetailsContainer({
           </div>
         )}
 
-        <InputReply />
-        <Reply />
+        <Reply taskId={task.id} />
 
         <div className="fixed bottom-50 z-50 right-[max(1.5rem,calc(50%-600px+1.5rem))]">
           {isComplete ? (
