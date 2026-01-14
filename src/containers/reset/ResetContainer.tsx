@@ -56,7 +56,7 @@ export default function ResetContainer() {
         setIsSubmitting(false);
         return;
       }
-      router.push("/");
+      router.push("/login");
     } catch (error) {
       setResetError("비밀번호 재설정에 실패했습니다. 다시 시도해주세요.");
     } finally {
