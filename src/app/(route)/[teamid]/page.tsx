@@ -43,54 +43,57 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function TeamPage({ params }: Props) {
-  return await measureSSR({
-    name: "render-team-page",
-    fn: async () => {
-      const { teamid: teamId } = await params;
+  const { teamid: teamId } = await params;
 
-      // teamId 유효성 검사
-      if (!teamId) {
-        notFound();
-      }
+  // teamId 유효성 검사
+  if (!teamId) {
+    notFound();
+  }
 
-      // 그룹 정보 조회
-      const groupData = await getGroup(teamId);
-
-      if (!groupData.success) {
-        notFound();
-      }
-
-      // 현재 로그인한 사용자 정보 조회
-      const userData = await getUser();
-
-      if ("error" in userData) {
-        notFound();
-      }
-
-      // memberships에서 현재 groupId에 해당하는 role 찾기
-      const currentMembership = userData.memberships.find(
-        (membership) => membership.groupId === Number(teamId)
-      );
-
-      if (!currentMembership) {
-        // 소속된 팀이 아니면 teamlist로 리다이렉트
-        redirect("/teamlist");
-      }
-
-      const currentUserId = userData.id;
-      const userRole = currentMembership.role;
-
-      return (
-        <TeamIdContainer
-          teamId={teamId}
-          userRole={userRole}
-          currentUserId={currentUserId}
-          teamName={groupData.data.name}
-          members={groupData.data.members}
-          taskLists={groupData.data.taskLists}
-        />
-      );
-    },
-    attr: { "page.route": "/[teamid]" },
+  // 개별 API 호출을 measureSSR로 감싸기
+  const getGroupWithMeasure = measureSSR({
+    name: "getGroup",
+    fn: () => getGroup(teamId),
+    attr: { "team.id": teamId },
   });
+
+  const getUserWithMeasure = measureSSR({
+    name: "getUser",
+    fn: () => getUser(),
+  });
+
+  // 병렬로 API 호출하여 성능 개선
+  const [groupData, userData] = await Promise.all([
+    getGroupWithMeasure(),
+    getUserWithMeasure(),
+  ]);
+
+  // 즉시 반환 패턴으로 에러 처리
+  if (!groupData.success) {
+    notFound();
+  }
+
+  if ("error" in userData) {
+    notFound();
+  }
+
+  // memberships에서 현재 groupId에 해당하는 role 찾기
+  const currentMembership = userData.memberships.find(
+    (membership) => membership.groupId === Number(teamId)
+  );
+
+  if (!currentMembership) {
+    redirect("/teamlist");
+  }
+
+  return (
+    <TeamIdContainer
+      teamId={teamId}
+      userRole={currentMembership.role}
+      currentUserId={userData.id}
+      teamName={groupData.data.name}
+      members={groupData.data.members}
+      taskLists={groupData.data.taskLists}
+    />
+  );
 }
