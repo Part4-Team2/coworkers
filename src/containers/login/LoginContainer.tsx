@@ -11,10 +11,8 @@ import { useRouter } from "next/navigation";
 import { InputConfig } from "@/components/Common/Form/types";
 import { postSignin } from "@/lib/api/auth";
 import { postUserResetPassword } from "@/lib/api/user";
-import { postOauthApps } from "@/lib/api/oauth";
 import { SignInRequestBody } from "@/lib/types/auth";
 import { SendResetPasswordEmailRequest } from "@/lib/types/user";
-import { OauthProvider } from "@/lib/types/oauth";
 // login, signup은 API route가 아니라 서버 액션으로 구현
 interface LoginFormData {
   email: string;
@@ -119,22 +117,6 @@ export default function LoginContainer() {
       console.error("카카오 REST API 키가 설정되지 않았습니다.");
       alert("카카오 로그인 설정이 필요합니다.");
       return;
-    }
-
-    // 백엔드에 카카오 OAuth 앱 자동 등록 시도
-    try {
-      await postOauthApps({
-        provider: OauthProvider.KAKAO,
-        appKey: kakaoClientId,
-        appSecret: null,
-      });
-      console.log("카카오 OAuth 앱 등록 완료");
-    } catch (error) {
-      // 등록 실패해도 진행 (이미 등록되어 있을 수 있음)
-      console.warn(
-        "카카오 OAuth 앱 등록 실패 (이미 등록되어 있을 수 있음):",
-        error
-      );
     }
 
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&state=${state}`;

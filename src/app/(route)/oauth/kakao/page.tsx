@@ -10,27 +10,40 @@ export default function KakaoOAuthCallbackPage() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const isProcessing = useRef(false);
+  const processedCodeRef = useRef<string | null>(null);
+
+  // code와 state 값을 직접 추출
+  const code = searchParams.get("code");
+  const state = searchParams.get("state");
 
   useEffect(() => {
+    // code가 없으면 처리하지 않음
+    if (!code) {
+      console.error("인증 코드를 받지 못했습니다.");
+      setError("인증 코드를 받지 못했습니다.");
+      setTimeout(() => router.push("/login"), 2000);
+      return;
+    }
+
+    // 이미 처리한 코드면 중복 처리 방지 (가장 중요!)
+    if (processedCodeRef.current === code) {
+      console.log("이미 처리된 인가 코드입니다.");
+      return;
+    }
+
+    // 이미 처리 중이면 중복 처리 방지
+    if (isProcessing.current) {
+      console.log("이미 처리 중입니다.");
+      return;
+    }
+
+    isProcessing.current = true;
+    processedCodeRef.current = code; // 처리 시작 전에 코드 저장
+
     const handleCallback = async () => {
-      if (isProcessing.current) {
-        return;
-      }
-      isProcessing.current = true;
-
-      const code = searchParams.get("code");
-      const state = searchParams.get("state");
-
       console.log("=== 카카오 OAuth 콜백 ===");
       console.log("code:", code);
       console.log("state:", state);
-
-      if (!code) {
-        console.error("인증 코드를 받지 못했습니다.");
-        setError("인증 코드를 받지 못했습니다.");
-        setTimeout(() => router.push("/login"), 2000);
-        return;
-      }
 
       try {
         const APP_URL =
@@ -64,11 +77,14 @@ export default function KakaoOAuthCallbackPage() {
         console.error("로그인 처리 중 오류:", err);
         setError("로그인 처리 중 오류가 발생했습니다.");
         setTimeout(() => router.push("/login"), 2000);
+      } finally {
+        // 에러 발생 시에도 isProcessing 초기화 (다만 processedCodeRef는 유지하여 중복 방지)
+        isProcessing.current = false;
       }
     };
 
     handleCallback();
-  }, [searchParams, router]);
+  }, [code, state, router]);
 
   if (error) {
     return (
