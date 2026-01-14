@@ -64,7 +64,10 @@ export default function List(props: ListProps) {
             }}
             aria-label={isToggle ? "완료 취소" : "완료 표시"}
           >
-            <SVGIcon icon={isToggle ? "checkboxActive" : "checkboxDefault"} />
+            <SVGIcon
+              icon={isToggle ? "checkboxActive" : "checkboxDefault"}
+              className="cursor-pointer"
+            />
           </button>
           <span
             className={clsx(
