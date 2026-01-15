@@ -19,6 +19,7 @@ export async function postSignup(data: SignUpRequestBody) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      cache: "no-store", // 인증 API는 캐싱하지 않음
     });
 
     const result = await response.json();
@@ -52,6 +53,7 @@ export async function postSignin(data: SignInRequestBody) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      cache: "no-store", // 인증 API는 캐싱하지 않음
     });
 
     const result = await response.json();
@@ -85,6 +87,7 @@ export async function postRefreshToken(data: { refreshToken: string }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      cache: "no-store", // 토큰 갱신은 항상 최신 상태로 요청
     });
 
     if (!response.ok) {
@@ -117,6 +120,7 @@ export async function postSigninKakao(data: SignInWithOauthRequestBody) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      cache: "no-store", // 인증 API는 캐싱하지 않음
     });
 
     if (!response.ok) {
@@ -143,7 +147,8 @@ export async function postSigninKakao(data: SignInWithOauthRequestBody) {
 
 // 로그아웃 함수입니다.
 export async function logoutAction() {
+  await setAuthCookies("", "", 0, 0);
+
   const cookieStore = await cookies();
-  cookieStore.delete("accessToken");
   cookieStore.delete("refreshToken");
 }

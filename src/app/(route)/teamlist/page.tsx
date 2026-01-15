@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
+import { createMetadata } from "@/components/Common/Metadata/Metadata";
 import TeamListContainer from "@/containers/teamlist/TeamListContainer";
 import { getUserGroups } from "@/lib/api/user";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "팀 목록",
   description:
     "소속된 팀 목록을 확인하고 새로운 팀을 생성하거나 참여할 수 있습니다.",
-  openGraph: {
-    title: "팀 목록 | Coworkers",
-    description:
-      "소속된 팀 목록을 확인하고 새로운 팀을 생성하거나 참여할 수 있습니다.",
-  },
-};
+  url: "/teamlist",
+  alt: "Coworkers - 팀 목록",
+});
 
 export default async function TeamListPage() {
   const groupsData = await getUserGroups();

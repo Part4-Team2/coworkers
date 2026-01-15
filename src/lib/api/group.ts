@@ -320,6 +320,7 @@ export async function postGroup(data: CreateGroupBody) {
     const response = await fetchApi(`${BASE_URL}/groups`, {
       method: "POST",
       body: JSON.stringify(data),
+      // POST 요청은 fetchApi를 통해 자동으로 캐싱되지 않음
     });
 
     if (!response.ok) {
@@ -330,13 +331,22 @@ export async function postGroup(data: CreateGroupBody) {
       };
     }
 
-    return (await response.json()) as {
+    const result = (await response.json()) as {
       name: string;
       image: string | null;
       updatedAt: string;
       createdAt: string;
       id: number;
     };
+
+    // 팀 생성 성공 후 관련 캐시 무효화
+    revalidatePath("/teamlist");
+    // 새로 생성된 팀 페이지도 무효화
+    if (result.id) {
+      revalidatePath(`/${result.id}`);
+    }
+
+    return result;
   } catch {
     return {
       error: true,
@@ -362,8 +372,8 @@ export async function getGroupInvitation(groupId: string) {
       };
     }
 
-    // API가 토큰 문자열을 직접 반환
-    const token = await response.text();
+    // API가 토큰 문자열을 직접 반환 (큰따옴표 제거)
+    const token = (await response.text()).replace(/^"|"$/g, "");
     return { token };
   } catch {
     return {
@@ -387,6 +397,7 @@ export async function postGroupAcceptInvitation(data: {
     const response = await fetchApi(`${BASE_URL}/groups/accept-invitation`, {
       method: "POST",
       body: JSON.stringify(data),
+      // POST 요청은 fetchApi를 통해 자동으로 캐싱되지 않음
     });
 
     if (!response.ok) {
@@ -398,7 +409,13 @@ export async function postGroupAcceptInvitation(data: {
       };
     }
 
-    return (await response.json()) as { groupId: number };
+    const result = (await response.json()) as { groupId: number };
+
+    // 초대 수락 성공 후 관련 캐시 무효화
+    revalidatePath(`/${result.groupId}`);
+    revalidatePath("/teamlist");
+
+    return result;
   } catch {
     return {
       error: true,
@@ -419,6 +436,7 @@ export async function postGroupMember(
     const response = await fetchApi(`${BASE_URL}/groups/${groupId}/member`, {
       method: "POST",
       body: JSON.stringify(data),
+      // POST 요청은 fetchApi를 통해 자동으로 캐싱되지 않음
     });
 
     if (!response.ok) {
@@ -429,7 +447,12 @@ export async function postGroupMember(
       };
     }
 
-    return await response.json();
+    const result = await response.json();
+
+    // 멤버 추가 성공 후 관련 캐시 무효화
+    revalidatePath(`/${groupId}`);
+
+    return result;
   } catch {
     return {
       error: true,

@@ -100,72 +100,75 @@ export default function EditTeamContainer({
   };
 
   return (
-    <div className="w-full flex flex-col lg:items-center">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        className="hidden"
-        aria-label="팀 프로필 이미지 선택"
-      />
-      <Form
-        centered={false}
-        topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
-        onSubmit={handleSubmit(onSubmit)}
-        title="팀 수정하기"
-        profile={
-          <div className="w-full flex flex-col gap-4 sm:gap-6 lg:gap-8">
-            <label className="text-sm sm:text-md text-text-primary">
-              팀 프로필
-            </label>
-            <div className="relative inline-block w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64">
-              <Avatar
-                imageUrl={previewUrl}
-                altText="팀 프로필"
-                size="xlarge"
-                isEditable={true}
-                onEditClick={handleImageClick}
-              />
+    <div className="w-full flex flex-col items-center px-16 sm:px-0">
+      <div className="w-full max-w-600 flex flex-col items-center">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="hidden"
+          aria-label="팀 프로필 이미지 선택"
+        />
+        <Form
+          centered={false}
+          topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
+          onSubmit={handleSubmit(onSubmit)}
+          title="팀 수정하기"
+          profile={
+            <div className="w-full flex flex-col gap-4 sm:gap-6 lg:gap-8">
+              <label className="text-sm sm:text-md text-text-primary">
+                팀 프로필
+              </label>
+              <div className="relative inline-block w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64">
+                <Avatar
+                  imageUrl={previewUrl}
+                  altText="팀 프로필"
+                  variant="team"
+                  size="xlarge"
+                  isEditable={true}
+                  onEditClick={handleImageClick}
+                />
+              </div>
             </div>
-          </div>
-        }
-        register={register}
-        errors={errors}
-        trigger={trigger}
-        input={[
-          {
-            name: "teamName",
-            label: "팀 이름",
-            placeholder: "팀 이름을 입력해주세요.",
-            variant: errors.teamName ? "error" : "default",
-            size: "large",
-            type: "text",
-            full: true,
-            registerOptions: {
-              required: "팀 이름은 필수 입력입니다.",
-              maxLength: {
-                value: 30,
-                message: "팀 이름은 30자 이하로 입력해주세요.",
+          }
+          register={register}
+          errors={errors}
+          trigger={trigger}
+          input={[
+            {
+              name: "teamName",
+              label: "팀 이름",
+              placeholder: "팀 이름을 입력해주세요.",
+              variant: errors.teamName ? "error" : "default",
+              size: "large",
+              type: "text",
+              full: true,
+              registerOptions: {
+                required: "팀 이름은 필수 입력입니다.",
+                maxLength: {
+                  value: 30,
+                  message: "팀 이름은 30자 이하로 입력해주세요.",
+                },
               },
-            },
-            message: errors.teamName?.message,
-            showError: !!errors.teamName,
-          } as InputConfig,
-        ]}
-        button={{
-          label: "수정하기",
-          variant: "solid",
-          size: "large",
-          full: true,
-          loading: isSubmitting,
-        }}
-      />
-      <FormFooter>
-        <span className="text-sm sm:text-md">
-          팀 이름은 회사명이나 모임 이름 등으로 설정하면 좋아요.
-        </span>
-      </FormFooter>
+              message: errors.teamName?.message,
+              showError: !!errors.teamName,
+            } as InputConfig,
+          ]}
+          button={{
+            label: "수정하기",
+            variant: "solid",
+            size: "large",
+            full: true,
+            loading: isSubmitting,
+          }}
+        />
+        <FormFooter>
+          <span className="text-sm sm:text-md">
+            팀 이름은 회사명이나 모임 이름 등으로 설정하면 좋아요.
+          </span>
+        </FormFooter>
+      </div>
     </div>
   );
 }

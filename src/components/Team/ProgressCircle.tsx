@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { useCountAnimation } from "@/hooks/useCountAnimation";
+import { useCountAnimation } from "@/hooks/Team/useCountAnimation";
 import {
   DESKTOP_CONFIG,
   MOBILE_CONFIG,

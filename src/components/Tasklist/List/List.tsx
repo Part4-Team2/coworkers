@@ -17,6 +17,7 @@ export interface ListProps extends TaskListItem {
   onUpdateTask?: (taskId: number, updates: Partial<TaskListItem>) => void;
   onDeleteTask?: (task: { id: number; recurringId: number }) => void;
   onEditTask?: (taskId: number) => void;
+  hideKebab?: boolean;
 }
 
 export default function List(props: ListProps) {
@@ -34,6 +35,7 @@ export default function List(props: ListProps) {
     onDeleteTask,
     recurringId,
     onEditTask,
+    hideKebab = false,
     ...rest
   } = props;
 
@@ -53,7 +55,7 @@ export default function List(props: ListProps) {
   return (
     <div
       onClick={onClick}
-      className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-[8px] cursor-pointer"
+      className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-lg cursor-pointer"
     >
       <div className="flex items-center justify-between ">
         <div className="flex items-center gap-7">
@@ -85,56 +87,60 @@ export default function List(props: ListProps) {
             </div>
           )}
         </div>
-        <div
-          className="relative"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <Dropdown
-            options={kebab.dropdownOptions}
-            size="md"
-            trigger="icon"
-            icon="kebabLarge"
-            listPosition="absolute right-0 top-full mt-5"
-            onSelect={kebab.handleDropdownSelect}
-          />
-        </div>
-        <Modal
-          isOpen={kebab.isModalOpen}
-          onClose={kebab.handleModalClose}
-          title={kebab.deleteModalTitle}
-          description={kebab.deleteModalDescription}
-          primaryButton={{
-            label: "삭제하기",
-            onClick: kebab.handleDeleteConfirm,
-            variant: "danger",
-          }}
-          secondaryButton={{
-            label: "닫기",
-            onClick: kebab.handleModalClose,
-          }}
-        />
-      </div>
+        {!hideKebab && (
+          <>
+            <div
+              className="relative"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <Dropdown
+                options={kebab.dropdownOptions}
+                size="md"
+                trigger="icon"
+                icon="kebabLarge"
+                listPosition="absolute right-0 top-full mt-5"
+                onSelect={kebab.handleDropdownSelect}
+              />
+            </div>
+            <Modal
+              isOpen={kebab.isModalOpen}
+              onClose={kebab.handleModalClose}
+              title={kebab.deleteModalTitle}
+              description={kebab.deleteModalDescription}
+              primaryButton={{
+                label: "삭제하기",
+                onClick: kebab.handleDeleteConfirm,
+                variant: "danger",
+              }}
+              secondaryButton={{
+                label: "닫기",
+                onClick: kebab.handleModalClose,
+              }}
+            />
+          </>
+        )}
 
-      {variant === "detailed" && (
-        <div className="flex items-center gap-10 text-text-default text-xs font-regular">
-          <div className="flex items-center gap-6">
-            <SVGIcon icon="calendar" size="xxs" />
-            <span>{date ? formatDate(date) : "-"}</span>
+        {variant === "detailed" && (
+          <div className="flex items-center gap-10 text-text-default text-xs font-regular">
+            <div className="flex items-center gap-6">
+              <SVGIcon icon="calendar" size="xxs" />
+              <span>{date ? formatDate(date) : "-"}</span>
+            </div>
+            <div className="w-px h-8 bg-background-tertiary" />
+            <div className="flex items-center gap-6">
+              <SVGIcon icon="iconTime" size="xxs" />
+              <span>{date ? formatTime(date) : "-"}</span>
+            </div>
+            <div className="w-px h-8 bg-background-tertiary " />
+            <div className="flex items-center gap-6">
+              <SVGIcon icon="iconRepeat" size="xxs" />
+              <span>{getFrequencyText(frequency)}</span>
+            </div>
           </div>
-          <div className="w-px h-8 bg-background-tertiary" />
-          <div className="flex items-center gap-6">
-            <SVGIcon icon="iconTime" size="xxs" />
-            <span>{date ? formatTime(date) : "-"}</span>
-          </div>
-          <div className="w-px h-8 bg-background-tertiary " />
-          <div className="flex items-center gap-6">
-            <SVGIcon icon="iconRepeat" size="xxs" />
-            <span>{getFrequencyText(frequency)}</span>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import Form from "@/components/Common/Form/Form";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useHeaderStore } from "@/store/headerStore";
 import { InputConfig } from "@/components/Common/Form/types";
 import { postSignup } from "@/lib/api/auth";
 import { SignUpRequestBody } from "@/lib/types/auth";
@@ -18,6 +19,7 @@ interface SignupFormData {
 
 export default function SignupContainer() {
   const router = useRouter();
+  const fetchUser = useHeaderStore((s) => s.fetchUser);
   const [signupError, setSignupError] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,6 +53,8 @@ export default function SignupContainer() {
         setIsSubmitting(false);
         return;
       }
+
+      await fetchUser();
       router.push("/");
     } catch (error) {
       const errorMessage =
@@ -61,12 +65,6 @@ export default function SignupContainer() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleGoogleSignup = () => {
-    // TODO: 구글 회원가입 구현
-    // console.log("구글 회원가입");
-    // router.push("/oauth/signup/google");
   };
 
   const handleKakaoSignup = () => {
@@ -184,11 +182,7 @@ export default function SignupContainer() {
           loading: isSubmitting,
         }}
       />
-      <SocialForm
-        text="간편 회원가입하기"
-        onGoogle={handleGoogleSignup}
-        onKakao={handleKakaoSignup}
-      />
+      <SocialForm text="간편 회원가입하기" onKakao={handleKakaoSignup} />
     </div>
   );
 }

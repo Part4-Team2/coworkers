@@ -6,50 +6,50 @@ import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import ArticleImage from "./ArticleImage";
 import { useRouter } from "next/navigation";
+import { Article } from "@/types/article";
 
 interface ArticleProps {
-  id: number;
-  title: string;
-  createdAt: string;
-  avatarImageUrl?: string;
-  articleImageUrl?: string;
-  likeCount: number;
-  writer: {
-    id: number;
-    nickname: string;
-  };
+  article: Article;
+  currentUserId: number | null;
 }
 
 const WRITEOPTIONS = ["수정하기", "삭제하기"];
 
-function ArticleComp({
-  id,
-  title,
-  createdAt,
-  avatarImageUrl,
-  articleImageUrl,
-  likeCount,
-  writer,
-}: ArticleProps) {
+function ArticleComp({ article, currentUserId }: ArticleProps) {
   const router = useRouter();
+  const isAuthor = currentUserId === article.writer.id;
 
-  const handleKebabClick = (value: string) => {
-    if (value === WRITEOPTIONS[0]) console.log("수정하기 누름");
-    else console.log("삭제하기 누름");
+  // 케밥 리스트를 클릭하면 작동하는 함수입니다.
+  const handleKebabClick = async (value: string) => {
+    if (!isAuthor) {
+      alert("게시글 수정/삭제 권한이 없습니다.");
+      return;
+    }
+
+    if (value === "수정하기") {
+      console.log("수정하기 누름");
+      router.push(`/boards/${article.id}/edit`);
+    }
+
+    if (value === "삭제하기") {
+      console.log("삭제하기 누름");
+      router.push(`/boards/${article.id}`);
+    }
   };
 
-  if (typeof id !== "number") return null;
+  // id가 정수가 아닐 시 그냥 리턴
+  if (typeof article.id !== "number") return null;
 
   return (
     <div
       className={clsx(
-        "w-343 h-162 sm:w-696 sm:h-176 lg:w-590",
+        "w-343 h-162 sm:w-696 sm:h-176 lg:w-590 relative",
         "bg-background-secondary hover:bg-background-tertiary px-32 py-24",
         "rounded-xl border border-text-primary/10"
       )}
-      onClick={() => router.push(`/boards/${id}`)}
+      onClick={() => router.push(`/boards/${article.id}`)}
     >
-      <div className="h-full flex flex-col justify-between relative">
+      <div className="h-full flex flex-col justify-between ">
         <div className="flex justify-between items-center">
           <div
             className={clsx(
@@ -57,43 +57,48 @@ function ArticleComp({
               "overflow-hidden text-ellipsis line-clamp-2"
             )}
           >
-            {title}
+            {article.title}
           </div>
-          {articleImageUrl && <ArticleImage image={articleImageUrl} />}
+          {article.image && <ArticleImage image={article.image} />}
         </div>
         <div
-          className="absolute top-0 right-0 cursor-pointer"
+          className="absolute top-10 right-10 cursor-pointer"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
           }}
         >
-          <Dropdown
-            options={WRITEOPTIONS}
-            onSelect={handleKebabClick}
-            size="md"
-            trigger="icon"
-            value={WRITEOPTIONS[0]}
-            icon="kebabLarge"
-          />
+          {isAuthor && (
+            <Dropdown
+              options={WRITEOPTIONS}
+              onSelect={handleKebabClick}
+              size="md"
+              trigger="icon"
+              value={WRITEOPTIONS[0]}
+              icon="kebabLarge"
+              listPosition="top-full right-0"
+            />
+          )}
         </div>
         <div className="flex gap-16 items-center text-slate-400 text-md">
           <div className="flex gap-12 items-center text-text-primary">
             <Avatar
-              imageUrl={avatarImageUrl}
-              altText={`${writer.nickname} 프로필`}
+              imageUrl={undefined}
+              altText={`${article.writer.nickname} 프로필`}
               size="large"
             />
-            <span>{writer.nickname}</span>
+            <span>{article.writer.nickname}</span>
           </div>
           <span>|</span>
           <div className="flex flex-1 justify-between">
-            <span>{createdAt}</span>
+            <span>{article.createdAt}</span>
             <div className={clsx("flex gap-4 items-center")}>
               <span>
                 <SVGIcon icon="heart" size="xxs" />
               </span>
-              <span>{likeCount > 9999 ? "9999+" : likeCount}</span>
+              <span>
+                {article.likeCount > 9999 ? "9999+" : article.likeCount}
+              </span>
             </div>
           </div>
         </div>

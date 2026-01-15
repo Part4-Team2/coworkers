@@ -22,6 +22,7 @@ export async function postOauthApps(data: UpsertOauthAppRequestBody) {
     const response = await fetchApi(`${BASE_URL}/oauth/apps`, {
       method: "POST",
       body: JSON.stringify(data),
+      // POST 요청은 캐싱하지 않음 (OAuth 앱 등록/수정은 상태 변경 작업)
     });
 
     if (!response.ok) {

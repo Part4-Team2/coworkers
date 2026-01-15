@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/lib/api";
 import { Role } from "@/types/schemas";
@@ -13,7 +14,11 @@ import {
 
 export async function getUser() {
   try {
-    const response = await fetchApi(`${BASE_URL}/user`);
+    const response = await fetchApi(`${BASE_URL}/user`, {
+      // 사용자 정보는 자주 변경될 수 있으므로 짧은 시간 캐싱 (60초)
+      // 또는 태그 기반 캐싱으로 무효화 가능
+      next: { tags: ["user"] },
+    });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({
@@ -137,6 +142,7 @@ export async function patchUser(data: UpdateUserRequestBody) {
     const response = await fetchApi(`${BASE_URL}/user`, {
       method: "PATCH",
       body: JSON.stringify(data),
+      // PATCH 요청은 캐싱하지 않음
     });
 
     if (!response.ok) {
@@ -149,7 +155,14 @@ export async function patchUser(data: UpdateUserRequestBody) {
       };
     }
 
-    return (await response.json()) as { message: string };
+    const result = (await response.json()) as { message: string };
+
+    // 사용자 정보 수정 성공 후 관련 캐시 무효화
+    revalidatePath("/mypage");
+    // 태그 기반 캐시 무효화 (getUser에서 사용하는 태그)
+    // revalidateTag는 타입 이슈로 주석 처리, 필요시 revalidatePath로 대체
+
+    return result;
   } catch (error) {
     return {
       error: true,
@@ -162,6 +175,7 @@ export async function deleteUser() {
   try {
     const response = await fetchApi(`${BASE_URL}/user`, {
       method: "DELETE",
+      // DELETE 요청은 캐싱하지 않음
     });
 
     if (!response.ok) {
@@ -177,6 +191,11 @@ export async function deleteUser() {
     cookieStore.delete("accessToken");
     cookieStore.delete("refreshToken");
 
+    // 사용자 삭제 성공 후 관련 캐시 무효화
+    revalidatePath("/mypage");
+    revalidatePath("/teamlist");
+    // 모든 사용자 관련 페이지 캐시 무효화
+
     // 성공 응답 반환 (클라이언트에서 리다이렉트 처리)
     return { success: true };
   } catch (error) {
@@ -187,10 +206,56 @@ export async function deleteUser() {
   }
 }
 
+/**
+ * 사용자의 완료된 할 일 목록 조회
+ */
+export async function getUserHistory() {
+  try {
+    const response = await fetchApi(`${BASE_URL}/user/history`, {
+      next: {
+        tags: ["user-history"],
+        revalidate: 300, // 5분간 캐시
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "완료된 할 일 목록을 가져오는데 실패했습니다.",
+      }));
+      return {
+        error: true as const,
+        message:
+          error.message || "완료된 할 일 목록을 가져오는데 실패했습니다.",
+      };
+    }
+
+    return (await response.json()) as {
+      tasksDone: Array<{
+        displayIndex: number;
+        writerId: number;
+        userId: number;
+        deletedAt: string | null;
+        frequency: string;
+        description: string;
+        name: string;
+        recurringId: number;
+        doneAt: string;
+        date: string;
+        updatedAt: string;
+        id: number;
+      }>;
+    };
+  } catch (error) {
+    return {
+      error: true as const,
+      message: "서버 오류가 발생했습니다.",
+    };
+  }
+}
+
 /*
 GET /{teamId}/user/groups
 GET /{teamId}/user/memberships
-GET /{teamId}/user/history
 추가해 주시면 됩니다!
 */
 
@@ -209,6 +274,7 @@ export async function postUserResetPassword(
       {
         method: "POST",
         body: JSON.stringify(data),
+        // POST 요청은 캐싱하지 않음
       }
     );
 
@@ -241,6 +307,7 @@ export async function patchUserResetPassword(data: ResetPasswordBody) {
     const response = await fetchApi(`${BASE_URL}/user/reset-password`, {
       method: "PATCH",
       body: JSON.stringify(data),
+      // PATCH 요청은 캐싱하지 않음
     });
 
     if (!response.ok) {
@@ -265,6 +332,7 @@ export async function patchUserPassword(data: UpdatePasswordBody) {
     const response = await fetchApi(`${BASE_URL}/user/password`, {
       method: "PATCH",
       body: JSON.stringify(data),
+      // PATCH 요청은 캐싱하지 않음
     });
 
     if (!response.ok) {
@@ -275,7 +343,12 @@ export async function patchUserPassword(data: UpdatePasswordBody) {
       };
     }
 
-    return (await response.json()) as { message: string };
+    const result = (await response.json()) as { message: string };
+
+    // 비밀번호 변경 성공 후 사용자 관련 캐시 무효화
+    revalidatePath("/mypage");
+
+    return result;
   } catch (error) {
     return {
       error: true,

@@ -96,22 +96,14 @@ export default function TeamListContainer({ teams }: TeamListContainerProps) {
 
       {/* 팀 목록 영역 */}
       <div className="w-full max-w-580 flex flex-col gap-10 p-24 pl-25 rounded-xl bg-background-secondary">
-        {teams.map((team) => {
-          // 이미지가 없거나 example.com인 경우 undefined 처리 (기본 이미지 사용)
-          const isValidImage =
-            team.image &&
-            team.image.trim() !== "" &&
-            !team.image.startsWith("https://example.com");
-
-          return (
-            <TeamListItem
-              key={team.id}
-              teamName={team.name}
-              teamImage={isValidImage ? team.image! : undefined}
-              onClick={() => handleTeamClick(team.id)}
-            />
-          );
-        })}
+        {teams.map((team) => (
+          <TeamListItem
+            key={team.id}
+            teamName={team.name}
+            teamImage={team.image ?? undefined}
+            onClick={() => handleTeamClick(team.id)}
+          />
+        ))}
       </div>
 
       {/* 버튼 영역 */}

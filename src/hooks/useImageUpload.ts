@@ -19,6 +19,13 @@ export function useImageUpload(initialImageUrl?: string): UseImageUploadReturn {
     () => initialImageUrl
   );
 
+  const cleanUpObjectURL = () => {
+    if (previousBlobUrlRef.current) {
+      URL.revokeObjectURL(previousBlobUrlRef.current);
+      previousBlobUrlRef.current = null;
+    }
+  };
+
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
@@ -42,9 +49,7 @@ export function useImageUpload(initialImageUrl?: string): UseImageUploadReturn {
     }
 
     // 기존 생성한 blob URL 메모리 해제
-    if (previousBlobUrlRef.current) {
-      URL.revokeObjectURL(previousBlobUrlRef.current);
-    }
+    cleanUpObjectURL();
 
     // 새 미리보기 URL 생성
     const objectUrl = URL.createObjectURL(file);
@@ -56,10 +61,7 @@ export function useImageUpload(initialImageUrl?: string): UseImageUploadReturn {
 
   const resetImage = () => {
     // 생성한 blob URL 메모리 해제
-    if (previousBlobUrlRef.current) {
-      URL.revokeObjectURL(previousBlobUrlRef.current);
-      previousBlobUrlRef.current = null;
-    }
+    cleanUpObjectURL();
 
     setPreviewUrl(initialImageUrl);
     setSelectedFile(null);
@@ -78,11 +80,7 @@ export function useImageUpload(initialImageUrl?: string): UseImageUploadReturn {
 
   // cleanup: 컴포넌트 언마운트 시 메모리 해제
   useEffect(() => {
-    return () => {
-      if (previousBlobUrlRef.current) {
-        URL.revokeObjectURL(previousBlobUrlRef.current);
-      }
-    };
+    return cleanUpObjectURL;
   }, []);
 
   return {

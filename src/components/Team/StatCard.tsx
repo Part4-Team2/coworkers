@@ -2,7 +2,7 @@
 
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { IconMapTypes } from "@/components/Common/SVGIcon/iconMap";
-import { useCountAnimation } from "@/hooks/useCountAnimation";
+import { useCountAnimation } from "@/hooks/Team/useCountAnimation";
 
 interface StatCardProps {
   title: string;
