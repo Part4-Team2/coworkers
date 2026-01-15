@@ -56,7 +56,7 @@ export default function ResetContainer() {
         setIsSubmitting(false);
         return;
       }
-      router.push("/");
+      router.push("/login");
     } catch (error) {
       setResetError("비밀번호 재설정에 실패했습니다. 다시 시도해주세요.");
     } finally {
@@ -65,7 +65,7 @@ export default function ResetContainer() {
   };
 
   return (
-    <div className="w-full flex flex-col items-center px-16 sm:px-0">
+    <div className="w-full flex flex-col items-center px-16 sm:px-24 lg:px-0">
       <div className="w-full max-w-600 flex flex-col items-center">
         <Form
           centered={false}
