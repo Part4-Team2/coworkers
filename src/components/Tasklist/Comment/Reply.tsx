@@ -40,14 +40,6 @@ export default function Reply({ taskId }: ReplyProps) {
     setComments((prev) => [...prev, comment]);
   };
 
-  if (!comments.length) {
-    return (
-      <div className="mt-16 text-text-secondary text-sm">
-        아직 댓글이 없습니다.
-      </div>
-    );
-  }
-
   return (
     <div>
       <InputReply taskId={taskId} onCreate={handleAdd} />

@@ -139,6 +139,7 @@ export default function TaskDetailsContainer({
   };
 
   const handleCompleteTaskButton = async () => {
+    const prevComplete = isComplete;
     const newDoneState = !isComplete;
 
     // 낙관적 업데이트
@@ -151,7 +152,7 @@ export default function TaskDetailsContainer({
 
       if ("error" in result) {
         // 실패 시 롤백
-        setIsComplete(isComplete);
+        setIsComplete(prevComplete);
         alert(result.message);
         return;
       }
@@ -245,6 +246,7 @@ export default function TaskDetailsContainer({
         </div>
         <div className="flex items-center">
           <Avatar
+            imageUrl={taskData.writer?.image ?? undefined}
             altText={`${taskData.writer?.nickname} 프로필`}
             size="large"
           />

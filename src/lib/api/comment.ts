@@ -58,7 +58,6 @@ export async function createComment(
     }
 
     const data = (await response.json()) as CommentResponse;
-    revalidatePath(`/${taskId}`);
     return { success: true, data };
   } catch {
     return {
@@ -92,9 +91,6 @@ export async function patchComment(
       };
     }
 
-    revalidatePath(`/${taskId}`);
-    revalidatePath(`/${taskId}/comment`);
-    revalidatePath("/tasks");
     return { success: true, data: undefined };
   } catch {
     return {
@@ -126,7 +122,6 @@ export async function deleteComment(
       };
     }
 
-    revalidatePath(`/${taskId}`);
     return { success: true, data: undefined };
   } catch {
     return {
