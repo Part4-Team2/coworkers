@@ -8,7 +8,7 @@ import { useHeaderStore } from "@/store/headerStore";
 interface SideHeaderProps {
   isOpen: boolean;
   teams: {
-    teamId: number;
+    teamId: string;
     teamName: string;
     teamImage: string | null;
     role: string;
@@ -28,7 +28,7 @@ function SideHeaderDesktop({
   const setActiveTeam = useHeaderStore((s) => s.setActiveTeam);
 
   const handleClickTeam = (team: {
-    teamId: number;
+    teamId: string;
     teamName: string;
     teamImage: string | null;
     role: string;

@@ -215,7 +215,7 @@ function Header() {
         ) : (
           <div
             className={clsx("flex items-center cursor-pointer")}
-            onClick={() => router.push("login")}
+            onClick={() => router.push("/login")}
           >
             로그인
           </div>

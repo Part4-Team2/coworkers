@@ -8,7 +8,7 @@ import SVGIcon from "../../SVGIcon/SVGIcon";
 interface SideHeaderProps {
   isOpen: boolean;
   teams: {
-    teamId: number;
+    teamId: string;
     teamName: string;
     teamImage: string | null;
     role: string;
@@ -25,10 +25,11 @@ function SideHeaderMobile({
   onClose,
 }: SideHeaderProps) {
   const router = useRouter();
+  const isLogin = useHeaderStore((s) => s.isLogin);
   const setActiveTeam = useHeaderStore((s) => s.setActiveTeam);
 
   const handleClickTeam = (team: {
-    teamId: number;
+    teamId: string;
     teamName: string;
     teamImage: string | null;
     role: string;
@@ -85,14 +86,16 @@ function SideHeaderMobile({
         >
           자유게시판
         </div>
-        <div
-          className={clsx("text-brand-primary")}
-          onClick={() => {
-            handleClickPath("addteam");
-          }}
-        >
-          팀 생성하기
-        </div>
+        {isLogin && (
+          <div
+            className={clsx("text-brand-primary")}
+            onClick={() => {
+              handleClickPath("addteam");
+            }}
+          >
+            팀 생성하기
+          </div>
+        )}
       </div>
     </div>
   );

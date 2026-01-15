@@ -2,8 +2,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { getUser } from "@/lib/api/user";
 
-interface Team {
-  teamId: number;
+export interface HeaderTeam {
+  teamId: string;
   teamName: string;
   teamImage: string | null;
   role: string;
@@ -14,9 +14,9 @@ interface HeaderStoreState {
   isLogin: boolean;
   nickname: string | null;
   profileImage: string | null;
-  teams: Team[];
-  activeTeam: Team | null;
-  setActiveTeam: (team: Team) => void;
+  teams: HeaderTeam[];
+  activeTeam: HeaderTeam | null;
+  setActiveTeam: (team: HeaderTeam) => void;
   fetchUser: () => Promise<void>;
   clearUser: () => void;
 }
@@ -48,8 +48,8 @@ export const useHeaderStore = create<HeaderStoreState>()(
           return;
         }
 
-        const teams = res.memberships.map((team) => ({
-          teamId: team.group.id,
+        const teams: HeaderTeam[] = res.memberships.map((team) => ({
+          teamId: team.group.id.toString(),
           teamName: team.group.name,
           teamImage: team.group.image,
           role: team.role,
