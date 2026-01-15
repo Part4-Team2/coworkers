@@ -97,7 +97,7 @@ export function useMemberActions({
         process.env.NEXT_PUBLIC_APP_URL ||
         process.env.NEXT_PUBLIC_BASE_URL ||
         "http://localhost:3000";
-      const inviteLink = `${baseUrl}/invite?token=${result.token}`;
+      const inviteLink = `${baseUrl}/jointeam?token=${result.token}`;
 
       // 클립보드에 복사
       await navigator.clipboard.writeText(inviteLink);

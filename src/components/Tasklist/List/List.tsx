@@ -50,10 +50,26 @@ export default function List(props: ListProps) {
     ),
   });
 
+  hideKebab?: boolean;
+}
+
+export default function List({
+  id, // 부모에서 사용
+  isToggle = false,
+  onToggle,
+  name,
+  onClickKebab,
+  variant,
+  commentCount,
+  frequency,
+  date,
+  onClick,
+  hideKebab = false,
+}: ListProps) {
   return (
     <div
       onClick={onClick}
-      className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-[8px] cursor-pointer"
+      className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-lg cursor-pointer"
     >
       <div className="flex items-center justify-between ">
         <div className="flex items-center gap-7">
@@ -115,6 +131,17 @@ export default function List(props: ListProps) {
             onClick: kebab.handleModalClose,
           }}
         />
+        {!hideKebab && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClickKebab?.(id);
+            }}
+            aria-label="옵션 메뉴 열기"
+          >
+            <SVGIcon icon="kebabSmall" />
+          </button>
+        )}
       </div>
 
       {variant === "detailed" && (

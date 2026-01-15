@@ -4,6 +4,7 @@ import { useBlurActiveElement } from "@/hooks/useBlurActiveElement";
 
 interface TeamHeaderProps {
   teamName: string;
+  userRole: "ADMIN" | "MEMBER";
   onEdit?: () => void;
   onDelete?: () => void;
 }
@@ -15,6 +16,7 @@ const DROPDOWN_ACTIONS = {
 
 export default function TeamHeader({
   teamName,
+  userRole,
   onEdit,
   onDelete,
 }: TeamHeaderProps) {
@@ -40,16 +42,18 @@ export default function TeamHeader({
         <SVGIcon icon="thumbnailTeam" width={181} height={64} />
       </div>
 
-      <div className="absolute right-24 top-1/2 -translate-y-1/2 flex items-center justify-center">
-        <Dropdown
-          options={[DROPDOWN_ACTIONS.EDIT, DROPDOWN_ACTIONS.DELETE]}
-          onSelect={handleSelect}
-          size="md"
-          trigger="icon"
-          icon="gear"
-          listPosition="top-[calc(100%+8px)] right-0"
-        />
-      </div>
+      {userRole === "ADMIN" && (
+        <div className="absolute right-24 top-1/2 -translate-y-1/2 flex items-center justify-center">
+          <Dropdown
+            options={[DROPDOWN_ACTIONS.EDIT, DROPDOWN_ACTIONS.DELETE]}
+            onSelect={handleSelect}
+            size="md"
+            trigger="icon"
+            icon="gear"
+            listPosition="top-[calc(100%+8px)] right-0"
+          />
+        </div>
+      )}
     </div>
   );
 }

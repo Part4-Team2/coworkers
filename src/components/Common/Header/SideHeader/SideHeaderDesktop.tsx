@@ -3,49 +3,76 @@
 import clsx from "clsx";
 import Avatar from "../../Avatar/Avatar";
 import { useRouter } from "next/navigation";
+import { useHeaderStore } from "@/store/headerStore";
 
 interface SideHeaderProps {
   isOpen: boolean;
   teams: {
-    teamId: number;
+    teamId: string;
     teamName: string;
     teamImage: string | null;
+    role: string;
   }[];
-  onClick: () => void;
+  wrapperRef: React.RefObject<HTMLDivElement | null>;
+  onClose: () => void;
 }
 
 // Header 컴포 요소 중 팀 옆 토글 버튼 누를사 등장하는 사이드 바입니다.
-function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
+function SideHeaderDesktop({
+  isOpen,
+  teams,
+  wrapperRef,
+  onClose,
+}: SideHeaderProps) {
   const router = useRouter();
+  const setActiveTeam = useHeaderStore((s) => s.setActiveTeam);
 
-  // Team 명을 클릭할때 소속 팀 화면으로 이동하는 함수입니다.
-  // button이 아닌 Link로 변경할 수 있습니다.
-  const handleClickTeam = (team: number) => {
-    onClick();
-    router.push(`/${team}`);
+  const handleClickTeam = (team: {
+    teamId: string;
+    teamName: string;
+    teamImage: string | null;
+    role: string;
+  }) => {
+    setActiveTeam(team);
+    router.push(`/${team.teamId}`);
+    onClose();
+  };
+
+  // 나머지 서비스를 클릭할때 이름에 맞게 이동하는 함수입니다.
+  const handleClickPath = (path: number | string) => {
+    router.push(`/${path}`);
+    onClose();
   };
 
   return (
     <div
+      ref={wrapperRef}
       className={clsx(
         "absolute top-full right-0 z-50",
         "bg-background-secondary w-218 p-16",
         "border border-text-primary/10 rounded-xl",
-        isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+        isOpen
+          ? "translate-x-0 opacity-100 pointer-events-auto"
+          : "translate-x-full opacity-0 pointer-events-none"
       )}
     >
       <div className="flex flex-col gap-16">
-        <div className="flex flex-col gap-8">
+        <div className={clsx("flex flex-col gap-8")}>
           {teams.map((team) => {
             return (
-              // 왼쪽 : 팀 이미지 + 팀 네임
+              // 팀 이미지 + 팀 네임
               <div
                 key={team.teamId}
                 className={clsx(
                   "cursor-pointer",
-                  "flex justify-between items-center"
+                  "flex justify-between items-center",
+                  "px-8 py-7 rounded-lg",
+                  "hover:bg-background-tertiary"
                 )}
-                onClick={() => handleClickTeam(team.teamId)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClickTeam(team);
+                }}
               >
                 <div
                   className={clsx("flex flex-1 min-w-0 gap-12 items-center")}
@@ -59,8 +86,7 @@ function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
                   <span
                     className={clsx(
                       "text-base text-white",
-                      "overflow-hidden text-ellipsis line-clamp-1",
-                      "hover:decoration-solid hover:underline"
+                      "overflow-hidden text-ellipsis line-clamp-1"
                     )}
                   >
                     {team.teamName}
@@ -69,6 +95,19 @@ function SideHeaderDesktop({ isOpen, teams, onClick }: SideHeaderProps) {
               </div>
             );
           })}
+        </div>
+        <div
+          className={clsx(
+            "flex justify-center px-45 py-15",
+            "border border-white rounded-xl",
+            "hover:bg-background-tertiary"
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClickPath("addteam");
+          }}
+        >
+          + 팀 추가하기
         </div>
       </div>
     </div>

@@ -63,16 +63,27 @@ export default function SignupContainer() {
     }
   };
 
-  const handleGoogleSignup = () => {
-    // TODO: 구글 회원가입 구현
-    // console.log("구글 회원가입");
-    // router.push("/oauth/signup/google");
-  };
+  const handleKakaoSignup = async () => {
+    // 카카오 OAuth 인증 URL로 리다이렉트 (로그인과 동일한 플로우)
+    const APP_URL =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      "http://localhost:3000";
+    const redirectUri = `${APP_URL}/oauth/kakao`;
+    const state = Math.random().toString(36).substring(2, 15); // CSRF 방지를 위한 state
 
-  const handleKakaoSignup = () => {
-    // TODO: 카카오 회원가입 구현
-    // console.log("카카오 회원가입");
-    // router.push("/oauth/signup/kakao");
+    const kakaoClientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
+
+    if (!kakaoClientId) {
+      console.error("카카오 REST API 키가 설정되지 않았습니다.");
+      alert("카카오 로그인 설정이 필요합니다.");
+      return;
+    }
+
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&state=${state}`;
+
+    // 카카오 인증 페이지로 리다이렉트
+    window.location.href = kakaoAuthUrl;
   };
 
   return (
@@ -184,11 +195,7 @@ export default function SignupContainer() {
           loading: isSubmitting,
         }}
       />
-      <SocialForm
-        text="간편 회원가입하기"
-        onGoogle={handleGoogleSignup}
-        onKakao={handleKakaoSignup}
-      />
+      <SocialForm text="간편 회원가입하기" onKakao={handleKakaoSignup} />
     </div>
   );
 }

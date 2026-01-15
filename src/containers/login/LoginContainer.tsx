@@ -46,6 +46,7 @@ export default function LoginContainer() {
     register: registerReset,
     handleSubmit: handleSubmitReset,
     formState: { errors: resetErrors },
+    setError: setResetErrorField,
   } = useForm<ResetPasswordFormData>({
     mode: "onBlur",
   });
@@ -53,6 +54,7 @@ export default function LoginContainer() {
   const handleClose = () => {
     setOpenModal(null);
     setLoginError("");
+    setResetError("");
   };
 
   const onSubmit = async (data: LoginFormData) => {
@@ -70,7 +72,6 @@ export default function LoginContainer() {
         setIsSubmitting(false);
         return;
       }
-      // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
       router.push("/");
       // 관련된 모든 처리는 서버에서 관리해야함! 현재는 클라이언트
     } catch (error) {
@@ -94,28 +95,52 @@ export default function LoginContainer() {
     try {
       const response = await postUserResetPassword(requestData);
       if ("error" in response) {
-        setResetError(response.message);
+        // "User not found" 에러 메시지를 "회원가입되지 않은 이메일입니다."로 변경
+        let errorMessage =
+          response.message || "비밀번호 재설정 이메일 전송에 실패했습니다.";
+        if (errorMessage.toLowerCase().includes("user not found")) {
+          errorMessage = "회원가입되지 않은 이메일입니다.";
+        }
+
+        setResetError(errorMessage);
+        // 인풋에도 에러 표시
+        setResetErrorField("email", {
+          type: "manual",
+          message: errorMessage,
+        });
         setIsSubmitting(false);
         return;
       }
       handleClose();
     } catch (error) {
-      setResetError("링크를 보내는데 실패했습니다. 다시 시도해주세요.");
+      const errorMessage = "링크를 보내는데 실패했습니다. 다시 시도해주세요.";
+      setResetError(errorMessage);
+      setResetErrorField("email", {
+        type: "manual",
+        message: errorMessage,
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    // TODO: 구글 로그인 구현
-    // console.log("구글 로그인");
-    // router.push("/oauth/login/google");
-  };
+  const handleKakaoLogin = async () => {
+    // 카카오 OAuth 인증 URL로 리다이렉트
+    const redirectUri = `${APP_URL}/oauth/kakao`;
+    const state = Math.random().toString(36).substring(2, 15); // CSRF 방지를 위한 state
 
-  const handleKakaoLogin = () => {
-    // TODO: 카카오 로그인 구현
-    // console.log("카카오 로그인");
-    // router.push("/oauth/login/kakao");
+    const kakaoClientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
+
+    if (!kakaoClientId) {
+      console.error("카카오 REST API 키가 설정되지 않았습니다.");
+      alert("카카오 로그인 설정이 필요합니다.");
+      return;
+    }
+
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&state=${state}`;
+
+    // 카카오 인증 페이지로 리다이렉트
+    window.location.href = kakaoAuthUrl;
   };
 
   return (
@@ -214,11 +239,7 @@ export default function LoginContainer() {
             </Link>
           </span>
         </FormFooter>
-        <SocialForm
-          text="간편 로그인하기"
-          onGoogle={handleGoogleLogin}
-          onKakao={handleKakaoLogin}
-        />
+        <SocialForm text="간편 로그인하기" onKakao={handleKakaoLogin} />
       </div>
       {/* 비밀번호 재설정 모달 */}
       <Modal
@@ -230,7 +251,7 @@ export default function LoginContainer() {
           label: "이메일",
           placeholder: "이메일을 입력하세요.",
           type: "email",
-          variant: resetErrors.email ? "error" : "default",
+          variant: resetErrors.email || resetError ? "error" : "default",
           ...registerReset("email", {
             required: "이메일은 필수 입력입니다.",
             pattern: {
@@ -238,8 +259,7 @@ export default function LoginContainer() {
               message: "이메일 형식으로 작성해 주세요.",
             },
           }),
-          message: resetErrors.email?.message,
-          showError: !!resetErrors.email,
+          showError: !!resetErrors.email || !!resetError,
         }}
         primaryButton={{
           label: "링크 보내기",

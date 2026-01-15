@@ -72,8 +72,19 @@ export async function postArticle(data: CreateArticle) {
   return response.json();
 }
 
+// 게시글 수정
+export async function patchArticle(articleId: number, data: CreateArticle) {
+  const response = await fetchApi(`${BASE_URL}/articles/${articleId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) throw new Error("게시글 수정 오류");
+  return response.json();
+}
+
 // 게시글 삭제
-export async function deletePostArticle(articleId: number) {
+export async function deleteArticle(articleId: number) {
   const response = await fetchApi(`${BASE_URL}/articles/${articleId}`, {
     method: "DELETE",
   });
@@ -114,6 +125,20 @@ export async function postComment(
   return response.json();
 }
 
+// 댓글 수정
+export async function patchComment(
+  commentId: number,
+  data: CreateArticleComment
+) {
+  const response = await fetchApi(`${BASE_URL}/comments/${commentId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) throw new Error("댓글 수정 오류");
+  return response.json();
+}
+
 // 댓글 삭제
 export async function deleteComment(commentId: number) {
   const response = await fetchApi(`${BASE_URL}/comments/${commentId}`, {
@@ -121,5 +146,25 @@ export async function deleteComment(commentId: number) {
   });
 
   if (!response.ok) throw new Error("댓글 삭제 오류");
+  return response.json();
+}
+
+// 게시글 좋아요
+export async function postLike(articleId: number) {
+  const response = await fetchApi(`${BASE_URL}/articles/${articleId}/like`, {
+    method: "POST",
+  });
+
+  if (!response.ok) throw new Error("좋아요 추가 오류");
+  return response.json();
+}
+
+// 게시글 좋아요 취소
+export async function deleteLike(articleId: number) {
+  const response = await fetchApi(`${BASE_URL}/articles/${articleId}/like`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) throw new Error("좋아요 삭제 오류");
   return response.json();
 }
