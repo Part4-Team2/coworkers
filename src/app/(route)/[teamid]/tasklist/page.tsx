@@ -94,7 +94,7 @@ export default async function TaskListPage({
   }));
 
   return (
-    <div className="relative max-w-[1200px] mx-auto my-0 sm:px-24 px-16">
+    <div className="relative max-w-[1200px] mx-auto my-0 sm:px-24 px-16 mb-80">
       <div className="flex flex-col gap-24">
         <div className="text-xl font-bold mt-40">할 일</div>
 
