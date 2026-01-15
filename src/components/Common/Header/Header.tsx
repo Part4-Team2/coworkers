@@ -14,6 +14,14 @@ import SideHeaderDesktop from "./SideHeader/SideHeaderDesktop";
 // 유저 프로필을 누르면 나오는 드롭다운 리스트입니다.
 const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로그아웃"];
 
+const shouldFetchUrls = [
+  "/teamlist",
+  "mypage",
+  "addteam",
+  /^\/\d+$/,
+  /^\/\d+\/edit$/,
+];
+
 function Header() {
   const router = useRouter();
   const pathname = usePathname();
@@ -29,6 +37,16 @@ function Header() {
   const fetchUser = useHeaderStore((s) => s.fetchUser);
   const clearUser = useHeaderStore((s) => s.clearUser);
 
+  const checkShouldFetchRules = () => {
+    const shouldFetch = shouldFetchUrls.some((rule) =>
+      typeof rule === "string" ? pathname.startsWith(rule) : rule.test(pathname)
+    );
+
+    if (!shouldFetch) return;
+
+    fetchUser();
+  };
+
   // 토글 버튼 누를시 작동하는 함수입니다. 토클로 여닫음 가능합니다.
   const handleToggle = () => {
     setIsSideOpen((prev) => !prev);
@@ -42,28 +60,15 @@ function Header() {
     setIsSideOpen(false);
   };
 
+  // 최초 마운트 시 무조건 한 번
   useEffect(() => {
-    // 최초 마운트 시 무조건 한 번
     fetchUser();
   }, []);
 
+  // Pathname이 달라질 때 마다 유저 정보를 다시 갖고올지 고민합니다.
   useEffect(() => {
-    if (!pathname) {
-      return;
-    }
-
-    // 해당 페이지의 경우 유저 정보를 갱신합니다.
-    const shouldRefetch =
-      pathname === "/teamlist" || // 팀 목록 - 팀 생성이나 삭제 후 갱신
-      pathname === "/mypage" || // 마이페이지 - 유저 정보 수정 후 갱신
-      pathname === "/addteam" || // 팀 생성 페이지 이후 갱신
-      pathname.match(/^\/\d+$/) || // 팀 상세 (/[teamid]) - 팀 수정 후 갱신
-      pathname.match(/^\/\d+\/edit$/); // 팀 수정 페이지
-
-    if (shouldRefetch) {
-      fetchUser();
-    }
-  }, [pathname, fetchUser]);
+    checkShouldFetchRules();
+  }, [pathname]);
 
   useEffect(() => {
     if (!isSideOpen) return;
@@ -92,6 +97,9 @@ function Header() {
   const handleLogout = async () => {
     try {
       await logoutAction();
+
+      // 메모리 저장된 데이터를 싹 비웁니다.
+      useHeaderStore.persist.clearStorage();
       clearUser();
       setIsSideOpen(false);
       router.push("/");
