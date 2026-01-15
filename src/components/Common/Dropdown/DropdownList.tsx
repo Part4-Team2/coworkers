@@ -11,7 +11,7 @@ interface Props {
 
 const sizeClass = {
   sm: "w-94 text-sm",
-  md: "w-120 text-md",
+  md: "w-130 text-md",
   lg: "w-180 text-md",
 };
 

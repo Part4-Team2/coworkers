@@ -100,7 +100,8 @@ function SideHeaderDesktop({
           className={clsx(
             "flex justify-center px-45 py-15",
             "border border-white rounded-xl",
-            "hover:bg-background-tertiary"
+            "hover:bg-background-tertiary",
+            "overflow-hidden text-ellipsis whitespace-nowrap"
           )}
           onClick={(e) => {
             e.stopPropagation();

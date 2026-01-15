@@ -93,7 +93,7 @@ function SideHeaderMobile({
               handleClickPath("addteam");
             }}
           >
-            팀 생성하기
+            팀 추가하기
           </div>
         )}
       </div>
