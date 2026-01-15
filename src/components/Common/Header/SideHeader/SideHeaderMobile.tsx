@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+// import { useEffect, useRef } from "react";
 import SVGIcon from "../../SVGIcon/SVGIcon";
 
 interface SideHeaderProps {
@@ -12,41 +12,29 @@ interface SideHeaderProps {
     teamName: string;
     teamImage: string | null;
   }[];
-  onClick: () => void;
+  wrapperRef: React.RefObject<HTMLDivElement | null>;
+  onClose: () => void;
 }
 
 // Header 컴포 요소 중 팀 옆 토글 버튼 누를사 등장하는 사이드 바입니다.
-function SideHeaderMobile({ isOpen, teams, onClick }: SideHeaderProps) {
+function SideHeaderMobile({
+  isOpen,
+  teams,
+  wrapperRef,
+  onClose,
+}: SideHeaderProps) {
   const router = useRouter();
-  const sideHeaderRef = useRef<HTMLDivElement>(null);
+  // const sideHeaderRef = useRef<HTMLDivElement>(null);
 
   // Team 이름이나 나머지 서비스를 클릭할때 이름에 맞게 이동하는 함수입니다.
   const handleClickPath = (path: number | string) => {
-    onClick();
     router.push(`/${path}`);
-    return;
+    onClose();
   };
-
-  // 바깥 클릭하면 닫히는 함수입니다.
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        sideHeaderRef.current &&
-        !sideHeaderRef.current.contains(e.target as Node)
-      ) {
-        onClick();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, onClick]);
 
   return (
     <div
-      ref={sideHeaderRef}
+      ref={wrapperRef}
       className={clsx(
         "fixed top-0 left-0 z-50",
         "min-h-screen",
@@ -56,7 +44,7 @@ function SideHeaderMobile({ isOpen, teams, onClick }: SideHeaderProps) {
       )}
     >
       <div className="flex flex-col gap-24">
-        <div onClick={onClick} className="self-end">
+        <div onClick={onClose} className="self-end">
           <SVGIcon icon="x" className="cursor-pointer" />
         </div>
         {teams.length > 0 && (

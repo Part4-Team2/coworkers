@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useHeaderStore } from "@/store/headerStore";
 import { logoutAction } from "@/lib/api/auth";
 import clsx from "clsx";
@@ -17,8 +17,10 @@ const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로�
 function Header() {
   const router = useRouter();
   const pathname = usePathname();
+  const sideWrapperRef = useRef<HTMLDivElement>(null);
 
   const [isSideOpen, setIsSideOpen] = useState<boolean>(false);
+
   const isLogin = useHeaderStore((s) => s.isLogin);
   const nickname = useHeaderStore((s) => s.nickname);
   const teams = useHeaderStore((s) => s.teams);
@@ -28,8 +30,12 @@ function Header() {
   const clearUser = useHeaderStore((s) => s.clearUser);
 
   useEffect(() => {
+    // 최초 마운트 시 무조건 한 번
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
     if (!pathname) {
-      fetchUser(); // 초기 로드
       return;
     }
 
@@ -46,9 +52,29 @@ function Header() {
     }
   }, [pathname, fetchUser]);
 
-  // Side Header의 팀명 클릭시 작동하는 함수입니다.
-  const handleSideClick = () => {
-    setIsSideOpen((prev) => !prev);
+  useEffect(() => {
+    if (!isSideOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!sideWrapperRef.current) return;
+
+      if (!sideWrapperRef.current.contains(e.target as Node)) {
+        setIsSideOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isSideOpen]);
+
+  const handleSideOpen = () => {
+    setIsSideOpen(true);
+  };
+
+  const handleSideClose = () => {
+    setIsSideOpen(false);
   };
 
   // 헤더에 있는 팀 이름 클릭하면 작동하는 함수입니다.
@@ -94,7 +120,7 @@ function Header() {
       >
         <div className="cursor-pointer flex items-center gap-40">
           <div className="flex items-center gap-16">
-            <div className={clsx("sm:hidden")} onClick={handleSideClick}>
+            <div className={clsx("sm:hidden")} onClick={handleSideOpen}>
               <SVGIcon icon="gnbMenu" />
             </div>
             <Link href="/">
@@ -104,15 +130,24 @@ function Header() {
           {isLogin && teams.length > 0 && (
             <div className="relative">
               <div className="hidden sm:flex gap-10">
+                {/* 활성화 된 팀명, 드롭다운으로 클릭할때마다 바뀝니다. */}
                 <div onClick={activeTeamClick}>{activeTeam?.teamName}</div>
-                <div className="cursor-pointer" onClick={handleSideClick}>
+                {/* 토글 버튼 */}
+                <div
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSideOpen();
+                  }}
+                >
                   <SVGIcon icon="toggle" />
                 </div>
                 <div className="hidden sm:block">
                   <SideHeaderDesktop
                     isOpen={isSideOpen}
-                    onClick={handleSideClick}
                     teams={teams}
+                    wrapperRef={sideWrapperRef}
+                    onClose={handleSideClose}
                   />
                 </div>
               </div>
@@ -122,8 +157,9 @@ function Header() {
             <div className="sm:hidden">
               <SideHeaderMobile
                 isOpen={isSideOpen}
-                onClick={handleSideClick}
                 teams={teams}
+                wrapperRef={sideWrapperRef}
+                onClose={handleSideClose}
               />
             </div>
           )}
@@ -136,7 +172,7 @@ function Header() {
         {/* 팀명 옆 토글 버튼을 누르면 사이드바가 나옵니다 */}
 
         {/* 로그인 상태면 아래 내용이 mount 됩니다. */}
-        {isLogin && (
+        {isLogin ? (
           <div className="cursor-pointer flex items-center gap-8">
             {/* <SVGIcon icon="user" size="xxs" /> */}
             <Dropdown
@@ -154,6 +190,13 @@ function Header() {
             >
               {nickname}
             </div>
+          </div>
+        ) : (
+          <div
+            className={clsx("flex items-center cursor-pointer")}
+            onClick={() => router.push("login")}
+          >
+            로그인
           </div>
         )}
       </div>

@@ -1,20 +1,20 @@
 import { create } from "zustand";
 import { getUser } from "@/lib/api/user";
 
+interface Team {
+  teamId: number;
+  teamName: string;
+  teamImage: string | null;
+}
+
 interface HeaderStoreState {
   userId: number | null;
   isLogin: boolean;
   nickname: string | null;
   profileImage: string | null;
-  teams: {
-    teamId: number;
-    teamName: string;
-    teamImage: string | null;
-  }[];
-  activeTeam: {
-    teamId: number;
-    teamName: string;
-  } | null;
+  teams: Team[];
+  activeTeam: Team | null;
+  setActiveTeam: (team: Team) => void;
   fetchUser: () => Promise<void>;
   clearUser: () => void;
 }
@@ -65,13 +65,7 @@ export const useHeaderStore = create<HeaderStoreState>((set) => ({
     }
 
     // Header 로고 옆에 뜨는 대표 팀목록, 일단 첫 번째 원소가 나오게 설정하였습니다.
-    const activeTeam =
-      teams.length > 0
-        ? {
-            teamId: teams[0].teamId,
-            teamName: teams[0].teamName,
-          }
-        : null;
+    const activeTeam = teams.length > 0 ? teams[0] : null;
 
     set({
       userId: res.id,
@@ -94,4 +88,6 @@ export const useHeaderStore = create<HeaderStoreState>((set) => ({
       activeTeam: null,
     });
   },
+
+  setActiveTeam: (team) => set({ activeTeam: team }),
 }));
