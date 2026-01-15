@@ -11,10 +11,29 @@ export const metadata = createMetadata({
 });
 
 export default async function TeamListPage() {
+  // getUserGroups API 호출
   const groupsData = await getUserGroups();
 
-  // 에러 처리: 에러 시 빈 배열로 처리
-  const groups = "error" in groupsData ? [] : groupsData;
+  // 에러 처리
+  if ("error" in groupsData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background-primary">
+        <p className="text-text-primary text-lg font-medium mb-16">
+          팀 목록을 불러올 수 없습니다.
+        </p>
+        <p className="text-text-secondary text-md">
+          잠시 후 다시 시도해주세요.
+        </p>
+      </div>
+    );
+  }
 
-  return <TeamListContainer teams={groups} />;
+  // 데이터 가공
+  const teams = groupsData.map((group) => ({
+    id: group.id,
+    name: group.name,
+    image: group.image,
+  }));
+
+  return <TeamListContainer teams={teams} />;
 }

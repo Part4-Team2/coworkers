@@ -1,8 +1,7 @@
 import { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import TeamIdContainer from "@/containers/teamid/TeamIdContainer";
 import { measureSSR } from "@/utils/measure";
-import { getUser } from "@/lib/api/user";
 import { getGroup } from "@/lib/api/group";
 
 type Props = {
@@ -50,47 +49,23 @@ export default async function TeamPage({ params }: Props) {
     notFound();
   }
 
-  // 개별 API 호출을 measureSSR로 감싸기
+  // getGroup만 호출 (members, taskLists 필요)
   const getGroupWithMeasure = measureSSR({
     name: "getGroup",
     fn: () => getGroup(teamId),
     attr: { "team.id": teamId },
   });
 
-  const getUserWithMeasure = measureSSR({
-    name: "getUser",
-    fn: () => getUser(),
-  });
+  const groupData = await getGroupWithMeasure();
 
-  // 병렬로 API 호출하여 성능 개선
-  const [groupData, userData] = await Promise.all([
-    getGroupWithMeasure(),
-    getUserWithMeasure(),
-  ]);
-
-  // 즉시 반환 패턴으로 에러 처리
+  // 에러 처리
   if (!groupData.success) {
     notFound();
-  }
-
-  if ("error" in userData) {
-    notFound();
-  }
-
-  // memberships에서 현재 groupId에 해당하는 role 찾기
-  const currentMembership = userData.memberships.find(
-    (membership) => membership.groupId === Number(teamId)
-  );
-
-  if (!currentMembership) {
-    redirect("/teamlist");
   }
 
   return (
     <TeamIdContainer
       teamId={teamId}
-      userRole={currentMembership.role}
-      currentUserId={userData.id}
       teamName={groupData.data.name}
       members={groupData.data.members}
       taskLists={groupData.data.taskLists}

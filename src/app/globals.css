@@ -5,6 +5,11 @@
   --foreground: var(--color-text-primary);
 }
 
+html {
+  /* 오버스크롤 바운스 방지 */
+  overscroll-behavior: none;
+}
+
 @theme {
   /* Spacing base unit: p-1 = 1px */
   --spacing: 1px;
@@ -109,6 +114,10 @@
 body {
   background: var(--background);
   color: var(--color-text-primary);
+
+  /* 오버스크롤 바운스 방지 */
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
 
   /* CSS 변수 - 동적 스타일링용 (storybook 등) */
   --color-brand-primary: #10b981;
@@ -293,4 +302,27 @@ input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--color-background-secondary) inset !important;
   caret-color: var(--color-text-primary) !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 스켈레톤 shimmer 애니메이션 */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    #334155 0%,
+    #475569 20%,
+    #64748b 40%,
+    #475569 60%,
+    #334155 100%
+  );
+  background-size: 1000px 100%;
 }

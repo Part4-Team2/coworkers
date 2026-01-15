@@ -14,6 +14,7 @@ import { useModalState, MODAL_TYPES } from "@/hooks/Team/useModalState";
 import { useTeamActions } from "@/hooks/Team/useTeamActions";
 import { useTodoActions } from "@/hooks/Team/useTodoActions";
 import { useMemberActions } from "@/hooks/Team/useMemberActions";
+import { useHeaderStore } from "@/store/headerStore";
 
 // 상수 정의 - globals.css의 CSS 변수 참조
 const TODO_COLORS = [
@@ -26,10 +27,12 @@ const TODO_COLORS = [
   "var(--color-point-yellow)",
 ];
 
+// displayIndex에 따른 색상 반환
+const getTodoColor = (displayIndex: number): string =>
+  TODO_COLORS[displayIndex % TODO_COLORS.length];
+
 interface TeamIdContainerProps {
   teamId: string;
-  userRole: "ADMIN" | "MEMBER";
-  currentUserId: number;
   teamName: string;
   members: GroupDetailResponse["members"];
   taskLists: GroupDetailResponse["taskLists"];
@@ -37,55 +40,56 @@ interface TeamIdContainerProps {
 
 export default function TeamIdContainer({
   teamId,
-  userRole,
-  currentUserId,
   teamName,
   members: initialMembers,
   taskLists: initialTaskLists,
 }: TeamIdContainerProps) {
   const router = useRouter();
 
-  // API 데이터를 컴포넌트 형식에 맞게 변환
-  const members: MemberType[] = useMemo(
-    () =>
-      initialMembers.map((member) => ({
+  // 전역 상태에서 userId와 role 가져오기
+  const userId = useHeaderStore((state) => state.userId);
+  const teams = useHeaderStore((state) => state.teams);
+
+  // currentTeam 메모이제이션
+  const currentTeam = useMemo(
+    () => teams.find((team) => team.teamId === teamId),
+    [teams, teamId]
+  );
+  const userRole = (currentTeam?.role as "ADMIN" | "MEMBER") || "MEMBER";
+
+  // API 데이터를 컴포넌트 형식에 맞게 변환 및 Report 데이터 계산 통합
+  const { members, todos, completedTaskCount, progressPercentage } =
+    useMemo(() => {
+      const membersList: MemberType[] = initialMembers.map((member) => ({
         id: member.userId,
         name: member.userName,
         email: member.userEmail,
         imageUrl: member.userImage || undefined,
-      })),
-    [initialMembers]
-  );
+      }));
 
-  const todos: Todo[] = useMemo(
-    () =>
-      initialTaskLists.map((taskList) => ({
+      const todosList: Todo[] = initialTaskLists.map((taskList) => ({
         id: taskList.id,
         name: taskList.name,
         completedCount: taskList.tasks.filter((task) => task.doneAt !== null)
           .length,
         totalCount: taskList.tasks.length,
-        color: TODO_COLORS[taskList.displayIndex % TODO_COLORS.length],
-      })),
-    [initialTaskLists]
-  );
+        color: getTodoColor(taskList.displayIndex),
+      }));
 
-  // Report 데이터 계산
-  const totalTaskCount = useMemo(
-    () => todos.reduce((sum, todo) => sum + todo.totalCount, 0),
-    [todos]
-  );
-  const completedTaskCount = useMemo(
-    () => todos.reduce((sum, todo) => sum + todo.completedCount, 0),
-    [todos]
-  );
-  const progressPercentage = useMemo(
-    () =>
-      totalTaskCount > 0
-        ? Math.round((completedTaskCount / totalTaskCount) * 100)
-        : 0,
-    [totalTaskCount, completedTaskCount]
-  );
+      const total = todosList.reduce((sum, todo) => sum + todo.totalCount, 0);
+      const completed = todosList.reduce(
+        (sum, todo) => sum + todo.completedCount,
+        0
+      );
+      const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      return {
+        members: membersList,
+        todos: todosList,
+        completedTaskCount: completed,
+        progressPercentage: percentage,
+      };
+    }, [initialMembers, initialTaskLists]);
 
   // 오늘 날짜의 작업 수 계산만 별도로 수행
   const todayTaskCount = useMemo(() => {
@@ -122,6 +126,32 @@ export default function TeamIdContainer({
     openModalWithDelay,
     resetModalState: handleCloseModal,
   });
+
+  // userId가 없는 경우 에러 처리
+  if (!userId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background-primary">
+        <p className="text-text-primary text-lg font-medium mb-16">
+          로그인 정보를 확인할 수 없습니다.
+        </p>
+        <p className="text-text-secondary text-md">다시 로그인해주세요.</p>
+      </div>
+    );
+  }
+
+  // currentTeam이 없는 경우 에러 처리
+  if (!currentTeam) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background-primary">
+        <p className="text-text-primary text-lg font-medium mb-16">
+          팀 정보를 찾을 수 없습니다.
+        </p>
+        <p className="text-text-secondary text-md">
+          팀 목록에서 다시 선택해주세요.
+        </p>
+      </div>
+    );
+  }
 
   // 할 일 목록 클릭 핸들러
   const handleTodoListClick = (todoId: number) => {
@@ -199,7 +229,7 @@ export default function TeamIdContainer({
               imageUrl={member.imageUrl}
               isAdmin={userRole === "ADMIN"}
               onDeleteClick={
-                userRole === "ADMIN" && member.id !== currentUserId
+                userRole === "ADMIN" && member.id !== userId
                   ? () => memberActions.openDeleteModal(member.id)
                   : undefined
               }
@@ -235,6 +265,7 @@ export default function TeamIdContainer({
           label: "만들기",
           onClick: todoActions.confirmCreate,
           loading: todoActions.isLoading,
+          disabled: !modalState.todoListName.trim(),
         }}
       />
 
@@ -252,6 +283,7 @@ export default function TeamIdContainer({
           label: "수정하기",
           onClick: todoActions.confirmEdit,
           loading: todoActions.isLoading,
+          disabled: !modalState.todoListName.trim(),
         }}
       />
 

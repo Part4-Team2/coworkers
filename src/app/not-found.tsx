@@ -21,7 +21,7 @@ function NotFound() {
           className={clsx(
             "flex flex-col justify-between items-center",
             "py-84 h-640 sm:h-940 lg:h-1080",
-            "bg-[url(/landing/main/size-small.png)] sm:bg-[url(/landing/main/size-medium.png)] lg:bg-[url(/landing/main/size-large.png)]",
+            "bg-[url(/landing/main/size-small.webp)] sm:bg-[url(/landing/main/size-medium.webp)] lg:bg-[url(/landing/main/size-large.webp)]",
             "bg-no-repeat bg-cover lg:bg-center"
           )}
         >

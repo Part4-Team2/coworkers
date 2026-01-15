@@ -44,7 +44,7 @@ export default function GlobalError({
             justifyContent: "space-between",
             alignItems: "center",
             padding: "84px 16px",
-            backgroundImage: "url(/landing/main/size-small.png)",
+            backgroundImage: "url(/landing/main/size-small.webp)",
             backgroundRepeat: "no-repeat",
             backgroundSize: "cover",
             backgroundPosition: "center",
