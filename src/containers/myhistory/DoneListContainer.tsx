@@ -2,11 +2,9 @@
 
 import { useMemo } from "react";
 import List from "@/components/Tasklist/List/List";
-import { MOCK_TASKS } from "@/mocks/task";
-import { Task } from "@/types/task";
 import { formatDate } from "@/utils/date";
-
-const isDev = process.env.NODE_ENV !== "production";
+import { TaskDetail } from "@/types/task";
+import { FrequencyType } from "@/types/schemas";
 
 interface DoneListContainerProps {
   initialData:
@@ -15,9 +13,9 @@ interface DoneListContainerProps {
           displayIndex: number;
           writerId: number;
           userId: number;
-          deletedAt: string | null;
+          deletedAt?: string | null;
           frequency: string;
-          description: string;
+          description?: string;
           name: string;
           recurringId: number;
           doneAt: string;
@@ -36,22 +34,28 @@ export default function DoneListContainer({
   const tasks = useMemo(() => {
     if ("error" in initialData) {
       // 개발 환경에서만 MOCK_TASKS 사용, 프로덕션에서는 빈 배열
-      if (isDev) return MOCK_TASKS.filter((task) => task.doneAt);
       return [];
     }
 
     return initialData.tasksDone.map(
-      (task): Task => ({
+      (task): TaskDetail => ({
         id: task.id,
         name: task.name,
         description: task.description,
         doneAt: task.doneAt,
         date: task.date,
-        frequency: task.frequency,
+        frequency: task.frequency as FrequencyType,
         displayIndex: task.displayIndex,
         recurringId: task.recurringId,
         updatedAt: task.updatedAt,
-        deletedAt: task.deletedAt,
+        deletedAt: task.deletedAt ?? undefined,
+        commentCount: 0,
+        writer: {
+          id: task.writerId,
+          nickname: "",
+          image: null,
+        },
+        doneBy: [],
       })
     );
   }, [initialData]);
@@ -66,7 +70,7 @@ export default function DoneListContainer({
       acc[task.doneAt].push(task);
       return acc;
     },
-    {} as Record<string, Task[]>
+    {} as Record<string, TaskDetail[]>
   );
 
   const sortedDates = Object.keys(groupedTasks).sort(
@@ -96,6 +100,11 @@ export default function DoneListContainer({
               isToggle={true}
               variant="simple"
               hideKebab={true}
+              commentCount={task.commentCount ?? 0}
+              frequency={task.frequency}
+              date={task.date}
+              displayIndex={task.displayIndex}
+              recurringId={task.recurringId}
             />
           ))}
         </div>

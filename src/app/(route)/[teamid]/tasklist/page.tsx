@@ -11,7 +11,7 @@ type TaskListPageProps = {
   searchParams: Promise<{ tab?: string; date?: string }>;
 };
 
-interface TabItem {
+export interface TabItem {
   id: string;
   title: string;
   content: React.ReactNode;

@@ -14,7 +14,7 @@ import { formatDate, formatTime } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
 import { useState } from "react";
-interface TaskWithToggle extends TaskDetail {
+export interface TaskWithToggle extends TaskDetail {
   isToggle: boolean; // doneAt나 doneBy 기반 UI 토글
 }
 type TaskDetailsContainerProps = {
