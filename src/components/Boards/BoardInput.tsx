@@ -16,7 +16,7 @@ function BoardInput({ value, onChange }: BoardInputProps) {
       className={clsx(
         "w-full max-w-1100 bg-background-secondary p-16",
         "rounded-xl border border-text-primary/10",
-        "text-text-default text-base",
+        "text-text-primary text-base",
         "focus-within:border-text-primary"
       )}
     >

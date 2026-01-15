@@ -45,7 +45,6 @@ function BestArticleSection() {
               title={article.title}
               nickname={article.writer.nickname}
               createdAt={article.createdAt}
-              avatarImageUrl={undefined}
               articleImageUrl={article.image}
               likeCount={article.likeCount}
             />

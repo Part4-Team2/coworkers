@@ -1,7 +1,6 @@
 "use client";
 
 import clsx from "clsx";
-import Avatar from "@/components/Common/Avatar/Avatar";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import ArticleImage from "./ArticleImage";
@@ -82,11 +81,6 @@ function ArticleComp({ article, currentUserId }: ArticleProps) {
         </div>
         <div className="flex gap-16 items-center text-slate-400 text-md">
           <div className="flex gap-12 items-center text-text-primary">
-            <Avatar
-              imageUrl={undefined}
-              altText={`${article.writer.nickname} 프로필`}
-              size="large"
-            />
             <span
               className={clsx(
                 "w-50 sm:w-90 overflow-hidden text-ellipsis whitespace-nowrap"

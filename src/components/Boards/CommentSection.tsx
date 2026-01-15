@@ -100,7 +100,6 @@ function CommentSection({
                 createdAt={comment.createdAt}
                 writerId={comment.writer.id}
                 nickname={comment.writer.nickname}
-                avatarImageUrl={comment.writer.image}
                 onDelete={deleteCommentClick}
               />
             </div>
