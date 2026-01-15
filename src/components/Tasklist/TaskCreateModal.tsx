@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Input from "@/components/Common/Input/Input";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import InputBox from "@/components/Common/Input/InputBox";
@@ -97,6 +97,27 @@ export default function TaskCreateModal({
     }
     return undefined;
   });
+
+  const timePickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        timePickerRef.current &&
+        !timePickerRef.current.contains(event.target as Node)
+      ) {
+        setShowTimePicker(false);
+      }
+    }
+
+    if (showTimePicker) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showTimePicker]);
 
   const onSubmit = async (form: CreateTaskForm) => {
     const merged = new Date(form.startDate);
@@ -284,7 +305,6 @@ export default function TaskCreateModal({
                       value={formatDate(watchStartDate.toISOString())}
                       onClick={() => {
                         setShowDatePicker(!showDatePicker);
-                        // setShowTimePicker(false);
                       }}
                       className="cursor-pointer"
                     />
@@ -301,6 +321,7 @@ export default function TaskCreateModal({
                             }}
                             inline
                             formatWeekDay={(day) => day.substring(0, 3)}
+                            onClickOutside={() => setShowDatePicker(false)}
                           />
                         </div>
                       </div>
@@ -316,13 +337,15 @@ export default function TaskCreateModal({
                       value={formatTime(watchStartTime.toISOString())}
                       onClick={() => {
                         setShowTimePicker(!showTimePicker);
-                        // setShowDatePicker(false);
                       }}
                       className="cursor-pointer"
                     />
 
                     {showTimePicker && (
-                      <div className="absolute top-full mt-8 right-0 z-50">
+                      <div
+                        ref={timePickerRef}
+                        className="absolute top-full mt-8 right-0 z-50"
+                      >
                         <div className="flex gap-14 bg-background-secondary rounded-xl p-16 border-1 border-interaction-hover">
                           {/* 오전/오후 */}
                           <div className="flex flex-col gap-8">
