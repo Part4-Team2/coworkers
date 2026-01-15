@@ -295,8 +295,8 @@ export default function TaskCreateModal({
                 <h3 className="text-lg font-medium text-text-primary mb-16">
                   시작 날짜 및 시간
                 </h3>
-                <div className="flex gap-8">
-                  <div className="flex-[2] min-w-0 relative">
+                <div className="flex gap-8 relative">
+                  <div className="flex-[2] min-w-0">
                     <Input
                       label="시작 날짜"
                       labelClassName="sr-only"
@@ -310,8 +310,8 @@ export default function TaskCreateModal({
                     />
 
                     {showDatePicker && (
-                      <div className="absolute top-full mt-8 z-50">
-                        <div className="bg-background-secondary rounded-xl p-16 border-1 border-interaction-hover">
+                      <div className="absolute sm:w-full top-full mt-8 z-50 border border-interaction-hover bg-background-secondary rounded-xl">
+                        <div className="p-8 shadow-xl">
                           <DatePicker
                             selected={watchStartDate}
                             onChange={(date: Date | null) => {
@@ -328,7 +328,7 @@ export default function TaskCreateModal({
                     )}
                   </div>
 
-                  <div className="flex-[1] min-w-0 relative">
+                  <div className="flex-[1] min-w-0">
                     <Input
                       label="시작 시간"
                       labelClassName="sr-only"
@@ -344,13 +344,14 @@ export default function TaskCreateModal({
                     {showTimePicker && (
                       <div
                         ref={timePickerRef}
-                        className="absolute top-full mt-8 right-0 z-50"
+                        className="absolute top-full sm:w-full mt-8 right-0 z-50"
                       >
-                        <div className="flex gap-14 bg-background-secondary rounded-xl p-16 border-1 border-interaction-hover">
+                        <div className="flex gap-14 w-auto bg-background-secondary rounded-xl p-12 border-1 border-interaction-hover shadow-xl">
                           {/* 오전/오후 */}
                           <div className="flex flex-col gap-8">
                             <Button
                               label="오전"
+                              className="text-md"
                               width="78px"
                               variant={
                                 watchStartTime.getHours() < 12
@@ -366,6 +367,7 @@ export default function TaskCreateModal({
                             />
                             <Button
                               label="오후"
+                              className="text-md"
                               width="78px"
                               variant={
                                 watchStartTime.getHours() >= 12
@@ -382,47 +384,54 @@ export default function TaskCreateModal({
                           </div>
 
                           {/* 시간 목록 */}
-                          <div className="h-[152px] w-[220px] rounded-xl bg-[#18212f] overflow-y-auto custom-scrollbar pr-2">
-                            {Array.from({ length: 24 }, (_, i) => [i, i + 0.5])
-                              .flat()
-                              .map((hour) => {
-                                const hours = Math.floor(hour);
-                                const minutes = (hour % 1) * 60;
+                          <div className="h-[152px] w-[220px] rounded-xl bg-[#18212f] overflow-hidden py-8">
+                            <div className="h-full overflow-y-auto custom-scrollbar pl-16 mr-8">
+                              {Array.from({ length: 24 }, (_, i) => [
+                                i,
+                                i + 0.5,
+                              ])
+                                .flat()
+                                .map((hour) => {
+                                  const hours = Math.floor(hour);
+                                  const minutes = (hour % 1) * 60;
 
-                                const isAM = watchStartTime.getHours() < 12;
-                                const timeIsAM = hours < 12;
-                                if (isAM !== timeIsAM) return null;
+                                  const isAM = watchStartTime.getHours() < 12;
+                                  const timeIsAM = hours < 12;
+                                  if (isAM !== timeIsAM) return null;
 
-                                const displayHours = hours % 12 || 12;
-                                const displayMinutes = minutes
-                                  .toString()
-                                  .padStart(2, "0");
+                                  const displayHours = hours % 12 || 12;
+                                  const displayMinutes = minutes
+                                    .toString()
+                                    .padStart(2, "0");
 
-                                const isSelected =
-                                  watchStartTime.getHours() === hours &&
-                                  watchStartTime.getMinutes() === minutes;
+                                  const isSelected =
+                                    watchStartTime.getHours() === hours &&
+                                    watchStartTime.getMinutes() === minutes;
 
-                                return (
-                                  <button
-                                    key={`${hours}-${minutes}`}
-                                    type="button"
-                                    onClick={() => {
-                                      const newTime = new Date(watchStartTime);
-                                      newTime.setHours(hours, minutes, 0, 0);
-                                      setValue("startTime", newTime);
-                                      setShowTimePicker(false);
-                                    }}
-                                    className={clsx(
-                                      "w-full text-left pl-16 py-10 rounded-lg",
-                                      isSelected
-                                        ? "bg-interaction-primary text-brand-primary"
-                                        : "text-text-default hover:bg-interaction-hover"
-                                    )}
-                                  >
-                                    {displayHours}:{displayMinutes}
-                                  </button>
-                                );
-                              })}
+                                  return (
+                                    <button
+                                      key={`${hours}-${minutes}`}
+                                      type="button"
+                                      onClick={() => {
+                                        const newTime = new Date(
+                                          watchStartTime
+                                        );
+                                        newTime.setHours(hours, minutes, 0, 0);
+                                        setValue("startTime", newTime);
+                                        setShowTimePicker(false);
+                                      }}
+                                      className={clsx(
+                                        "w-full py-10 text-left rounded-lg font-regular",
+                                        isSelected
+                                          ? "bg-interaction-primary text-brand-primary"
+                                          : "text-text-default hover:bg-interaction-hover"
+                                      )}
+                                    >
+                                      {displayHours}:{displayMinutes}
+                                    </button>
+                                  );
+                                })}
+                            </div>
                           </div>
                         </div>
                       </div>
