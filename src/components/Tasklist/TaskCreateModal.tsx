@@ -322,6 +322,7 @@ export default function TaskCreateModal({
                             inline
                             formatWeekDay={(day) => day.substring(0, 3)}
                             onClickOutside={() => setShowDatePicker(false)}
+                            minDate={new Date()}
                           />
                         </div>
                       </div>
