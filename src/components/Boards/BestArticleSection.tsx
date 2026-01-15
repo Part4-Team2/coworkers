@@ -29,7 +29,8 @@ function BestArticleSection() {
       </div>
       <div
         className={clsx(
-          "grid grid-cols-1 grid-rows-1 sm:grid-cols-2 lg:grid-cols-3 gap-21 max-w-1200 mx-auto"
+          "grid grid-cols-1 grid-rows-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-1200"
+          // "grid grid-cols-[repeat(auto-fit, minmax(320px, 1fr))] gap-4"
         )}
       >
         {articles.map((article, index) => (

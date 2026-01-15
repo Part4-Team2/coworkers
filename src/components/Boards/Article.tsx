@@ -42,7 +42,7 @@ function ArticleComp({ article, currentUserId }: ArticleProps) {
   return (
     <div
       className={clsx(
-        "w-343 h-162 sm:w-696 sm:h-176 lg:w-590 relative",
+        "w-full h-162 sm:h-176 relative",
         "bg-background-secondary hover:bg-background-tertiary px-32 py-24",
         "rounded-xl border border-text-primary/10"
       )}

@@ -61,7 +61,9 @@ function ArticleClient({ article, comments, likes }: Pageprops) {
           currentUserId={userId}
         />
         {/* 게시글 본문 영역 */}
-        <div className="text-text-secondary text-base">{article.content}</div>
+        <div className={clsx("text-text-secondary text-base", "break-all")}>
+          {article.content}
+        </div>
       </section>
       {/* 게시글 좋아요 클릭 영역 */}
       <ArticleLike

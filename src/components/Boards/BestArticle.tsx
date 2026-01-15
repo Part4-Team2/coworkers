@@ -26,7 +26,7 @@ function BestArticle({
       <div
         className={clsx(
           "bg-background-secondary hover:bg-background-tertiary",
-          "w-343 sm:w-340 lg:w-387 h-178 sm:h-220",
+          "w-full h-178 sm:h-220 min-w-0",
           "pt-12 px-24 pb-16",
           "border border-text-primary/10 rounded-xl"
         )}
@@ -40,7 +40,7 @@ function BestArticle({
             </div>
             <div className="flex flex-col gap-12">
               <div className="flex justify-between items-center">
-                <div className="text-2lg text-text-secondary overflow-hidden text-ellipsis line-clamp-2">
+                <div className="text-2lg text-text-secondary overflow-hidden text-ellipsis line-clamp-1">
                   {title}
                 </div>
                 {articleImageUrl && <ArticleImage image={articleImageUrl} />}

@@ -39,25 +39,22 @@ function BoardClient() {
   return (
     // Page Wrapper
     <div
-      className={clsx(
-        "min-h-screen bg-background-primary",
-        "px-16 sm:px-24 lg:px-0"
-      )}
+      className={clsx("min-h-screen bg-background-primary", "px-16 sm:px-24")}
     >
       {/* content wrapper */}
       <main className="max-w-1200 mx-auto py-40">
         <section className="flex flex-col gap-24 sm:gap-32 lg:gap-40">
           <div className="text-text-primary text-2xl">자유게시판</div>
           {/* 검색 영역 */}
-          <div className="flex gap-8 lg:justify-between">
+          <div className="flex max-w-1200 gap-8 lg:justify-between">
             <BoardInput
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
             />
             <button
               className={clsx(
-                "w-full max-w-100",
-                "hover:bg-background-tertiary bg-background-secondary py-16 px-30",
+                "w-full min-w-0 max-w-100",
+                "hover:bg-background-tertiary bg-background-secondary",
                 "rounded-xl border border-text-primary/10",
                 "text-text-primary text-base cursor-pointer"
               )}
