@@ -87,11 +87,17 @@ function ArticleComp({ article, currentUserId }: ArticleProps) {
               altText={`${article.writer.nickname} 프로필`}
               size="large"
             />
-            <span>{article.writer.nickname}</span>
+            <span
+              className={clsx(
+                "w-50 sm:w-90 overflow-hidden text-ellipsis whitespace-nowrap"
+              )}
+            >
+              {article.writer.nickname}
+            </span>
           </div>
           <span>|</span>
           <div className="flex flex-1 justify-between">
-            <span>{article.createdAt}</span>
+            <span>{article.createdAt.slice(0, 10)}</span>
             <div className={clsx("flex gap-4 items-center")}>
               <span>
                 <SVGIcon icon="heart" size="xxs" />

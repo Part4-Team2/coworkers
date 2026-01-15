@@ -48,7 +48,9 @@ function BestArticle({
                 </div>
                 {articleImageUrl && <ArticleImage image={articleImageUrl} />}
               </div>
-              <div className="text-sm text-slate-400">{createdAt}</div>
+              <div className="text-sm text-slate-400">
+                {createdAt.slice(0, 10)}
+              </div>
             </div>
           </div>
           {/* 작성자 아바타, 작성자 닉네임, 좋아요 개수 영역 */}
@@ -60,7 +62,13 @@ function BestArticle({
                   altText={`${nickname} 프로필`}
                   size="large"
                 />
-                <span>{nickname}</span>
+                <span
+                  className={clsx(
+                    "max-w-100 overflow-hidden text-ellipsis whitespace-nowrap"
+                  )}
+                >
+                  {nickname}
+                </span>
               </div>
               <div className={clsx("flex gap-4 items-center")}>
                 <span>
