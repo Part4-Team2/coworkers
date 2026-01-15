@@ -75,9 +75,10 @@ function ArticleSection({ page, keyword }: PageProps) {
         <Dropdown
           options={ARRANGE}
           onSelect={handleDropdownClick}
-          size="md"
+          size="lg"
           trigger="text"
           value={currentArrange}
+          listPosition="top-full right-0"
         />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 gap-21 max-w-1200 mx-auto">

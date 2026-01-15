@@ -194,16 +194,17 @@ function Header() {
 
         {/* 로그인 상태면 아래 내용이 mount 됩니다. */}
         {isLogin ? (
-          <div className="cursor-pointer flex items-center gap-8">
-            {/* <SVGIcon icon="user" size="xxs" /> */}
-            <Dropdown
-              options={ACCOUNTLIST}
-              onSelect={handleProfileClick}
-              size="sm"
-              trigger="icon"
-              icon="user"
-              listPosition="top-full right-0"
-            />
+          <div className="flex items-center gap-8">
+            <div className={clsx("cursor-pointer flex items-center")}>
+              <Dropdown
+                options={ACCOUNTLIST}
+                onSelect={handleProfileClick}
+                size="md"
+                trigger="avatar"
+                icon="user"
+                listPosition="top-full right-0"
+              />
+            </div>
             <div
               className={clsx(
                 "max-w-100 overflow-hidden text-ellipsis whitespace-nowrap"
