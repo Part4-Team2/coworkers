@@ -424,39 +424,3 @@ export async function postGroupAcceptInvitation(data: {
     };
   }
 }
-
-/**
- * 초대 링크 없이 그룹에 멤버 추가
- */
-export async function postGroupMember(
-  groupId: number,
-  data: { userEmail: string }
-) {
-  try {
-    const response = await fetchApi(`${BASE_URL}/groups/${groupId}/member`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      // POST 요청은 fetchApi를 통해 자동으로 캐싱되지 않음
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      return {
-        error: true,
-        message: error.message || "멤버 추가에 실패했습니다.",
-      };
-    }
-
-    const result = await response.json();
-
-    // 멤버 추가 성공 후 관련 캐시 무효화
-    revalidatePath(`/${groupId}`);
-
-    return result;
-  } catch {
-    return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
-    };
-  }
-}

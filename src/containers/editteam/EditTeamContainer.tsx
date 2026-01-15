@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Form from "@/components/Common/Form/Form";
 import FormFooter from "@/components/Common/Form/FormFooter";
 import Avatar from "@/components/Common/Avatar/Avatar";
@@ -10,6 +10,7 @@ import { InputConfig } from "@/components/Common/Form/types";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { postImage } from "@/lib/api/image";
 import { patchGroup } from "@/lib/api/group";
+import { useHeaderStore } from "@/store/headerStore";
 
 interface EditTeamFormData {
   teamName: string;
@@ -17,25 +18,29 @@ interface EditTeamFormData {
 
 interface EditTeamContainerProps {
   teamId: string;
-  initialData?: {
-    teamName: string;
-    profileImage?: string;
-  };
 }
 
-export default function EditTeamContainer({
-  teamId,
-  initialData,
-}: EditTeamContainerProps) {
+export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 전역 상태에서 현재 팀 정보 가져오기
+  const teams = useHeaderStore((state) => state.teams);
+  const currentTeam = useMemo(
+    () => teams.find((team) => team.teamId === teamId),
+    [teams, teamId]
+  );
+
+  const initialTeamName = currentTeam?.teamName || "";
+  const initialTeamImage = currentTeam?.teamImage || undefined;
+
   const {
     previewUrl,
     fileInputRef,
     handleImageClick,
     handleImageChange,
     selectedFile,
-  } = useImageUpload(initialData?.profileImage);
+  } = useImageUpload(initialTeamImage);
 
   const {
     register,
@@ -46,16 +51,30 @@ export default function EditTeamContainer({
   } = useForm<EditTeamFormData>({
     mode: "onBlur",
     defaultValues: {
-      teamName: initialData?.teamName || "",
+      teamName: initialTeamName,
     },
   });
+
+  // 팀 정보를 찾을 수 없는 경우 에러 처리
+  if (!currentTeam) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background-primary">
+        <p className="text-text-primary text-lg font-medium mb-16">
+          팀 정보를 찾을 수 없습니다.
+        </p>
+        <p className="text-text-secondary text-md">
+          팀 목록에서 다시 선택해주세요.
+        </p>
+      </div>
+    );
+  }
 
   const onSubmit = async (data: EditTeamFormData) => {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      let imageUrl: string | undefined = initialData?.profileImage;
+      let imageUrl: string | undefined = initialTeamImage;
 
       // 새 이미지가 선택된 경우 postImage API로 업로드
       if (selectedFile) {

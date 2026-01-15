@@ -5,26 +5,21 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Common/Button/Button";
 import TeamListItem from "@/components/Team/TeamListItem";
-import noAffiliationImage from "@/assets/img/no-affiliation.png";
+import noAffiliationImage from "@/assets/img/no-affiliation.webp";
 
-// 레이아웃 간격 상수
-const SPACING = {
-  TITLE_TO_LIST: 60,
-  LIST_TO_BUTTONS: 60,
-} as const;
+interface Team {
+  id: number;
+  name: string;
+  image: string | null;
+}
 
 interface TeamListContainerProps {
-  teams: Array<{
-    id: number;
-    name: string;
-    image: string | null;
-    createdAt: string;
-    updatedAt: string;
-  }>;
+  teams: Team[];
 }
 
 export default function TeamListContainer({ teams }: TeamListContainerProps) {
   const router = useRouter();
+
   const hasTeams = teams.length > 0;
 
   const handleTeamClick = (groupId: number) => {
@@ -85,10 +80,7 @@ export default function TeamListContainer({ teams }: TeamListContainerProps) {
 
   // 팀이 있는 경우
   return (
-    <div
-      className="w-full min-h-[calc(100vh-60px)] bg-background-primary flex flex-col items-center justify-center px-20 sm:px-24 lg:px-24 py-40"
-      style={{ gap: `${SPACING.TITLE_TO_LIST}px` }}
-    >
+    <div className="w-full min-h-[calc(100vh-60px)] bg-background-primary flex flex-col items-center justify-center px-20 sm:px-24 lg:px-24 py-40 gap-60">
       {/* Title */}
       <h1 className="text-text-primary font-pretendard text-[40px] font-medium leading-normal text-center">
         팀 목록

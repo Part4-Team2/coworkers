@@ -25,7 +25,7 @@ export default function Home() {
           className={clsx(
             "flex flex-col justify-between items-center",
             "py-84 h-640 sm:h-940 lg:h-1080",
-            "bg-[url(/landing/main/size-small.png)] sm:bg-[url(/landing/main/size-medium.png)] lg:bg-[url(/landing/main/size-large.png)]",
+            "bg-[url(/landing/main/size-small.webp)] sm:bg-[url(/landing/main/size-medium.webp)] lg:bg-[url(/landing/main/size-large.webp)]",
             "bg-no-repeat bg-center bg-cover"
           )}
         >
@@ -190,7 +190,7 @@ export default function Home() {
         <section
           className={clsx(
             "pt-230 h-1080",
-            "bg-[url(/landing/bottom/size=small.png)] sm:bg-[url(/landing/bottom/size=medium.png)] lg:bg-[url(/landing/bottom/size=large.png)]",
+            "bg-[url(/landing/bottom/size=small.webp)] sm:bg-[url(/landing/bottom/size=medium.webp)] lg:bg-[url(/landing/bottom/size=large.webp)]",
             "bg-no-repeat bg-center bg-cover"
           )}
         >
