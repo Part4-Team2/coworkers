@@ -57,13 +57,10 @@ export default function JoinTeamContainer({ email }: { email: string }) {
     try {
       const response = await postGroupAcceptInvitation(requestData);
       if ("error" in response) {
-        if (response.status === 404) {
-          setJoinTeamError("존재하지 않는 팀 링크입니다.");
-        } else {
-          setJoinTeamError(
+        setJoinTeamError(
+          response.message ||
             "초대 링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
-          );
-        }
+        );
         return;
       }
       router.push(`/${response.groupId}`);
@@ -75,7 +72,7 @@ export default function JoinTeamContainer({ email }: { email: string }) {
   };
 
   return (
-    <div className="w-full flex flex-col items-center px-16 sm:px-0">
+    <div className="w-full flex flex-col items-center px-16 sm:px-24 lg:px-0">
       <div className="w-full max-w-600 flex flex-col items-center">
         <Form
           centered={false}

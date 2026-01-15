@@ -67,7 +67,7 @@ export default function AddTeamContainer() {
 
       const requestData: CreateGroupBody = {
         name: data.teamName,
-        image: uploadedImageUrl,
+        ...(uploadedImageUrl && { image: uploadedImageUrl }),
       };
 
       const response = await postGroup(requestData);
@@ -86,7 +86,7 @@ export default function AddTeamContainer() {
   };
 
   return (
-    <div className="w-full flex flex-col items-center px-16 sm:px-0">
+    <div className="w-full flex flex-col items-center px-16 sm:px-24 lg:px-0">
       <div className="w-full max-w-600 flex flex-col items-center">
         <input
           ref={fileInputRef}
@@ -142,7 +142,7 @@ export default function AddTeamContainer() {
               showError: !!errors.teamName || !!addTeamError,
             } as InputConfig,
           ]}
-          optionAlign="end"
+          optionAlign="start"
           option={
             addTeamError && (
               <p className="text-xs text-status-danger">{addTeamError}</p>
