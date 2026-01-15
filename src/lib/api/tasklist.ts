@@ -1,19 +1,11 @@
 "use server";
-// 타입과 api 파일 위치는 수정
-// 해당 파일 사용 안된다면(다른 api로 사용이 다 가능하다면) 삭제
 
 import { BASE_URL } from "@/lib/api";
 import { fetchApi } from "@/utils/api";
+import { ApiResult } from "./group";
+import { TaskListResponse } from "../types/tasklist";
 
-// 타입은 추후 별도로 분리
-interface CreateTaskListRequestBody {
-  name: string;
-}
-interface UpdateTaskListRequestBody {
-  name: string;
-}
-
-export async function getTaskList(groupId: number, id: string) {
+export async function getTaskList(groupId: string, id: string) {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists/${id}`,
@@ -41,9 +33,9 @@ export async function getTaskList(groupId: number, id: string) {
 }
 
 export async function patchTaskList(
-  groupId: number,
+  groupId: string,
   id: string,
-  data: UpdateTaskListRequestBody
+  data: { name: string }
 ) {
   try {
     const response = await fetchApi(
@@ -76,7 +68,7 @@ export async function patchTaskList(
   }
 }
 
-export async function deleteTaskList(groupId: number, id: string) {
+export async function deleteTaskList(groupId: string, id: string) {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists/${id}`,
@@ -104,9 +96,9 @@ export async function deleteTaskList(groupId: number, id: string) {
 }
 
 export async function postTaskList(
-  groupId: number,
-  data: CreateTaskListRequestBody
-) {
+  groupId: string,
+  data: { name: string }
+): Promise<ApiResult<TaskListResponse>> {
   try {
     const response = await fetchApi(
       `${BASE_URL}/groups/${groupId}/task-lists`,
@@ -120,16 +112,16 @@ export async function postTaskList(
         message: "할 일 목록 생성에 실패했습니다.",
       }));
       return {
-        error: true,
-        message: error.message || "할 일 목록 생성에 실패했습니다.",
+        success: false,
+        error: error.message || "할 일 목록 생성에 실패했습니다.",
       };
     }
 
     return await response.json();
-  } catch (error) {
+  } catch {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }

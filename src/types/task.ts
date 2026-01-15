@@ -1,31 +1,34 @@
-// api response 확인 이후 타입이 변경될 수 있습니다.
+import { FrequencyType } from "./schemas";
 
-export interface Task {
+// 리스트용 Task (목록 조회 API 응답)
+export interface TaskListItem {
   id: number;
   name: string;
-  commentCount?: number;
-  date?: string;
-  deletedAt?: string | null;
   description?: string;
-  displayIndex?: number;
-  doneAt?: string | null;
-  doneBy?: {
-    id: number;
-    nickname: string;
+  commentCount: number;
+  frequency: FrequencyType;
+  date: string;
+  doneAt?: string;
+  displayIndex: number;
+  recurringId: number;
+}
+
+// 상세 화면 Task
+export interface TaskDetail extends TaskListItem {
+  updatedAt: string;
+  deletedAt?: string;
+  writer: {
     image: string | null;
-  } | null;
-  // TODO: 전체 api 명세가 안정된 후 "ONCE" | "DAILY" | "WEEKLY" | "MONTHLY"로 좁힘
-  frequency?: string;
-  recurringId?: number;
-  updatedAt?: string;
-  user?: {
-    id: number;
     nickname: string;
-    image: string | null;
-  } | null;
-  writer?: {
     id: number;
-    nickname: string;
-    image: string | null;
   };
+  doneBy?: Array<{
+    user: {
+      image: string;
+      nickname: string;
+      id: number;
+    };
+  }>;
+  weekDays?: number[];
+  monthDay?: number;
 }

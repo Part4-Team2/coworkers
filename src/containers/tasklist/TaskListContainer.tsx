@@ -1,15 +1,26 @@
 "use client";
 
-import List, { ListProps } from "@/components/Tasklist/List/List";
+import List from "@/components/Tasklist/List/List";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import TaskDetailsContainer from "./tasks/TaskDetailsContainer";
-import { getTasks } from "@/lib/api/task";
+import {
+  deleteTasks,
+  getSpecificTask,
+  getTasks,
+  patchTask,
+} from "@/lib/api/task";
+import TaskCreateModal from "@/components/Tasklist/TaskCreateModal";
+import { TaskDetail } from "@/types/task";
 
 interface TaskListProps {
   groupId: number;
   listId: string;
   baseDate: string;
+}
+
+interface TaskWithToggle extends TaskDetail {
+  isToggle: boolean; // doneAt나 doneBy 기반 UI 토글
 }
 
 export default function TaskListContainer({
@@ -21,36 +32,37 @@ export default function TaskListContainer({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [tasks, setTasks] = useState<ListProps[]>([]);
-  // TODO: 로딩 UI 팀 컨벤션 정해지면 수정
+  const [tasks, setTasks] = useState<TaskWithToggle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editTask, setEditTask] = useState<TaskDetail | undefined>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 탭 바뀔 때 마다 API 호출
   useEffect(() => {
-    async function fetchTasks() {
-      setLoading(true);
-      try {
-        const response = await getTasks(groupId, Number(listId), baseDate);
-        if (response && "error" in response) {
-          console.error("할 일 로드 실패:", response.message);
-          setTasks([]);
-        } else {
-          setTasks(
-            (response ?? []).map((task: ListProps) => ({
-              ...task,
-              isToggle: !!task.doneAt,
-            }))
-          );
-        }
-      } catch (err) {
-        console.error("할 일 로드 실패", err);
-        setTasks([]);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchTasks();
   }, [groupId, listId, baseDate]);
+
+  const fetchTasks = async () => {
+    setLoading(true);
+    try {
+      const response = await getTasks(groupId, Number(listId), baseDate);
+
+      if (response && "error" in response) {
+        setTasks([]);
+      } else {
+        setTasks(
+          (response ?? []).map((task: TaskDetail) => ({
+            ...task,
+            isToggle: !!task.doneAt || (task.doneBy?.length ?? 0) > 0,
+          }))
+        );
+      }
+    } catch {
+      setTasks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const openTaskId = searchParams.get("task");
   const openTask = useMemo(
@@ -60,12 +72,7 @@ export default function TaskListContainer({
 
   // 사이드바 열릴 때 배경 스크롤 방지
   useEffect(() => {
-    if (openTask) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
+    document.body.style.overflow = openTask ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -83,63 +90,199 @@ export default function TaskListContainer({
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // // Task 업데이트 (사이드바에서 수정 시)
-  // const handleUpdateTask = (taskId: number, updates: Partial<Task>) => {
-  //   setTasks((prevTasks) =>
-  //     prevTasks.map((task) =>
-  //       task.id === taskId ? { ...task, ...updates } : task
-  //     )
-  //   );
+  const handleToggle = async (id: number) => {
+    // 현재 task의 done 상태 확인
+    const currentTask = tasks.find((task) => task.id === id);
+    if (!currentTask) return;
 
-  //   // TODO: API 호출
-  //   // await fetch(`/api/tasks/${taskId}`, {
-  //   //   method: 'PATCH',
-  //   //   body: JSON.stringify(updates)
-  //   // });
-  // };
+    const newDoneState = !currentTask.isToggle;
 
-  const handleToggle = (id: number) => {
+    // 낙관적 업데이트 (UI 먼저 변경)
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
-        task.id === id ? { ...task, isToggle: !task.isToggle } : task
+        task.id === id ? { ...task, isToggle: newDoneState } : task
       )
     );
-    // TODO: API 호출로 상태 업데이트
+
+    try {
+      // API 호출
+      const result = await patchTask(groupId, Number(listId), id, {
+        done: newDoneState,
+      });
+
+      if ("error" in result) {
+        // 에러 발생 시 원래 상태로 롤백
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.id === id ? { ...task, isToggle: currentTask.isToggle } : task
+          )
+        );
+        alert(result.message);
+        return;
+      }
+
+      // 성공 시 서버 응답으로 업데이트
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === id
+            ? {
+                ...task,
+                ...result,
+                isToggle: !!result.doneAt || (task.doneBy?.length ?? 0) > 0,
+              }
+            : task
+        )
+      );
+    } catch (err) {
+      // 네트워크 에러 시 롤백
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === id ? { ...task, isToggle: currentTask.isToggle } : task
+        )
+      );
+      console.error(err);
+      alert("할 일 상태 변경에 실패했습니다.");
+    }
   };
 
-  const handleClickKebab = (id: number) => {
-    // TODO: 케밥 메뉴 로직(useKebabMenu 사용)
+  const handleUpdateTask = async (
+    taskId: number,
+    updates: Partial<TaskDetail>
+  ) => {
+    try {
+      const result = await patchTask(groupId, Number(listId), taskId, updates);
+
+      if ("error" in result) {
+        alert(result.message);
+        return;
+      }
+
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, ...result } : t))
+      );
+    } catch (err) {
+      console.error(err);
+      alert("업데이트 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleOpenEditModal = async (taskId: number) => {
+    const detail = await getSpecificTask(groupId, Number(listId), taskId);
+
+    if ("error" in detail) {
+      alert(detail.message);
+      return;
+    }
+
+    setEditTask(detail);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteTask = async (task: {
+    id: number;
+    recurringId: number;
+  }) => {
+    try {
+      const result = await deleteTasks(
+        groupId,
+        Number(listId),
+        task.id,
+        task.recurringId
+      );
+
+      if ("error" in result) {
+        alert(result.message);
+        return;
+      }
+
+      setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    } catch (err) {
+      console.error(err);
+      alert("삭제 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 삭제 핸들러 추가
+  const handleTaskDeleted = (taskId: number, rollback?: boolean) => {
+    // 1. UI에서 삭제
+    setTasks((prev) => prev.filter((task) => task.id !== taskId));
+
+    // 2. URL에서 task 파라미터 제거
+    const params = new URLSearchParams(searchParams);
+    params.delete("task");
+    router.push(`${pathname}?${params.toString()}`);
+
+    // 3. API 실패 시 rollback
+    if (rollback) {
+      fetchTasks();
+    }
   };
 
   if (loading) return <div className="text-center p-40">로딩 중...</div>;
 
-  if (tasks.length === 0) {
-    return (
-      <div className="text-text-default text-center mx-auto my-0 p-100">
-        아직 할 일이 없습니다 <br /> 할 일을 추가해보세요.
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <div className="flex flex-col gap-16">
-        {tasks.map((task) => (
-          <List
-            key={task.id}
-            id={task.id}
-            name={task.name}
-            isToggle={task.isToggle}
-            onToggle={handleToggle}
-            onClickKebab={handleClickKebab}
-            variant="detailed"
-            commentCount={task.commentCount}
-            frequency={task.frequency}
-            date={task.date}
-            onClick={() => handleTaskClick(task.id)}
-          />
-        ))}
+    <>
+      <div>
+        {tasks.length === 0 ? (
+          <div className="text-text-default text-center mx-auto my-0 p-100">
+            아직 할 일이 없습니다 <br /> 할 일을 추가해보세요.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-16">
+            {tasks.map((task) => (
+              <List
+                key={task.id}
+                id={task.id}
+                name={task.name}
+                isToggle={task.isToggle}
+                onToggle={handleToggle}
+                variant="detailed"
+                commentCount={task.commentCount}
+                frequency={task.frequency}
+                date={task.date}
+                displayIndex={task.displayIndex}
+                recurringId={task.recurringId}
+                onClick={() => handleTaskClick(task.id)}
+                onDeleteTask={handleDeleteTask}
+                onUpdateTask={handleUpdateTask}
+                onEditTask={handleOpenEditModal}
+              />
+            ))}
+          </div>
+        )}
       </div>
+
+      <TaskCreateModal
+        groupId={groupId.toString()}
+        taskListId={listId}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditTask(undefined);
+        }}
+        taskToEdit={editTask}
+        onTaskUpdated={(updatedTask) => {
+          setTasks((prev) =>
+            prev.map((t) =>
+              t.id === updatedTask.id
+                ? {
+                    ...t,
+                    ...updatedTask,
+                    isToggle:
+                      !!updatedTask.doneAt || (t.doneBy?.length ?? 0) > 0,
+                  }
+                : t
+            )
+          );
+        }}
+        onTaskCreated={(newTask) => {
+          setTasks((prev) => {
+            const next = [{ ...newTask, isToggle: false }, ...prev];
+            return next;
+          });
+        }}
+      />
+
       {openTask && (
         <div
           onClick={handleCloseSidebar}
@@ -151,12 +294,29 @@ export default function TaskListContainer({
           >
             <TaskDetailsContainer
               task={openTask}
-              mode="sidebar"
+              groupId={groupId}
+              taskListId={Number(listId)}
               onClose={handleCloseSidebar}
+              onTaskUpdated={(updatedTask) => {
+                setTasks((prev) =>
+                  prev.map((t) =>
+                    t.id === updatedTask.id
+                      ? {
+                          ...t,
+                          ...updatedTask,
+                          isToggle:
+                            !!updatedTask.doneAt ||
+                            (updatedTask.doneBy?.length ?? 0) > 0,
+                        }
+                      : t
+                  )
+                );
+              }}
+              onTaskDeleted={handleTaskDeleted}
             />
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

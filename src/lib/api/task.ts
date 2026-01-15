@@ -2,115 +2,70 @@
 
 import { BASE_URL } from "@/lib/api";
 import { fetchApi } from "@/utils/api";
-
-interface CreateTaskRequestBody {
-  name: string;
-  description?: string;
-  startDate?: string;
-  frequencyType?: string;
-  monthDay?: number;
-  weekDays?: number;
-}
-
-interface UpdateTaskRequestBody {
-  name?: string;
-  description?: string;
-  done?: boolean;
-}
+import {
+  CreateTaskRequestBody,
+  TaskCreateResponse,
+  TaskPatchResponse,
+  UpdateTaskRequestBody,
+} from "../types/task";
+import { TaskDetail } from "@/types/task";
 
 export async function postTasks(
   groupId: number,
   taskListId: number,
   data: CreateTaskRequestBody
 ) {
-  try {
-    const response = await fetchApi(
-      `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}/tasks`,
-      { method: "POST", body: JSON.stringify(data) }
-    );
+  const response = await fetchApi(
+    `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}/tasks`,
+    { method: "POST", body: JSON.stringify(data) }
+  );
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "(반복)일정 생성에 실패했습니다.",
-      }));
-      return {
-        error: true,
-        message: error.message || "(반복)일정 생성에 실패했습니다.",
-      };
-    }
-
-    return await response.json();
-  } catch (error) {
-    return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
-    };
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({
+      message: "반복 일정 생성 실패",
+    }));
+    return { error: true, message: error.message };
   }
+
+  return (await response.json()) as TaskCreateResponse;
 }
 
 export async function getTasks(
   groupId: number,
   taskListId: number,
   date?: string
-) {
-  try {
-    const response = await fetchApi(
-      `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}/tasks${date ? `?date=${date}` : ""}`,
-      {
-        method: "GET",
-      }
-    );
+): Promise<TaskDetail[] | { error: true; message: string }> {
+  const response = await fetchApi(
+    `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}/tasks${date ? `?date=${date}` : ""}`
+  );
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "특정 일자의 할 일을 가져오는데 실패했습니다.",
-      }));
-
-      return {
-        error: true,
-        message:
-          error.message || "특정 일자의 할 일을 가져오는데 실패했습니다.",
-      };
-    }
-
-    return await response.json();
-  } catch (error) {
-    return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
-    };
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({
+      message: "특정 일자의 할 일을 가져오는데 실패했습니다.",
+    }));
+    return { error: true, message: error.message };
   }
+
+  return (await response.json()) as TaskDetail[];
 }
 
 export async function getSpecificTask(
   groupId: number,
   taskListId: number,
   taskId: number
-) {
-  try {
-    const response = await fetchApi(
-      `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}/tasks/${taskId}`,
-      {
-        method: "GET",
-      }
-    );
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "할 일 상세 정보를 가져오는데 실패했습니다.",
-      }));
-      return {
-        error: true,
-        message: error.message || "할 일 상세 정보를 가져오는데 실패했습니다.",
-      };
-    }
+): Promise<TaskDetail | { error: true; message: string }> {
+  const response = await fetchApi(
+    `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}/tasks/${taskId}`
+  );
 
-    return await response.json();
-  } catch (error) {
-    return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
-    };
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({
+      message: "할 일 상세 정보를 가져오는데 실패했습니다.",
+    }));
+    return { error: true, message: error.message };
   }
+
+  return (await response.json()) as TaskDetail;
 }
 
 export async function patchTask(
@@ -118,36 +73,24 @@ export async function patchTask(
   taskListId: number,
   taskId: number,
   data: UpdateTaskRequestBody
-) {
-  try {
-    const response = await fetchApi(
-      `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}/tasks/${taskId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "할 일 수정에 실패했습니다.",
-      }));
-      return {
-        error: true,
-        message: error.message || "할 일 수정에 실패했습니다.",
-      };
+): Promise<TaskPatchResponse | { error: true; message: string }> {
+  const response = await fetchApi(
+    `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}/tasks/${taskId}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     }
+  );
 
-    return (await response.json()) as { message: string };
-  } catch (error) {
-    return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
-    };
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({
+      message: "할 일 수정에 실패했습니다.",
+    }));
+    return { error: true, message: error.message };
   }
+
+  return (await response.json()) as TaskPatchResponse;
 }
 
 export async function deleteTask(
@@ -210,89 +153,6 @@ export async function deleteTasks(
       };
     }
     return { success: true };
-  } catch (error) {
-    return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
-    };
-  }
-}
-
-// TODO: 시현님 API Group 파일 이후 삭제
-// 할 일 목록'들' 가져오기
-
-export type GroupDetailResponse = {
-  id: number;
-  name: string;
-  image: string | null;
-  createdAt: string;
-  updatedAt: string;
-  teamId: string;
-  members: Array<{
-    userId: number;
-    groupId: number;
-    userName: string;
-    userEmail: string;
-    userImage: string | null;
-    // role: Role;
-  }>;
-  taskLists: Array<{
-    id: number;
-    name: string;
-    createdAt: string;
-    updatedAt: string;
-    groupId: number;
-    displayIndex: number;
-    // tasks: Task[] 로 수정
-    tasks: Array<{
-      id: number;
-      name: string;
-      description: string;
-      date: string;
-      doneAt: string | null;
-      updatedAt: string;
-      user: {
-        id: number;
-        nickname: string;
-        image: string | null;
-      } | null;
-      recurringId: number;
-      deletedAt: string | null;
-      displayIndex: number;
-      writer: {
-        id: number;
-        nickname: string;
-        image: string | null;
-      };
-      doneBy: {
-        id: number;
-        nickname: string;
-        image: string | null;
-      } | null;
-      commentCount: number;
-      frequency: string;
-    }>;
-  }>;
-};
-
-export async function getGroup(
-  groupId: number
-): Promise<GroupDetailResponse | { error: true; message: string }> {
-  try {
-    const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
-      method: "GET",
-    });
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "할 일 목록들을 가져오는데 실패했습니다.",
-      }));
-      return {
-        error: true,
-        message: error.message || "할 일 목록들을 가져오는데 실패했습니다.",
-      };
-    }
-
-    return await response.json();
   } catch (error) {
     return {
       error: true,

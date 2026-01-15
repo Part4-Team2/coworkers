@@ -1,28 +1,62 @@
 "use client";
 
-import Avatar from "../Common/Avatar/Avatar";
-import { mockComment } from "@/mocks/task";
-import Button from "../Common/Button/Button";
-import { Modal } from "../Common/Modal";
+import Avatar from "../../Common/Avatar/Avatar";
+import Button from "../../Common/Button/Button";
+import { Modal } from "../../Common/Modal";
 import useKebabMenu from "@/hooks/useKebabMenu";
-import Dropdown from "../Common/Dropdown/Dropdown";
+import Dropdown from "../../Common/Dropdown/Dropdown";
+import { CommentResponse } from "@/lib/types/comment";
+import { useSearchParams } from "next/navigation";
+import { deleteComment, patchComment } from "@/lib/api/comment";
 
-export default function Reply() {
+type CommentItemProps = {
+  comment: CommentResponse;
+  onUpdate: (id: number, newContent: string) => void;
+  onRemove: (id: number) => void;
+};
+
+export default function ReplyItem({
+  comment,
+  onUpdate,
+  onRemove,
+}: CommentItemProps) {
+  const searchParams = useSearchParams();
+  const taskId = searchParams.get("task");
+
   const kebab = useKebabMenu({
-    initialContent: mockComment[0].content,
-    onSave: (newContent) => {
-      console.log("api PATCH 로직", newContent);
-      // 실제 api 호출
+    initialContent: comment.content,
+    onSave: async (newContent) => {
+      if (!taskId) return;
+
+      onUpdate(comment.id, newContent);
+
+      kebab.handleCancelEdit();
+
+      const res = await patchComment(taskId, String(comment.id), {
+        content: newContent,
+      });
+
+      if (!res.success) {
+        alert(res.error);
+        onUpdate(comment.id, comment.content); // rollback
+      }
     },
-    onDelete: () => {
-      console.log("api DELETE 로직");
-      // 실제 api 호출
+    onDelete: async () => {
+      if (!taskId) return;
+
+      const res = await deleteComment(taskId, String(comment.id));
+
+      if (res.success) {
+        onRemove(comment.id); // 부모 상태 업데이트
+      } else {
+        alert(res.error);
+      }
     },
     deleteModalTitle: "해당 댓글을 정말 삭제하시겠어요?",
   });
 
   return (
-    <div className="flex flex-col gap-16 mt-16">
+    <div className="flex flex-col gap-8 mt-16">
       <div className="flex justify-between items-start text-text-primary text-md font-regular">
         {kebab.isEditing ? (
           <textarea
@@ -32,7 +66,7 @@ export default function Reply() {
             className="flex-1 resize-none field-sizing-content placeholder-text-default text-text-primary text-md font-regular"
           />
         ) : (
-          <div>{kebab.content}</div>
+          <div>{comment.content}</div>
         )}
 
         {!kebab.isEditing && (
@@ -84,17 +118,21 @@ export default function Reply() {
         </div>
       ) : (
         <div className="flex items-center">
-          <Avatar altText={`${mockComment[0].userName} 프로필`} size="large" />
+          <Avatar
+            imageUrl={comment.user.image ?? undefined}
+            altText={`${comment.user.nickname} 프로필`}
+            size="large"
+          />
           <span className="ml-16 text-text-primary text-md font-medium">
-            {mockComment[0].userName}
+            {comment.user.nickname}
           </span>
           <span className="ml-auto text-text-secondary text-md font-regular">
-            {mockComment[0].createdAt}
+            {comment.createdAt.slice(0, 10)}
           </span>
         </div>
       )}
 
-      <div className="border border-border-primary" />
+      <div className="border border-border-primary mb-6"></div>
     </div>
   );
 }

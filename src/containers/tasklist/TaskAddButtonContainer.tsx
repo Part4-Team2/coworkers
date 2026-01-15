@@ -4,9 +4,17 @@ import TaskCreateModal from "@/components/Tasklist/TaskCreateModal";
 import ButtonFloating from "@/components/Common/Button/ButtonFloating";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function TaskAddButtonContainer() {
+export default function TaskAddButtonContainer({
+  groupId,
+  taskListId,
+}: {
+  groupId: string;
+  taskListId: string;
+}) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const router = useRouter();
 
   const handleAddTaskButton = () => {
     setIsModalOpen(true);
@@ -14,6 +22,10 @@ export default function TaskAddButtonContainer() {
 
   const handleModalClose = () => {
     setIsModalOpen(false);
+  };
+
+  const handleTaskCreated = () => {
+    setTimeout(() => router.refresh(), 150);
   };
 
   return (
@@ -25,7 +37,13 @@ export default function TaskAddButtonContainer() {
         size="large"
         onClick={handleAddTaskButton}
       />
-      <TaskCreateModal isOpen={isModalOpen} onClose={handleModalClose} />
+      <TaskCreateModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        groupId={groupId}
+        taskListId={taskListId}
+        onTaskCreated={handleTaskCreated}
+      />
     </>
   );
 }

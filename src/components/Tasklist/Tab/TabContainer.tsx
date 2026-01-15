@@ -1,7 +1,8 @@
 "use client";
 
+import { TabItem } from "@/app/(route)/[teamid]/tasklist/page";
 import Tab from "./Tab";
-import { TabItem } from "@/types";
+
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 interface TabContainerProps {
