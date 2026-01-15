@@ -9,7 +9,7 @@ import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import Reply from "@/components/Tasklist/Comment/Reply";
 import useKebabMenu from "@/hooks/useKebabMenu";
 import { deleteTasks, patchTask } from "@/lib/api/task";
-import { TaskDetail } from "@/lib/types/taskTest";
+import { TaskDetail } from "@/types/task";
 import { formatDate, formatTime } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";

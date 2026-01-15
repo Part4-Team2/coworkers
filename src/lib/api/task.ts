@@ -5,10 +5,10 @@ import { fetchApi } from "@/utils/api";
 import {
   CreateTaskRequestBody,
   TaskCreateResponse,
-  TaskDetail,
   TaskPatchResponse,
   UpdateTaskRequestBody,
-} from "../types/taskTest";
+} from "../types/task";
+import { TaskDetail } from "@/types/task";
 
 export async function postTasks(
   groupId: number,

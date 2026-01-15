@@ -4,7 +4,7 @@ import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import useKebabMenu from "@/hooks/useKebabMenu";
-import { TaskListItem } from "@/lib/types/taskTest";
+import { TaskListItem } from "@/types/task";
 import { formatDate, formatTime } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";

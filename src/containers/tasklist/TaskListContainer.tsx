@@ -10,8 +10,8 @@ import {
   getTasks,
   patchTask,
 } from "@/lib/api/task";
-import { TaskDetail } from "@/lib/types/taskTest";
 import TaskCreateModal from "@/components/Tasklist/TaskCreateModal";
+import { TaskDetail } from "@/types/task";
 
 interface TaskListProps {
   groupId: number;

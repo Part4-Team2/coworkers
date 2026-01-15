@@ -17,10 +17,10 @@ import { patchTask, postTasks } from "@/lib/api/task";
 import { getFrequencyText } from "@/utils/frequency";
 import {
   CreateTaskRequestBody,
-  TaskDetail,
   TaskPatchResponse,
   UpdateTaskRequestBody,
-} from "@/lib/types/taskTest";
+} from "@/lib/types/task";
+import { TaskDetail } from "@/types/task";
 
 interface TaskCreateModalProps {
   groupId: string;

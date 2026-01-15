@@ -4,13 +4,18 @@ import ConditionalTaskAddButton from "@/containers/tasklist/ConditionalTaskAddBu
 import DateNavigatorContainer from "@/containers/tasklist/DateNavigatorContainer";
 import ListAddButtonContainer from "@/containers/tasklist/ListAddButtonContainer";
 import TaskListContainer from "@/containers/tasklist/TaskListContainer";
-import { TabItem } from "@/types";
 import { Metadata } from "next";
 
 type TaskListPageProps = {
   params: Promise<{ teamid: string }>;
   searchParams: Promise<{ tab?: string; date?: string }>;
 };
+
+interface TabItem {
+  id: string;
+  title: string;
+  content: React.ReactNode;
+}
 
 export async function generateMetadata({
   params,
