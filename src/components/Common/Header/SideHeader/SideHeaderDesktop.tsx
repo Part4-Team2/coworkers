@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import Avatar from "../../Avatar/Avatar";
 import { useRouter } from "next/navigation";
-// import { useEffect } from "react";
+import { useHeaderStore } from "@/store/headerStore";
 
 interface SideHeaderProps {
   isOpen: boolean;
@@ -11,6 +11,7 @@ interface SideHeaderProps {
     teamId: number;
     teamName: string;
     teamImage: string | null;
+    role: string;
   }[];
   wrapperRef: React.RefObject<HTMLDivElement | null>;
   onClose: () => void;
@@ -24,29 +25,24 @@ function SideHeaderDesktop({
   onClose,
 }: SideHeaderProps) {
   const router = useRouter();
+  const setActiveTeam = useHeaderStore((s) => s.setActiveTeam);
 
-  // Team 이름이나 나머지 서비스를 클릭할때 이름에 맞게 이동하는 함수입니다.
-  const handleClickPath = (path: number | string) => {
-    console.log(path);
-    router.push(`/${path}`);
+  const handleClickTeam = (team: {
+    teamId: number;
+    teamName: string;
+    teamImage: string | null;
+    role: string;
+  }) => {
+    setActiveTeam(team);
+    router.push(`/${team.teamId}`);
     onClose();
   };
 
-  // // 바깥 클릭하면 닫히는 함수입니다.
-  // useEffect(() => {
-  //   if (!isOpen) return;
-
-  //   const handleClickOutside = (e: MouseEvent) => {
-  //     if (wrapperRef.current && wrapperRef.current.contains(e.target as Node)) {
-  //       onClose();
-  //     }
-  //   };
-
-  //   document.addEventListener("mousedown", handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, [isOpen, wrapperRef, onClose]);
+  // 나머지 서비스를 클릭할때 이름에 맞게 이동하는 함수입니다.
+  const handleClickPath = (path: number | string) => {
+    router.push(`/${path}`);
+    onClose();
+  };
 
   return (
     <div
@@ -75,7 +71,7 @@ function SideHeaderDesktop({
                 )}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleClickPath(team.teamId);
+                  handleClickTeam(team);
                 }}
               >
                 <div

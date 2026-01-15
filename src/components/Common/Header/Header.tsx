@@ -29,6 +29,19 @@ function Header() {
   const fetchUser = useHeaderStore((s) => s.fetchUser);
   const clearUser = useHeaderStore((s) => s.clearUser);
 
+  // 토글 버튼 누를시 작동하는 함수입니다. 토클로 여닫음 가능합니다.
+  const handleToggle = () => {
+    setIsSideOpen((prev) => !prev);
+  };
+
+  const handleSideOpen = () => {
+    setIsSideOpen(true);
+  };
+
+  const handleSideClose = () => {
+    setIsSideOpen(false);
+  };
+
   useEffect(() => {
     // 최초 마운트 시 무조건 한 번
     fetchUser();
@@ -68,14 +81,6 @@ function Header() {
       document.removeEventListener("click", handleClickOutside);
     };
   }, [isSideOpen]);
-
-  const handleSideOpen = () => {
-    setIsSideOpen(true);
-  };
-
-  const handleSideClose = () => {
-    setIsSideOpen(false);
-  };
 
   // 헤더에 있는 팀 이름 클릭하면 작동하는 함수입니다.
   const activeTeamClick = () => {
@@ -127,30 +132,46 @@ function Header() {
               <SVGIcon icon="LogoLarge" width={158} height={36} />
             </Link>
           </div>
-          {isLogin && teams.length > 0 && (
+          {isLogin && (
             <div className="relative">
-              <div className="hidden sm:flex gap-10">
-                {/* 활성화 된 팀명, 드롭다운으로 클릭할때마다 바뀝니다. */}
-                <div onClick={activeTeamClick}>{activeTeam?.teamName}</div>
-                {/* 토글 버튼 */}
+              {teams.length > 0 ? (
+                <div className="hidden sm:flex gap-10">
+                  {/* 활성화 된 팀명, 드롭다운으로 클릭할때마다 바뀝니다. */}
+                  <div
+                    className={clsx(
+                      "max-w-100 overflow-hidden text-ellipsis whitespace-nowrap"
+                    )}
+                    onClick={activeTeamClick}
+                  >
+                    {activeTeam?.teamName}
+                  </div>
+                  {/* 토글 버튼 */}
+                  <div
+                    className="cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggle();
+                    }}
+                  >
+                    <SVGIcon icon="toggle" />
+                  </div>
+                  <div className="hidden sm:block">
+                    <SideHeaderDesktop
+                      isOpen={isSideOpen}
+                      teams={teams}
+                      wrapperRef={sideWrapperRef}
+                      onClose={handleSideClose}
+                    />
+                  </div>
+                </div>
+              ) : (
                 <div
-                  className="cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSideOpen();
-                  }}
+                  className={clsx("hidden sm:block")}
+                  onClick={() => router.push("/addteam")}
                 >
-                  <SVGIcon icon="toggle" />
+                  + 팀 추가하기
                 </div>
-                <div className="hidden sm:block">
-                  <SideHeaderDesktop
-                    isOpen={isSideOpen}
-                    teams={teams}
-                    wrapperRef={sideWrapperRef}
-                    onClose={handleSideClose}
-                  />
-                </div>
-              </div>
+              )}
             </div>
           )}
           {isSideOpen && (
