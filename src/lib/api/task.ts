@@ -4,6 +4,7 @@ import { BASE_URL } from "@/lib/api";
 import { fetchApi } from "@/utils/api";
 import {
   CreateTaskRequestBody,
+  TaskCreateResponse,
   TaskDetail,
   TaskPatchResponse,
   UpdateTaskRequestBody,
@@ -26,7 +27,7 @@ export async function postTasks(
     return { error: true, message: error.message };
   }
 
-  return (await response.json()) as TaskDetail;
+  return (await response.json()) as TaskCreateResponse;
 }
 
 export async function getTasks(

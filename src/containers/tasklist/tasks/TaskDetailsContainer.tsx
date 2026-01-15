@@ -6,7 +6,7 @@ import ButtonFloating from "@/components/Common/Button/ButtonFloating";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
-import Reply from "@/components/Tasklist/Reply";
+import Reply from "@/components/Tasklist/Comment/Reply";
 import useKebabMenu from "@/hooks/useKebabMenu";
 import { deleteTasks, patchTask } from "@/lib/api/task";
 import { TaskDetail } from "@/lib/types/taskTest";
@@ -23,6 +23,7 @@ type TaskDetailsContainerProps = {
   taskListId: number;
   onClose?: () => void;
   onTaskUpdated?: (updatedTask: TaskDetail) => void;
+  onTaskDeleted?: (taskId: number, rollback?: boolean) => void;
 };
 
 export default function TaskDetailsContainer({
@@ -31,6 +32,7 @@ export default function TaskDetailsContainer({
   taskListId,
   onClose,
   onTaskUpdated,
+  onTaskDeleted,
 }: TaskDetailsContainerProps) {
   const [isComplete, setIsComplete] = useState(task.isToggle ?? false);
   const [taskData, setTaskData] = useState(task);
@@ -54,7 +56,9 @@ export default function TaskDetailsContainer({
       }
 
       try {
-        // 반복할일 삭제
+        onClose?.();
+        onTaskDeleted?.(task.id);
+
         const result = await deleteTasks(
           groupId,
           taskListId,
@@ -63,15 +67,17 @@ export default function TaskDetailsContainer({
         );
 
         if (result.error) {
-          alert(result.message); // 실패 시 알림
+          alert(result.message);
+          // 실패 시 롤백을 위해 다시 fetchTasks 필요
+
+          onTaskDeleted?.(task.id, true); // rollback flag
+
           return;
         }
-
-        // 삭제 성공 시 사이드바 닫기
-        onClose?.();
       } catch (err) {
         console.error(err);
         alert("삭제 중 오류가 발생했습니다.");
+        onTaskDeleted?.(task.id, true); // 실패 시 롤백
       }
     },
     deleteModalTitle: (

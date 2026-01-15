@@ -27,7 +27,7 @@ interface TaskCreateModalProps {
   taskListId: string;
   isOpen: boolean;
   onClose: () => void;
-  onTaskCreated?: () => void;
+  onTaskCreated?: (newTask: TaskDetail) => void;
   onTaskUpdated?: (updatedTask: TaskPatchResponse) => void;
   taskToEdit?: TaskDetail;
 }
@@ -90,22 +90,21 @@ export default function TaskCreateModal({
       return taskToEdit.weekDays ?? [];
     }
     return [];
-  }); // 0~6
-  const [monthDay, setMonthDay] = useState<number | null>(() => {
+  });
+  const [monthDay, setMonthDay] = useState<number | undefined>(() => {
     if (taskToEdit?.frequency === FrequencyType.MONTHLY) {
       return taskToEdit.monthDay ?? new Date(taskToEdit.date).getDate();
     }
-    return null;
+    return undefined;
   });
 
   const onSubmit = async (form: CreateTaskForm) => {
-    const merged = new Date(
-      form.startDate.setHours(
-        form.startTime.getHours(),
-        form.startTime.getMinutes(),
-        0,
-        0
-      )
+    const merged = new Date(form.startDate);
+    merged.setHours(
+      form.startTime.getHours(),
+      form.startTime.getMinutes(),
+      0,
+      0
     );
 
     // 수정 모드
@@ -147,7 +146,7 @@ export default function TaskCreateModal({
           description: form.description,
           startDate: merged.toISOString(),
           frequencyType: FrequencyType.WEEKLY,
-          weekDays: weekDays, // 0~6 배열
+          weekDays: weekDays,
         };
         break;
 
@@ -162,7 +161,7 @@ export default function TaskCreateModal({
           description: form.description,
           startDate: merged.toISOString(),
           frequencyType: FrequencyType.MONTHLY,
-          monthDay: monthDay, // 1~31 숫자
+          monthDay: monthDay,
         };
         break;
 
@@ -192,15 +191,44 @@ export default function TaskCreateModal({
     const response = await postTasks(Number(groupId), Number(taskListId), body);
 
     if (!response || "error" in response) {
-      alert(response?.error || "할 일 생성 실패");
+      alert(response.message || "할 일 생성 실패");
       return;
     }
 
-    onClose();
+    // 낙관적 업데이트(생성된 태스크를 부모 컴포넌트에 전달)
+    if (onTaskCreated && response.recurring) {
+      const newTask: TaskDetail = {
+        id: response.recurring.id,
+        name: response.recurring.name,
+        description: response.recurring.description,
+        commentCount: 0, // 새로 생성되었으므로 0
+        frequency: form.frequencyType,
+        date: merged.toISOString(),
+        displayIndex: 0, // 새로 생성되었으므로 초기값
+        recurringId: response.recurring.id,
+        updatedAt: response.recurring.updatedAt,
+        writer: {
+          id: 0,
+          nickname: "-",
+          image: null,
+        }, // 기본값 (서버에서 안 줄 수 있음)
+        weekDays:
+          form.frequencyType === FrequencyType.WEEKLY ? weekDays : undefined,
+        monthDay:
+          form.frequencyType === FrequencyType.MONTHLY
+            ? (monthDay ?? undefined)
+            : undefined,
+      };
+
+      onTaskCreated(newTask);
+    } else {
+    }
 
     setValue("name", "");
     setValue("description", "");
     setValue("frequencyType", FrequencyType.ONCE);
+    setWeekDays([]);
+    setMonthDay(undefined);
 
     // date 초기화는 새로운 Date 로 해야 반영됨
     const newToday = new Date();
@@ -210,9 +238,7 @@ export default function TaskCreateModal({
     setValue("startDate", newToday);
     setValue("startTime", newDefaultTime);
 
-    if (onTaskCreated) {
-      onTaskCreated();
-    }
+    onClose();
   };
 
   // 반복 설정은 수정하지 못하도록 막고(api 불가), 이름과 설명만 수정 가능하게
@@ -383,7 +409,9 @@ export default function TaskCreateModal({
               </section>
             </>
           )}
-          <section>
+          <section
+            className={clsx(isEditMode && "pointer-events-none opacity-50")}
+          >
             <h3 className="text-lg font-medium text-text-primary mb-16">
               반복 설정
             </h3>

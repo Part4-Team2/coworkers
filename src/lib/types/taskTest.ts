@@ -68,6 +68,10 @@ export type CreateTaskRequestBody =
   | TaskRecurringCreateDto["DailyRecurringCreateBody"]
   | TaskRecurringCreateDto["OnceRecurringCreateBody"];
 
+export interface TaskCreateResponse {
+  recurring: TaskDetail;
+}
+
 // PATCH 응답
 export interface TaskPatchResponse {
   displayIndex: number;

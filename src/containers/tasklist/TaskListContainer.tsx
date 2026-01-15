@@ -37,10 +37,16 @@ export default function TaskListContainer({
   const [editTask, setEditTask] = useState<TaskDetail | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // 탭 바뀔 때 마다 API 호출
+  useEffect(() => {
+    fetchTasks();
+  }, [groupId, listId, baseDate]);
+
   const fetchTasks = async () => {
     setLoading(true);
     try {
       const response = await getTasks(groupId, Number(listId), baseDate);
+
       if (response && "error" in response) {
         setTasks([]);
       } else {
@@ -57,11 +63,6 @@ export default function TaskListContainer({
       setLoading(false);
     }
   };
-
-  // 탭 바뀔 때 마다 API 호출
-  useEffect(() => {
-    fetchTasks();
-  }, [groupId, listId, baseDate]);
 
   const openTaskId = searchParams.get("task");
   const openTask = useMemo(
@@ -177,7 +178,6 @@ export default function TaskListContainer({
     setIsModalOpen(true);
   };
 
-  // Task 삭제
   const handleDeleteTask = async (task: {
     id: number;
     recurringId: number;
@@ -202,64 +202,86 @@ export default function TaskListContainer({
     }
   };
 
+  // 삭제 핸들러 추가
+  const handleTaskDeleted = (taskId: number, rollback?: boolean) => {
+    // 1. UI에서 삭제
+    setTasks((prev) => prev.filter((task) => task.id !== taskId));
+
+    // 2. URL에서 task 파라미터 제거
+    const params = new URLSearchParams(searchParams);
+    params.delete("task");
+    router.push(`${pathname}?${params.toString()}`);
+
+    // 3. API 실패 시 rollback
+    if (rollback) {
+      fetchTasks();
+    }
+  };
+
   if (loading) return <div className="text-center p-40">로딩 중...</div>;
 
-  if (tasks.length === 0) {
-    return (
-      <div className="text-text-default text-center mx-auto my-0 p-100">
-        아직 할 일이 없습니다 <br /> 할 일을 추가해보세요.
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <div className="flex flex-col gap-16">
-        {tasks.map((task) => (
-          <List
-            key={task.id}
-            id={task.id}
-            name={task.name}
-            isToggle={task.isToggle}
-            onToggle={handleToggle}
-            variant="detailed"
-            commentCount={task.commentCount}
-            frequency={task.frequency}
-            date={task.date}
-            displayIndex={task.displayIndex}
-            recurringId={task.recurringId}
-            onClick={() => handleTaskClick(task.id)}
-            onDeleteTask={handleDeleteTask}
-            onUpdateTask={handleUpdateTask}
-            onEditTask={handleOpenEditModal}
-          />
-        ))}
-        <TaskCreateModal
-          groupId={groupId.toString()}
-          taskListId={listId}
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setEditTask(undefined);
-          }}
-          taskToEdit={editTask}
-          onTaskUpdated={(updatedTask) => {
-            setTasks((prev) =>
-              prev.map((t) =>
-                t.id === updatedTask.id
-                  ? {
-                      ...t,
-                      ...updatedTask,
-                      isToggle:
-                        !!updatedTask.doneAt || (t.doneBy?.length ?? 0) > 0,
-                    }
-                  : t
-              )
-            );
-          }}
-          onTaskCreated={() => fetchTasks()}
-        />
+    <>
+      <div>
+        {tasks.length === 0 ? (
+          <div className="text-text-default text-center mx-auto my-0 p-100">
+            아직 할 일이 없습니다 <br /> 할 일을 추가해보세요.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-16">
+            {tasks.map((task) => (
+              <List
+                key={task.id}
+                id={task.id}
+                name={task.name}
+                isToggle={task.isToggle}
+                onToggle={handleToggle}
+                variant="detailed"
+                commentCount={task.commentCount}
+                frequency={task.frequency}
+                date={task.date}
+                displayIndex={task.displayIndex}
+                recurringId={task.recurringId}
+                onClick={() => handleTaskClick(task.id)}
+                onDeleteTask={handleDeleteTask}
+                onUpdateTask={handleUpdateTask}
+                onEditTask={handleOpenEditModal}
+              />
+            ))}
+          </div>
+        )}
       </div>
+
+      <TaskCreateModal
+        groupId={groupId.toString()}
+        taskListId={listId}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditTask(undefined);
+        }}
+        taskToEdit={editTask}
+        onTaskUpdated={(updatedTask) => {
+          setTasks((prev) =>
+            prev.map((t) =>
+              t.id === updatedTask.id
+                ? {
+                    ...t,
+                    ...updatedTask,
+                    isToggle:
+                      !!updatedTask.doneAt || (t.doneBy?.length ?? 0) > 0,
+                  }
+                : t
+            )
+          );
+        }}
+        onTaskCreated={(newTask) => {
+          setTasks((prev) => {
+            const next = [{ ...newTask, isToggle: false }, ...prev];
+            return next;
+          });
+        }}
+      />
 
       {openTask && (
         <div
@@ -290,10 +312,11 @@ export default function TaskListContainer({
                   )
                 );
               }}
+              onTaskDeleted={handleTaskDeleted}
             />
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
