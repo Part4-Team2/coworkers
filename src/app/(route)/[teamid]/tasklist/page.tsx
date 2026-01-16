@@ -102,10 +102,13 @@ export default async function TaskListPage({
           <>
             {/* defaultActiveId={activeTabId} 는 수정될 수 있음 */}
             <TabContainer tab={tabs} defaultActiveId={activeTabId} />
+            <ConditionalTaskAddButton
+              groupId={groupId}
+              taskListId={activeTabId}
+            />
           </>
         )}
       </div>
-      <ConditionalTaskAddButton groupId={groupId} taskListId={activeTabId} />
     </div>
   );
 }
