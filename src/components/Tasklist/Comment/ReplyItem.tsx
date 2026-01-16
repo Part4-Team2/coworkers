@@ -123,7 +123,7 @@ export default function ReplyItem({
             altText={`${comment.user.nickname} 프로필`}
             size="large"
           />
-          <span className="ml-16 text-text-primary text-md font-medium">
+          <span className="ml-12 text-text-primary text-md font-medium">
             {comment.user.nickname}
           </span>
           <span className="ml-auto text-text-secondary text-md font-regular">
@@ -132,7 +132,7 @@ export default function ReplyItem({
         </div>
       )}
 
-      <div className="border border-border-primary mb-6"></div>
+      <div className="border border-border-primary mt-5"></div>
     </div>
   );
 }

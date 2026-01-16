@@ -309,7 +309,7 @@ export default function TaskDetailsContainer({
 
         <Reply taskId={task.id} />
 
-        <div className="fixed bottom-50 z-50 right-[max(1.5rem,calc(50%-600px+1.5rem))]">
+        <div className="fixed bottom-50 z-50 right-50">
           {isComplete ? (
             <ButtonFloating
               label="완료 취소하기"

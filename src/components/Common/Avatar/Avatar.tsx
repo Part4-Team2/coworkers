@@ -9,6 +9,18 @@ const AVATAR_SIZE_MAP = {
   xlarge: 64,
 } as const;
 
+const ICON_SIZE_MAP = {
+  small: 16,
+  large: 26,
+  xlarge: 45,
+} as const;
+
+const TEAM_PADDING_MAP = {
+  small: "p-3",
+  large: "p-5",
+  xlarge: "p-10",
+};
+
 interface AvatarProps {
   imageUrl?: string;
   altText: string;
@@ -61,8 +73,17 @@ export default function Avatar({
             />
           )
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <SVGIcon icon={defaultIcon} size={pixelSize} />
+          <div
+            className={clsx(
+              "w-full h-full flex items-center justify-center",
+              variant === "team" && "bg-background-secondary"
+            )}
+          >
+            <SVGIcon
+              icon={defaultIcon}
+              size={ICON_SIZE_MAP[size]}
+              className={clsx(variant === "team" && TEAM_PADDING_MAP[size])}
+            />
           </div>
         )}
       </div>
