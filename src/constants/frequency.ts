@@ -8,7 +8,7 @@ export const frequencyToEnum = {
 } as const;
 
 export const enumToFrequency = {
-  [FrequencyType.ONCE]: "한 번만",
+  [FrequencyType.ONCE]: "한 번",
   [FrequencyType.DAILY]: "매일",
   [FrequencyType.WEEKLY]: "주 반복",
   [FrequencyType.MONTHLY]: "월 반복",

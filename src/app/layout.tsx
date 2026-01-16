@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Header from "@/components/Common/Header/Header";
+import ToastProvider from "@/providers/ToastProvider";
+import StoreHydrationProvider from "@/providers/StoreHydrationProvider";
 
 // metadataBase는 상대 경로를 절대 URL로 변환하기 위한 기본 URL 설정
 export const metadata: Metadata = {
@@ -59,10 +61,13 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Header />
-        <main className="pt-[var(--app-header-height)]">{children}</main>
-        <Analytics />
-        <SpeedInsights />
+        <StoreHydrationProvider>
+          <ToastProvider />
+          <Header />
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </StoreHydrationProvider>
       </body>
     </html>
   );

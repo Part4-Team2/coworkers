@@ -9,6 +9,7 @@ import {
 } from "@/lib/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 import { Todo } from "@/types/todo";
+import { showSuccessToast, showErrorToast } from "@/utils/error";
 
 interface UseTodoActionsProps {
   teamId: string;
@@ -78,16 +79,16 @@ export function useTodoActions({
       const result = await createTaskList(teamId, modalState.todoListName);
 
       if (!result.success) {
-        alert(result.error);
+        showErrorToast(result.error);
         return;
       }
 
-      alert("할 일 목록이 생성되었습니다.");
+      showSuccessToast("할 일 목록이 생성되었습니다.");
       resetModalState();
       router.refresh();
     } catch (error) {
       console.error("[createTaskList]", error);
-      alert("할 일 목록 생성 중 오류가 발생했습니다.");
+      showErrorToast("할 일 목록 생성 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -105,16 +106,16 @@ export function useTodoActions({
       );
 
       if (!result.success) {
-        alert(result.error);
+        showErrorToast(result.error);
         return;
       }
 
-      alert("할 일 목록이 수정되었습니다.");
+      showSuccessToast("할 일 목록이 수정되었습니다.");
       resetModalState();
       router.refresh();
     } catch (error) {
       console.error("[updateTaskList]", error);
-      alert("할 일 목록 수정 중 오류가 발생했습니다.");
+      showErrorToast("할 일 목록 수정 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -134,16 +135,16 @@ export function useTodoActions({
       const result = await deleteTaskList(teamId, modalState.todoToDelete);
 
       if (!result.success) {
-        alert(result.error);
+        showErrorToast(result.error);
         return;
       }
 
-      alert("할 일 목록이 삭제되었습니다.");
+      showSuccessToast("할 일 목록이 삭제되었습니다.");
       resetModalState();
       router.refresh();
     } catch (error) {
       console.error("[deleteTaskList]", error);
-      alert("할 일 목록 삭제 중 오류가 발생했습니다.");
+      showErrorToast("할 일 목록 삭제 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
     }

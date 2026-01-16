@@ -57,70 +57,72 @@ export default function List(props: ListProps) {
       onClick={onClick}
       className="flex flex-col gap-10 bg-background-secondary px-14 py-12 rounded-lg cursor-pointer"
     >
-      <div className="flex items-center justify-between ">
-        <div className="flex items-center gap-7">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle?.(id);
-            }}
-            aria-label={isToggle ? "완료 취소" : "완료 표시"}
-          >
-            <SVGIcon
-              icon={isToggle ? "checkboxActive" : "checkboxDefault"}
-              className="cursor-pointer"
-            />
-          </button>
-          <span
-            className={clsx(
-              "text-text-primary text-md font-regular",
-              isToggle && "line-through"
-            )}
-          >
-            {name}
-          </span>
-
-          {variant === "detailed" && (
-            <div className="flex items-center gap-2 text-text-default text-xs font-regular">
-              <SVGIcon icon="comment" size="xxs" />
-              <span>{commentCount ?? 0}</span>
-            </div>
-          )}
-        </div>
-        {!hideKebab && (
-          <>
-            <div
-              className="relative"
+      <div className="flex flex-col gap-10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-7">
+            <button
               onClick={(e) => {
                 e.stopPropagation();
+                onToggle?.(id);
               }}
+              aria-label={isToggle ? "완료 취소" : "완료 표시"}
             >
-              <Dropdown
-                options={kebab.dropdownOptions}
-                size="md"
-                trigger="icon"
-                icon="kebabLarge"
-                listPosition="absolute right-0 top-full mt-5"
-                onSelect={kebab.handleDropdownSelect}
+              <SVGIcon
+                icon={isToggle ? "checkboxActive" : "checkboxDefault"}
+                className="cursor-pointer"
               />
-            </div>
-            <Modal
-              isOpen={kebab.isModalOpen}
-              onClose={kebab.handleModalClose}
-              title={kebab.deleteModalTitle}
-              description={kebab.deleteModalDescription}
-              primaryButton={{
-                label: "삭제하기",
-                onClick: kebab.handleDeleteConfirm,
-                variant: "danger",
-              }}
-              secondaryButton={{
-                label: "닫기",
-                onClick: kebab.handleModalClose,
-              }}
-            />
-          </>
-        )}
+            </button>
+            <span
+              className={clsx(
+                "text-text-primary text-md font-regular",
+                isToggle && "line-through"
+              )}
+            >
+              {name}
+            </span>
+
+            {variant === "detailed" && (
+              <div className="flex items-center gap-2 text-text-default text-xs font-regular">
+                <SVGIcon icon="comment" size="xxs" />
+                <span>{commentCount ?? 0}</span>
+              </div>
+            )}
+          </div>
+          {!hideKebab && (
+            <>
+              <div
+                className="relative"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <Dropdown
+                  options={kebab.dropdownOptions}
+                  size="md"
+                  trigger="icon"
+                  icon="kebabLarge"
+                  listPosition="absolute right-0 top-full mt-5"
+                  onSelect={kebab.handleDropdownSelect}
+                />
+              </div>
+              <Modal
+                isOpen={kebab.isModalOpen}
+                onClose={kebab.handleModalClose}
+                title={kebab.deleteModalTitle}
+                description={kebab.deleteModalDescription}
+                primaryButton={{
+                  label: "삭제하기",
+                  onClick: kebab.handleDeleteConfirm,
+                  variant: "danger",
+                }}
+                secondaryButton={{
+                  label: "닫기",
+                  onClick: kebab.handleModalClose,
+                }}
+              />
+            </>
+          )}
+        </div>
 
         {variant === "detailed" && (
           <div className="flex items-center gap-10 text-text-default text-xs font-regular">

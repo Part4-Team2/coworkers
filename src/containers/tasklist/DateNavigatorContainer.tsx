@@ -60,6 +60,7 @@ export default function DateNavigatorContainer({
               onChange={handleSelect}
               inline
               formatWeekDay={(day) => day.substring(0, 3)}
+              onClickOutside={() => setShowPicker(false)}
             />
           </div>
         </div>

@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Common/Button/Button";
 import TeamListItem from "@/components/Team/TeamListItem";
 import noAffiliationImage from "@/assets/img/no-affiliation.webp";
+import { displayPendingToast } from "@/utils/pendingToast";
 
 interface Team {
   id: number;
@@ -25,6 +27,11 @@ export default function TeamListContainer({ teams }: TeamListContainerProps) {
   const handleTeamClick = (groupId: number) => {
     router.push(`/${groupId}`);
   };
+
+  // 페이지 이동 후 토스트 메시지 표시
+  useEffect(() => {
+    displayPendingToast();
+  }, []);
 
   // 팀이 없는 경우
   if (!hasTeams) {

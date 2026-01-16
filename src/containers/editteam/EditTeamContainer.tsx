@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Form from "@/components/Common/Form/Form";
 import FormFooter from "@/components/Common/Form/FormFooter";
 import Avatar from "@/components/Common/Avatar/Avatar";
@@ -11,6 +11,8 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import { postImage } from "@/lib/api/image";
 import { patchGroup } from "@/lib/api/group";
 import { useHeaderStore } from "@/store/headerStore";
+import { setPendingToast } from "@/utils/pendingToast";
+import { showErrorToast } from "@/utils/error";
 
 interface EditTeamFormData {
   teamName: string;
@@ -26,10 +28,23 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
 
   // 전역 상태에서 현재 팀 정보 가져오기
   const teams = useHeaderStore((state) => state.teams);
+  const isHydrated = useHeaderStore((state) => state.isHydrated);
+  const isLogin = useHeaderStore((state) => state.isLogin);
+
   const currentTeam = useMemo(
     () => teams.find((team) => team.teamId === teamId),
     [teams, teamId]
   );
+
+  // currentTeam 검증 및 리다이렉트 (hydration 완료 후에만)
+  useEffect(() => {
+    if (isHydrated && isLogin && !currentTeam) {
+      showErrorToast(
+        "팀 정보를 찾을 수 없습니다. 팀 목록에서 다시 선택해주세요."
+      );
+      router.push("/teamlist");
+    }
+  }, [isHydrated, isLogin, currentTeam, router]);
 
   const initialTeamName = currentTeam?.teamName || "";
   const initialTeamImage = currentTeam?.teamImage || undefined;
@@ -48,6 +63,7 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
     formState: { errors },
     trigger,
     setError,
+    reset,
   } = useForm<EditTeamFormData>({
     mode: "onBlur",
     defaultValues: {
@@ -55,19 +71,14 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
     },
   });
 
-  // 팀 정보를 찾을 수 없는 경우 에러 처리
-  if (!currentTeam) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background-primary">
-        <p className="text-text-primary text-lg font-medium mb-16">
-          팀 정보를 찾을 수 없습니다.
-        </p>
-        <p className="text-text-secondary text-md">
-          팀 목록에서 다시 선택해주세요.
-        </p>
-      </div>
-    );
-  }
+  // currentTeam이 업데이트되면 form 값 초기화
+  useEffect(() => {
+    if (currentTeam) {
+      reset({
+        teamName: currentTeam.teamName,
+      });
+    }
+  }, [currentTeam, reset]);
 
   const onSubmit = async (data: EditTeamFormData) => {
     if (isSubmitting) return;
@@ -97,10 +108,8 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
         throw new Error(result.error);
       }
 
-      // 성공 메시지 (나중에 Toast로 교체 예정)
-      alert("수정되었습니다!");
-
-      // 성공 시 팀 페이지로 이동
+      // 성공 메시지를 저장하고 팀 페이지로 이동
+      setPendingToast("success", "팀 정보가 수정되었습니다.");
       router.push(`/${teamId}`);
     } catch (error) {
       console.error("팀 수정 실패:", error);
@@ -109,6 +118,7 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
       const errorMessage =
         error instanceof Error ? error.message : "팀 수정에 실패했습니다.";
 
+      showErrorToast(errorMessage);
       setError("teamName", {
         type: "manual",
         message: errorMessage,
