@@ -21,7 +21,7 @@ export async function proxy(request: NextRequest) {
   if (
     pathname === "/login" ||
     pathname === "/signup" ||
-    pathname === "/oauth/:path*"
+    pathname.startsWith("/oauth/")
   ) {
     if (!accessToken) {
       return NextResponse.next();
