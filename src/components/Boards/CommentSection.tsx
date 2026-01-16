@@ -4,6 +4,8 @@ import clsx from "clsx";
 import Button from "../Common/Button/Button";
 import Comment from "./Comment";
 import InputBox from "../Common/Input/InputBox";
+import { useRouter } from "next/navigation";
+import { useHeaderStore } from "@/store/headerStore";
 import { GetArticleComments } from "@/types/articleComment";
 import {
   getArticleComments,
@@ -25,6 +27,9 @@ function CommentSection({
   onCommentAdd,
   onCommentDelete,
 }: Pageprops) {
+  const isLogin = useHeaderStore((set) => set.isLogin);
+  const router = useRouter();
+
   const [commentList, setCommentList] = useState(comments.list);
   const [cursor, setCursor] = useState<number | undefined>(comments.nextCursor);
   const [hasNext, setHasNext] = useState(!!comments.nextCursor); // cursor 존재 여부로 다음 댓글 fetching합니다.
@@ -32,6 +37,12 @@ function CommentSection({
 
   // 댓글 작성 후 버튼을 누르면 처리되는 함수입니다.
   const handleCommentSubmit = async () => {
+    // 비로그인이면 로그인 페이지로 이동합니다.
+    if (!isLogin) {
+      router.push("/login");
+      return;
+    }
+
     if (!content.trim()) return; // 댓글 내용 없으면 바로 리턴.
 
     try {

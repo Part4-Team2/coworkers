@@ -177,7 +177,7 @@ function Header() {
                   className={clsx("hidden sm:block")}
                   onClick={() => router.push("/addteam")}
                 >
-                  + 팀 추가하기
+                  팀 추가하기
                 </div>
               )}
             </div>

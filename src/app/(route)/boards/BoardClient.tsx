@@ -46,9 +46,12 @@ function BoardClient() {
         setArticles(res.list);
         setTotalPage(Math.ceil(res.totalCount / PAGE_SIZE));
       } catch (error) {
+        setIsError(
+          error instanceof Error ? error : new Error("게시글 불러오기 실패")
+        );
         setArticles([]);
         setTotalPage(0);
-        console.error("게시글 목록 불러오기 실패", error);
+        console.error("게시글 불러오기 실패", error);
       } finally {
         setIsLoading(false);
       }

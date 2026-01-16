@@ -34,10 +34,8 @@ function WriteArticle() {
 
   // 게시글 작성하고 등록하면 작동하는 함수입니다.
   const handleSubmitClick = async () => {
-    setIsLoading(true);
-
-    console.log("게시글 올라갑니다");
     if (!title.trim() || !content.trim()) return;
+    setIsLoading(true);
 
     try {
       let imageUrl: string | undefined = undefined;

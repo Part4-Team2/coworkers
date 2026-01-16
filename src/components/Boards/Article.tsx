@@ -50,16 +50,19 @@ function ArticleComp({ article, currentUserId }: ArticleProps) {
             ></div>
           )}
         </div>
-        <div
-          className="absolute top-10 right-5 cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            router.push(`/boards/${article.id}/edit`);
-          }}
-        >
-          {isAuthor && <SVGIcon icon="gear" size={20} />}
-        </div>
+        {isAuthor && (
+          <button
+            type="button"
+            className="absolute top-10 right-5 cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              router.push(`/boards/${article.id}/edit`);
+            }}
+          >
+            <SVGIcon icon="gear" size={20} />
+          </button>
+        )}
         <div className="flex gap-16 items-center text-slate-400 text-md">
           <div className="flex gap-12 items-center text-text-primary">
             <span

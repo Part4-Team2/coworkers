@@ -1,11 +1,11 @@
 "use client";
 
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 import ArticleHeader from "./ArticleHeader";
-// import ArticleLike from "./ArticleLike";
 import CommentSection from "./CommentSection";
-import { Article } from "@/types/article";
 import ArticleLike from "./ArticleLike";
+import { Article } from "@/types/article";
 import { postLike, deleteLike } from "@/lib/api/boards";
 import { useState } from "react";
 import { useHeaderStore } from "@/store/headerStore";
@@ -17,13 +17,20 @@ interface Pageprops {
 }
 
 function ArticleClient({ article, comments }: Pageprops) {
+  const router = useRouter();
   const userId = useHeaderStore((state) => state.userId);
+  const isLogin = useHeaderStore((state) => state.isLogin);
   const [likeCount, setLikeCount] = useState(article.likeCount);
   const [isLike, setIsLike] = useState(article.isLiked);
   const [commentCount, setCommentCount] = useState(article.commentCount);
 
   // 게시글 좋아요 반영하는 함수입니다. 상태에 따라 갈라집니다.
   const handleLikeClick = async () => {
+    if (!isLogin) {
+      router.push("/login");
+      return;
+    }
+
     if (isLike === false) {
       try {
         await postLike(article.id);
