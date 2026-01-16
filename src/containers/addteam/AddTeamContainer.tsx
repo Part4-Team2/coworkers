@@ -11,6 +11,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import { postGroup } from "@/lib/api/group";
 import { postImage } from "@/lib/api/image";
 import { CreateGroupBody } from "@/lib/types/group";
+import { showErrorToast, showSuccessToast } from "@/utils/error";
 
 interface AddTeamFormData {
   teamName: string;
@@ -53,14 +54,17 @@ export default function AddTeamContainer() {
         try {
           const imageResponse = await postImage(selectedFile);
           if ("error" in imageResponse) {
-            setAddTeamError(
-              imageResponse.message || "이미지 업로드에 실패했습니다."
-            );
+            const errorMessage =
+              imageResponse.message || "이미지 업로드에 실패했습니다.";
+            setAddTeamError(errorMessage);
+            showErrorToast(errorMessage);
             return;
           }
           uploadedImageUrl = imageResponse.url;
         } catch (error) {
-          setAddTeamError("이미지 업로드에 실패했습니다.");
+          const errorMessage = "이미지 업로드에 실패했습니다.";
+          setAddTeamError(errorMessage);
+          showErrorToast(errorMessage);
           return;
         }
       }
@@ -72,14 +76,19 @@ export default function AddTeamContainer() {
 
       const response = await postGroup(requestData);
       if ("error" in response) {
-        setAddTeamError(response.message);
+        const errorMessage = response.message || "팀 생성에 실패했습니다.";
+        setAddTeamError(errorMessage);
+        showErrorToast(errorMessage);
         return;
       }
 
       // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
+      showSuccessToast("팀 생성에 성공했습니다.");
       router.push(`/${response.id}`);
     } catch (error) {
-      setAddTeamError("팀 생성에 실패했습니다. 다시 시도해주세요.");
+      const errorMessage = "팀 생성에 실패했습니다. 다시 시도해주세요.";
+      setAddTeamError(errorMessage);
+      showErrorToast(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

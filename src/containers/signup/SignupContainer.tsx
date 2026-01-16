@@ -9,6 +9,7 @@ import { useHeaderStore } from "@/store/headerStore";
 import { InputConfig } from "@/components/Common/Form/types";
 import { postSignup } from "@/lib/api/auth";
 import { SignUpRequestBody } from "@/lib/types/auth";
+import { showErrorToast, showSuccessToast } from "@/utils/error";
 
 interface SignupFormData {
   name: string;
@@ -49,11 +50,14 @@ export default function SignupContainer() {
       const response = await postSignup(requestData);
 
       if ("error" in response) {
-        setSignupError(response.message);
+        const errorMessage = response.message || "회원가입에 실패했습니다.";
+        setSignupError(errorMessage);
+        showErrorToast(errorMessage);
         setIsSubmitting(false);
         return;
       }
       await fetchUser();
+      showSuccessToast("회원가입에 성공했습니다.");
       router.push("/");
     } catch (error) {
       const errorMessage =
@@ -61,6 +65,7 @@ export default function SignupContainer() {
           ? error.message
           : "회원가입에 실패했습니다. 다시 시도해주세요.";
       setSignupError(errorMessage);
+      showErrorToast(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
