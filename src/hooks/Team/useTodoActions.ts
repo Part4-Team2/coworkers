@@ -36,6 +36,7 @@ export function useTodoActions({
       {
         type: MODAL_TYPES.TODO_LIST,
         todoListName: "",
+        todoListNameError: "",
         selectedTodo: null,
         todoToDelete: null,
       },
@@ -54,6 +55,7 @@ export function useTodoActions({
         type: MODAL_TYPES.TODO_EDIT,
         selectedTodo: todo,
         todoListName: todo.name,
+        todoListNameError: "",
       });
     },
     [todos, openModalWithDelay]
@@ -152,10 +154,24 @@ export function useTodoActions({
   // Input 변경 핸들러
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      updateModalState({ todoListName: e.target.value });
+      const value = e.target.value;
+      let error = "";
+
+      if (value.length > 20) {
+        error = "목록 이름은 최대 20자까지 입력 가능합니다.";
+      }
+
+      updateModalState({
+        todoListName: value,
+        todoListNameError: error,
+      });
     },
     [updateModalState]
   );
+
+  // validation 체크
+  const isValidName =
+    !modalState.todoListNameError && modalState.todoListName.trim();
 
   return {
     // 모달 열기
@@ -170,5 +186,7 @@ export function useTodoActions({
     handleNameChange,
     // 로딩 상태
     isLoading,
+    // validation
+    isValidName,
   };
 }

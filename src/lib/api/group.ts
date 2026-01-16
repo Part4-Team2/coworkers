@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/lib/api";
+import { REVALIDATE_TIME, REVALIDATE_TAG } from "@/constants/cache";
 import { CreateGroupBody } from "@/lib/types/group";
 import { Role } from "@/types/schemas";
 
@@ -76,13 +77,40 @@ export type GroupDetailResponse = {
 
 /**
  * 그룹 상세 정보 조회 (멤버, 할 일 목록 포함)
+ *
+ * Next.js 16 Cache Components:
+ * - 'use cache' 지시어로 함수 레벨 캐싱
+ * - cacheTag로 수동 무효화 지원
+ * - cacheLife 'max' 프로필: stale-while-revalidate 동작
+ */
+/**
+ * 그룹 상세 정보 조회
+ *
+ * 캐싱 전략:
+ * - fetch의 force-cache + revalidate (REVALIDATE_TIME.GROUP_DETAIL)
+ * - URL 기반 캐싱으로 모든 사용자가 동일한 캐시 공유
+ * - accessToken은 Authorization 헤더로 전달되어 캐시 키에 포함되지 않음
+ * - tags: REVALIDATE_TAG.GROUP로 수동 무효화 지원
+ *
+ * Note: "use cache" 지시어는 인증 헤더를 동적으로 처리할 수 없어
+ * fetch의 cache 옵션을 사용합니다.
+ *
+ * @param groupId 그룹 ID
+ * @param accessToken 액세스 토큰 (선택사항, 외부에서 cookies()로 읽어서 전달)
+ * @returns 그룹 상세 정보 또는 에러
  */
 export async function getGroup(
-  groupId: string
+  groupId: string,
+  accessToken: string | null = null
 ): Promise<ApiResult<GroupDetailResponse>> {
   try {
     const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
-      next: { tags: [`group-${groupId}`] },
+      accessToken,
+      cache: "force-cache",
+      next: {
+        revalidate: REVALIDATE_TIME.GROUP_DETAIL,
+        tags: [REVALIDATE_TAG.GROUP(groupId)],
+      },
     });
 
     if (!response.ok) {
@@ -107,6 +135,17 @@ export async function getGroup(
 
 /**
  * 할 일 목록 생성
+ *
+ * 캐싱 전략:
+ * - cache: "no-store" (변경 작업이므로 캐싱하지 않음)
+ * - 캐시 무효화: revalidatePath(`/${groupId}`)로 해당 그룹 페이지 재검증
+ *
+ * @param groupId 그룹 ID
+ * @param name 할 일 목록 이름
+ * @returns 생성된 할 일 목록 정보 또는 에러
+ *
+ * @todo Server Action으로 전환 후 revalidateTag(`group-${groupId}`) 사용 권장
+ *       (read-your-writes 일관성을 위해)
  */
 export async function createTaskList(
   groupId: string,
@@ -118,6 +157,7 @@ export async function createTaskList(
       {
         method: "POST",
         body: JSON.stringify({ name }),
+        cache: "no-store",
       }
     );
 
@@ -132,7 +172,10 @@ export async function createTaskList(
     }
 
     const data = (await response.json()) as TaskListResponse;
+
+    // 캐시 무효화: 그룹 페이지 재검증
     revalidatePath(`/${groupId}`);
+
     return { success: true, data };
   } catch {
     return {
@@ -144,6 +187,15 @@ export async function createTaskList(
 
 /**
  * 할 일 목록 수정
+ *
+ * 캐싱 전략:
+ * - cache: "no-store" (변경 작업이므로 캐싱하지 않음)
+ * - 캐시 무효화: revalidatePath(`/${groupId}`)로 해당 그룹 페이지 재검증
+ *
+ * @param groupId 그룹 ID
+ * @param taskListId 할 일 목록 ID
+ * @param name 새로운 할 일 목록 이름
+ * @returns 수정된 할 일 목록 정보 또는 에러
  */
 export async function updateTaskList(
   groupId: string,
@@ -156,6 +208,7 @@ export async function updateTaskList(
       {
         method: "PATCH",
         body: JSON.stringify({ name }),
+        cache: "no-store",
       }
     );
 
@@ -170,7 +223,10 @@ export async function updateTaskList(
     }
 
     const data = (await response.json()) as TaskListResponse;
+
+    // 캐시 무효화: 그룹 페이지 재검증
     revalidatePath(`/${groupId}`);
+
     return { success: true, data };
   } catch {
     return {
@@ -182,6 +238,14 @@ export async function updateTaskList(
 
 /**
  * 할 일 목록 삭제
+ *
+ * 캐싱 전략:
+ * - cache: "no-store" (변경 작업이므로 캐싱하지 않음)
+ * - 캐시 무효화: revalidatePath(`/${groupId}`)로 해당 그룹 페이지 재검증
+ *
+ * @param groupId 그룹 ID
+ * @param taskListId 삭제할 할 일 목록 ID
+ * @returns 성공 여부 또는 에러
  */
 export async function deleteTaskList(
   groupId: string,
@@ -192,6 +256,7 @@ export async function deleteTaskList(
       `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}`,
       {
         method: "DELETE",
+        cache: "no-store",
       }
     );
 
@@ -205,7 +270,9 @@ export async function deleteTaskList(
       };
     }
 
+    // 캐시 무효화: 그룹 페이지 재검증
     revalidatePath(`/${groupId}`);
+
     return { success: true, data: undefined };
   } catch {
     return {
@@ -217,11 +284,14 @@ export async function deleteTaskList(
 
 /**
  * 그룹(팀) 삭제
+ * - 변경 작업: cache no-store
+ * - 캐시 무효화: 해당 그룹 및 전체 목록
  */
 export async function deleteGroup(groupId: string): Promise<ApiResult<void>> {
   try {
     const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
       method: "DELETE",
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -234,6 +304,7 @@ export async function deleteGroup(groupId: string): Promise<ApiResult<void>> {
       };
     }
 
+    // 그룹 및 목록 캐시 무효화
     revalidatePath(`/${groupId}`);
     revalidatePath("/teamlist");
     return { success: true, data: undefined };
@@ -247,6 +318,8 @@ export async function deleteGroup(groupId: string): Promise<ApiResult<void>> {
 
 /**
  * 그룹 멤버 삭제
+ * - 변경 작업: cache no-store
+ * - 캐시 무효화: 해당 그룹의 멤버 정보
  */
 export async function deleteMember(
   groupId: string,
@@ -257,6 +330,7 @@ export async function deleteMember(
       `${BASE_URL}/groups/${groupId}/member/${memberUserId}`,
       {
         method: "DELETE",
+        cache: "no-store",
       }
     );
 
@@ -270,6 +344,7 @@ export async function deleteMember(
       };
     }
 
+    // 캐시 무효화 - 해당 그룹의 멤버 정보
     revalidatePath(`/${groupId}`);
     return { success: true, data: undefined };
   } catch {
@@ -282,6 +357,8 @@ export async function deleteMember(
 
 /**
  * 그룹(팀) 정보 수정
+ * - 변경 작업: cache no-store
+ * - 캐시 무효화: 해당 그룹 및 전체 목록
  */
 export async function patchGroup(
   groupId: string,
@@ -291,6 +368,7 @@ export async function patchGroup(
     const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
       method: "PATCH",
       body: JSON.stringify(data),
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -303,8 +381,8 @@ export async function patchGroup(
       };
     }
 
+    // 캐시 무효화 - 해당 그룹 및 전체 목록
     revalidatePath(`/${groupId}`);
-    revalidatePath(`/${groupId}/edit`);
     revalidatePath("/teamlist");
     return { success: true, data: undefined };
   } catch {
@@ -315,12 +393,17 @@ export async function patchGroup(
   }
 }
 
+/**
+ * 그룹(팀) 생성
+ * - 변경 작업: cache no-store
+ * - 캐시 무효화: 전체 목록
+ */
 export async function postGroup(data: CreateGroupBody) {
   try {
     const response = await fetchApi(`${BASE_URL}/groups`, {
       method: "POST",
       body: JSON.stringify(data),
-      // POST 요청은 fetchApi를 통해 자동으로 캐싱되지 않음
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -339,12 +422,8 @@ export async function postGroup(data: CreateGroupBody) {
       id: number;
     };
 
-    // 팀 생성 성공 후 관련 캐시 무효화
+    // 팀 목록 캐시 무효화
     revalidatePath("/teamlist");
-    // 새로 생성된 팀 페이지도 무효화
-    if (result.id) {
-      revalidatePath(`/${result.id}`);
-    }
 
     return result;
   } catch {
@@ -357,10 +436,16 @@ export async function postGroup(data: CreateGroupBody) {
 
 /**
  * 그룹 초대 토큰 생성
+ * - 매번 새로운 토큰 생성: cache no-store
  */
 export async function getGroupInvitation(groupId: string) {
   try {
-    const response = await fetchApi(`${BASE_URL}/groups/${groupId}/invitation`);
+    const response = await fetchApi(
+      `${BASE_URL}/groups/${groupId}/invitation`,
+      {
+        cache: "no-store",
+      }
+    );
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({
@@ -388,6 +473,8 @@ export async function getGroupInvitation(groupId: string) {
  * GET {id}/invitation으로 생성한 토큰으로, 초대를 수락하는 엔드포인트
  * token은 초대 링크에 포함되어있는 토큰, userEmail은 초대를 수락하는 유저의 이메일
  * 링크 토큰 유효 시간: 3일 / 참고: jwt.io
+ * - 변경 작업: cache no-store
+ * - 캐시 무효화: 해당 그룹 및 전체 목록
  */
 export async function postGroupAcceptInvitation(data: {
   userEmail: string;
@@ -397,7 +484,7 @@ export async function postGroupAcceptInvitation(data: {
     const response = await fetchApi(`${BASE_URL}/groups/accept-invitation`, {
       method: "POST",
       body: JSON.stringify(data),
-      // POST 요청은 fetchApi를 통해 자동으로 캐싱되지 않음
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -411,7 +498,7 @@ export async function postGroupAcceptInvitation(data: {
 
     const result = (await response.json()) as { groupId: number };
 
-    // 초대 수락 성공 후 관련 캐시 무효화
+    // 그룹 및 멤버, 목록 캐시 무효화
     revalidatePath(`/${result.groupId}`);
     revalidatePath("/teamlist");
 

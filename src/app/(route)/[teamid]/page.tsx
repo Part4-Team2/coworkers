@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import TeamIdContainer from "@/containers/teamid/TeamIdContainer";
 import { measureSSR } from "@/utils/measure";
 import { getGroup } from "@/lib/api/group";
@@ -18,8 +19,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     notFound();
   }
 
+  // "use cache" 외부에서 accessToken 읽기
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value || null;
+
   // API에서 팀 정보 가져오기
-  const groupData = await getGroup(teamId);
+  const groupData = await getGroup(teamId, accessToken);
   const teamName = groupData.success ? groupData.data.name : "팀";
 
   return {
@@ -49,14 +54,22 @@ export default async function TeamPage({ params }: Props) {
     notFound();
   }
 
+  // "use cache" 외부에서 accessToken 읽기
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value || null;
+
   // getGroup만 호출 (members, taskLists 필요)
   const getGroupWithMeasure = measureSSR({
     name: "getGroup",
-    fn: () => getGroup(teamId),
+    fn: () => getGroup(teamId, accessToken),
     attr: { "team.id": teamId },
   });
 
-  const groupData = await getGroupWithMeasure();
+  const {
+    result: groupData,
+    duration,
+    isCacheHit,
+  } = await getGroupWithMeasure();
 
   // 에러 처리
   if (!groupData.success) {

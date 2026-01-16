@@ -68,6 +68,25 @@ export async function createHeadersWithAuth(
 }
 
 /**
+ * 제공된 accessToken을 사용하여 fetch 요청 헤더에 Authorization을 추가합니다.
+ * @param headers 기존 헤더 객체 (선택사항)
+ * @param accessToken 액세스 토큰
+ * @returns Authorization 헤더가 포함된 Headers 객체
+ */
+export async function createHeadersWithToken(
+  headers?: HeadersInit,
+  accessToken?: string | null
+): Promise<Headers> {
+  const newHeaders = new Headers(headers);
+
+  if (accessToken) {
+    newHeaders.set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  return newHeaders;
+}
+
+/**
  * 쿠키에서 refreshToken을 읽어옵니다.
  * @returns refreshToken 값 또는 null
  */

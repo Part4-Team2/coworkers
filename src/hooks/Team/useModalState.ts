@@ -24,6 +24,7 @@ export interface ModalState {
   selectedMember: MemberType | null;
   memberToDelete: number | null;
   todoListName: string;
+  todoListNameError: string;
   selectedTodo: Todo | null;
   todoToDelete: number | null;
 }
@@ -33,6 +34,7 @@ const initialModalState: ModalState = {
   selectedMember: null,
   memberToDelete: null,
   todoListName: "",
+  todoListNameError: "",
   selectedTodo: null,
   todoToDelete: null,
 };

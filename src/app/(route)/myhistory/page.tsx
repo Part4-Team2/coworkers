@@ -1,4 +1,5 @@
 import { createMetadata } from "@/components/Common/Metadata/Metadata";
+import { cookies } from "next/headers";
 import { measureSSR } from "@/utils/measure";
 import { getUserHistory } from "@/lib/api/user";
 import DoneListContainer from "@/containers/myhistory/DoneListContainer";
@@ -12,13 +13,26 @@ export const metadata = createMetadata({
 });
 
 export default async function MyHistoryPage() {
+  // "캐싱 함수" 외부에서 accessToken 읽기
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value || null;
+
   // getUserHistory가 이미 캐싱되므로 중복 측정 불필요
   const getUserHistoryWithMeasure = measureSSR({
     name: "getUserHistory",
-    fn: () => getUserHistory(),
+    fn: () => getUserHistory(accessToken),
   });
 
-  const historyData = await getUserHistoryWithMeasure();
+  const {
+    result: historyData,
+    duration,
+    isCacheHit,
+  } = await getUserHistoryWithMeasure();
+
+  // 캐시 상태 로깅
+  console.log(
+    `[getUserHistory] ${isCacheHit ? "CACHE HIT" : "CACHE MISS"} (${duration.toFixed(2)}ms)`
+  );
 
   return (
     <div className="w-full min-h-screen bg-background-primary">

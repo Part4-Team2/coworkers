@@ -260,12 +260,14 @@ export default function TeamIdContainer({
           placeholder: "목록 명을 입력해주세요.",
           value: modalState.todoListName,
           onChange: todoActions.handleNameChange,
+          message: modalState.todoListNameError,
+          showError: Boolean(modalState.todoListNameError),
         }}
         primaryButton={{
           label: "만들기",
           onClick: todoActions.confirmCreate,
           loading: todoActions.isLoading,
-          disabled: !modalState.todoListName.trim(),
+          disabled: !todoActions.isValidName,
         }}
       />
 
@@ -278,12 +280,14 @@ export default function TeamIdContainer({
           placeholder: "목록 명을 입력해주세요.",
           value: modalState.todoListName,
           onChange: todoActions.handleNameChange,
+          message: modalState.todoListNameError,
+          showError: Boolean(modalState.todoListNameError),
         }}
         primaryButton={{
           label: "수정하기",
           onClick: todoActions.confirmEdit,
           loading: todoActions.isLoading,
-          disabled: !modalState.todoListName.trim(),
+          disabled: !todoActions.isValidName,
         }}
       />
 

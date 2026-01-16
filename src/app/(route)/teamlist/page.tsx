@@ -1,6 +1,8 @@
 import { createMetadata } from "@/components/Common/Metadata/Metadata";
+import { cookies } from "next/headers";
 import TeamListContainer from "@/containers/teamlist/TeamListContainer";
 import { getUserGroups } from "@/lib/api/user";
+import { measureSSR } from "@/utils/measure";
 
 export const metadata = createMetadata({
   title: "팀 목록",
@@ -11,8 +13,17 @@ export const metadata = createMetadata({
 });
 
 export default async function TeamListPage() {
-  // getUserGroups API 호출
-  const groupsData = await getUserGroups();
+  // "캐싱 함수" 외부에서 accessToken 읽기
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value || null;
+
+  // getUserGroups API 호출 (캐싱 + 성능 모니터링)
+  const getUserGroupsWithMeasure = measureSSR({
+    name: "getUserGroups",
+    fn: () => getUserGroups(accessToken),
+  });
+
+  const { result: groupsData } = await getUserGroupsWithMeasure();
 
   // 에러 처리
   if ("error" in groupsData) {

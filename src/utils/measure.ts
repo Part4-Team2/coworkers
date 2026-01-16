@@ -16,14 +16,20 @@ type MeasureArgs<T> = {
   showCacheStatus?: boolean; // 캐시 상태 표시 여부 (기본: true)
 };
 
+type MeasureResult<T> = {
+  result: T;
+  duration: number;
+  isCacheHit: boolean;
+};
+
 export const measureSSR = <T>({
   name,
   fn,
   attr,
   useCache = true,
   showCacheStatus = true,
-}: MeasureArgs<T>): (() => Promise<T>) => {
-  const measure = async (): Promise<T> => {
+}: MeasureArgs<T>): (() => Promise<MeasureResult<T>>) => {
+  const measure = async (): Promise<MeasureResult<T>> => {
     return tracer.startActiveSpan(name, async (span) => {
       if (attr) {
         span.setAttributes(attr);
@@ -36,12 +42,25 @@ export const measureSSR = <T>({
         // 환경별 임계값으로 캐시 상태 추정
         const isCacheHit = duration < CACHE_HIT_THRESHOLD;
 
+        // OpenTelemetry 속성 설정 (프로덕션 모니터링용)
+        span.setAttribute("duration.ms", duration.toFixed(2));
+        span.setAttribute("cache.hit", isCacheHit);
+        span.setAttribute("cache.threshold.ms", CACHE_HIT_THRESHOLD);
+        span.setAttribute("function.name", name);
+
+        // 캐시 상태를 이벤트로 기록 (APM에서 확인 가능)
+        span.addEvent(isCacheHit ? "cache.hit" : "cache.miss", {
+          "duration.ms": duration.toFixed(2),
+          timestamp: new Date().toISOString(),
+        });
+
+        // 개발 환경에서만 콘솔 출력
         if (isDev) {
           if (showCacheStatus) {
             // 캐시 상태와 함께 출력
             console.log(
               `[Measure] ${name}: ${duration.toFixed(2)}ms ${
-                isCacheHit ? "✅ (캐시 가능성)" : "❌ (API 호출)"
+                isCacheHit ? "✅ Next Cache" : "❌ (API 호출)"
               }`
             );
           } else {
@@ -50,10 +69,15 @@ export const measureSSR = <T>({
           }
         }
 
-        span.setAttribute("duration.ms", duration.toFixed(2));
-        span.setAttribute("cache.estimated", isCacheHit);
+        // 프로덕션에서도 캐시 상태 로깅 (간단하게)
+        if (!isDev) {
+          console.log(
+            `[${name}] ${isCacheHit ? "CACHE_HIT" : "CACHE_MISS"} ${duration.toFixed(1)}ms`
+          );
+        }
+
         span.setStatus({ code: SpanStatusCode.OK });
-        return result;
+        return { result, duration, isCacheHit };
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "UNKNOWN_ERROR";

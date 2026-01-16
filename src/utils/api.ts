@@ -1,5 +1,9 @@
 import { postRefreshToken } from "@/lib/api/auth";
-import { getRefreshToken, createHeadersWithAuth } from "@/utils/cookies";
+import {
+  getRefreshToken,
+  createHeadersWithAuth,
+  createHeadersWithToken,
+} from "@/utils/cookies";
 // 진행 중인 토큰 리프레시 Promise를 저장
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let refreshPromise: Promise<any> | null = null;
@@ -14,7 +18,8 @@ async function refreshTokenOnce(refreshToken: string) {
 }
 /**
  * 외부 API를 직접 호출하는 공통 함수
- * 쿠키에서 accessToken을 읽어서 Authorization 헤더에 자동으로 추가합니다.
+ * accessToken이 제공되면 Authorization 헤더에 추가하고,
+ * 제공되지 않으면 쿠키에서 읽어옵니다.
  * accessToken이 만료되면 자동으로 refreshToken을 사용해 갱신합니다.
  * @param url 전체 URL (예: `${BASE_URL}/groups/accept-invitation`)
  */
@@ -25,7 +30,9 @@ export async function fetchApi(
     headers?: HeadersInit;
     body?: BodyInit;
     searchParams?: string;
+    cache?: RequestCache;
     next?: NextFetchRequestConfig;
+    accessToken?: string | null;
   } = {}
 ): Promise<Response> {
   const {
@@ -33,11 +40,16 @@ export async function fetchApi(
     headers = {},
     body,
     searchParams = "",
+    cache,
     next,
+    accessToken,
   } = options;
 
   // Authorization 헤더 추가
-  const headersWithAuth = await createHeadersWithAuth(headers);
+  const headersWithAuth =
+    accessToken !== undefined
+      ? await createHeadersWithToken(headers, accessToken)
+      : await createHeadersWithAuth(headers);
 
   // Content-Type이 설정되지 않았고 body가 있으면 기본값 설정
   if (body && !headersWithAuth.has("Content-Type")) {
@@ -55,6 +67,7 @@ export async function fetchApi(
     method,
     headers: headersWithAuth,
     body,
+    ...(cache && { cache }),
     ...(next && { next }),
   });
 
@@ -83,6 +96,7 @@ export async function fetchApi(
           method,
           headers: newHeadersWithAuth,
           body,
+          ...(cache && { cache }),
           ...(next && { next }),
         });
       }
