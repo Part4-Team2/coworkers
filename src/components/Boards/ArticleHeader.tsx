@@ -75,7 +75,7 @@ function ArticleHeader({ article, commentCount, currentUserId }: Props) {
             <span className="text-text-primary">{article.writer.nickname}</span>
           </div>
           <div className="text-text-primary/10">|</div>
-          <div className="text-slate-400">{article.createdAt}</div>
+          <div className="text-slate-400">{article.createdAt.slice(0, 10)}</div>
         </div>
         {/* 좋아요/댓글 개수 표시 */}
         <div className="flex gap-16">

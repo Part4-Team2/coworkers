@@ -49,7 +49,7 @@ function ArticleClient({ article, comments, likes }: Pageprops) {
       className={clsx(
         "py-56 max-w-1200 w-full mx-auto",
         "flex flex-col gap-80",
-        "px-20 lg:px-0"
+        "px-20"
       )}
     >
       {/* 게시글 영역 */}

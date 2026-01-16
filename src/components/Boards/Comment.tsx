@@ -66,7 +66,7 @@ function Comment({
         <div className="flex items-center gap-16 text-sm">
           <span className="text-text-primary">{nickname}</span>
           <span className="text-slate-700">|</span>
-          <span className="text-slate-400">{createdAt}</span>
+          <span className="text-slate-400">{createdAt.slice(0, 10)}</span>
         </div>
       </div>
     </div>
