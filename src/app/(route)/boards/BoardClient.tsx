@@ -11,16 +11,21 @@ import BestArticleSection from "@/components/Boards/BestArticleSection";
 import ArticleSection from "@/components/Boards/ArticleSection";
 
 const PAGE_SIZE = 6;
+const ORDER_BY = ["recent", "like"] as const;
+type OrderBy = (typeof ORDER_BY)[number];
 
 function BoardClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const rawpage = Number(searchParams.get("page"));
   // 음수이거나 0보다 낮은 숫자일 때 1로 리턴합니다.
+  const rawpage = Number(searchParams.get("page"));
   const page = Number.isInteger(rawpage) && rawpage > 0 ? rawpage : 1;
-
+  // recent, like 아닌 이상한 값이면 recent로 고정합니다.
+  const rawOrderBy = searchParams.get("orderBy");
+  const orderBy = ORDER_BY.includes(rawOrderBy as OrderBy)
+    ? (rawOrderBy as OrderBy)
+    : "recent";
   const keyword = searchParams.get("keyword") ?? "";
-  const orderBy = searchParams.get("orderBy") ?? "recent";
 
   const [inputVal, setInputVal] = useState("");
   const [totalPage, setTotalPage] = useState(0);
@@ -68,7 +73,7 @@ function BoardClient() {
 
       router.replace(`/boards?${params.toString()}`);
     }
-  }, [page, totalPage]);
+  }, [page, totalPage, searchParams, router]);
 
   // 페이지 바뀔 때 작동하는 함수입니다.
   const handlePageChange = (nextPage: number) => {
