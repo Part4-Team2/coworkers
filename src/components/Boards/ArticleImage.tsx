@@ -10,7 +10,8 @@ function ArticleImage({ image }: ArticleImageProps) {
     <div
       className={clsx(
         "w-64 h-64 relative",
-        "border border-slate-600 rounded-lg"
+        "border border-slate-600 rounded-lg",
+        "overflow-hidden"
       )}
     >
       <Image src={image} alt="article" fill />

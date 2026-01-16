@@ -1,7 +1,6 @@
 "use client";
 
 import clsx from "clsx";
-import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import ArticleImage from "./ArticleImage";
 import { useRouter } from "next/navigation";
@@ -12,29 +11,9 @@ interface ArticleProps {
   currentUserId: number | null;
 }
 
-const WRITEOPTIONS = ["수정하기", "삭제하기"];
-
 function ArticleComp({ article, currentUserId }: ArticleProps) {
   const router = useRouter();
   const isAuthor = currentUserId === article.writer.id;
-
-  // 케밥 리스트를 클릭하면 작동하는 함수입니다.
-  const handleKebabClick = async (value: string) => {
-    if (!isAuthor) {
-      alert("게시글 수정/삭제 권한이 없습니다.");
-      return;
-    }
-
-    if (value === "수정하기") {
-      console.log("수정하기 누름");
-      router.push(`/boards/${article.id}/edit`);
-    }
-
-    if (value === "삭제하기") {
-      console.log("삭제하기 누름");
-      router.push(`/boards/${article.id}`);
-    }
-  };
 
   // id가 정수가 아닐 시 그냥 리턴
   if (typeof article.id !== "number") return null;
@@ -53,31 +32,33 @@ function ArticleComp({ article, currentUserId }: ArticleProps) {
           <div
             className={clsx(
               "text-text-secondary text-2lg",
-              "overflow-hidden text-ellipsis line-clamp-2"
+              "overflow-hidden text-ellipsis line-clamp-1"
             )}
           >
             {article.title}
           </div>
-          {article.image && <ArticleImage image={article.image} />}
+          {/* 이미지 있을 때와 없을 때 레이아웃을 통일하였습니다. */}
+          {article.image ? (
+            <ArticleImage image={article.image} />
+          ) : (
+            <div
+              className={clsx(
+                "w-64 h-64 relative",
+                "border-0 rounded-lg",
+                "overflow-hidden"
+              )}
+            ></div>
+          )}
         </div>
         <div
-          className="absolute top-10 right-10 cursor-pointer"
+          className="absolute top-10 right-5 cursor-pointer"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            router.push(`/boards/${article.id}/edit`);
           }}
         >
-          {isAuthor && (
-            <Dropdown
-              options={WRITEOPTIONS}
-              onSelect={handleKebabClick}
-              size="md"
-              trigger="icon"
-              value={WRITEOPTIONS[0]}
-              icon="kebabLarge"
-              listPosition="top-full right-0"
-            />
-          )}
+          {isAuthor && <SVGIcon icon="gear" size={20} />}
         </div>
         <div className="flex gap-16 items-center text-slate-400 text-md">
           <div className="flex gap-12 items-center text-text-primary">
