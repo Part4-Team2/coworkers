@@ -60,7 +60,7 @@ export default function RootLayout({
       </head>
       <body>
         <Header />
-        {children}
+        <main className="pt-[var(--app-header-height)]">{children}</main>
         <Analytics />
         <SpeedInsights />
       </body>
