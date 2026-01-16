@@ -66,7 +66,7 @@ function BoardClient() {
         setTotalPage(0);
         console.error("게시글 불러오기 실패", error);
       } finally {
-        if (ignore) setIsLoading(false);
+        if (!ignore) setIsLoading(false);
       }
     };
     loadArticles();
