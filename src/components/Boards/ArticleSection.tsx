@@ -4,40 +4,39 @@ import clsx from "clsx";
 import ArticleComp from "./Article";
 import ArticlePagination from "./ArticlePagination";
 import Dropdown from "../Common/Dropdown/Dropdown";
-import { getArticles } from "@/lib/api/boards";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useHeaderStore } from "@/store/headerStore";
 import { Article } from "@/types/article";
 
-const PAGE_SIZE = 6;
-
 interface PageProps {
+  articles: Article[];
   page: number;
+  totalPage: number;
   keyword: string;
   orderBy: string;
+  isLoading: boolean;
+  isError: Error | null;
+  onPageChange: (nextPage: number) => void;
 }
 
 // 게시글 정렬 방식.
 const ARRANGE: string[] = ["최신순", "좋아요 많은순"];
 
 // 나머지 게시글이 올라가는 section 입니다.
-function ArticleSection({ page, keyword, orderBy }: PageProps) {
+function ArticleSection({
+  articles,
+  page,
+  totalPage,
+  keyword,
+  orderBy,
+  isLoading,
+  isError,
+  onPageChange,
+}: PageProps) {
   const userId = useHeaderStore((state) => state.userId);
   const router = useRouter();
   const searchParams = useSearchParams();
   const ordering = orderBy === "recent" ? ARRANGE[0] : ARRANGE[1];
-
-  const [totalPage, setTotalPage] = useState(0);
-  const [articles, setArticles] = useState<Article[]>([]);
-
-  // 페이지 바뀔 때 작동하는 함수입니다.
-  const handlePageChange = (nextPage: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", String(nextPage));
-    params.set("orderBy", orderBy);
-    router.push(`/boards?${params.toString()}`);
-  };
 
   // 드롭다운 클릭시 작동하는 함수입니다.
   const handleDropdownClick = (value: string) => {
@@ -48,25 +47,6 @@ function ArticleSection({ page, keyword, orderBy }: PageProps) {
     params.set("orderBy", nextOrder);
     router.push(`/boards?${params.toString()}`);
   };
-
-  // 안좋은 구조다.
-  useEffect(() => {
-    const loadArticles = async () => {
-      try {
-        const res = await getArticles({
-          page,
-          pageSize: PAGE_SIZE,
-          orderBy,
-          keyword: keyword || undefined,
-        });
-        setArticles(res.list);
-        setTotalPage(Math.ceil(res.totalCount / PAGE_SIZE));
-      } catch (error) {
-        console.error("게시글 목록 불러오기 실패", error);
-      }
-    };
-    loadArticles();
-  }, [page, orderBy, keyword]);
 
   return (
     <article className="flex flex-col gap-32">
@@ -93,12 +73,30 @@ function ArticleSection({ page, keyword, orderBy }: PageProps) {
           );
         })}
       </div>
+      {/* 로딩, 페이지 보정 중 >> 이건 잠시 보류 */}
+      {/* {isLoading && <div>Skeleton</div>} */}
+
+      {/* 에러 */}
+      {!isLoading && isError && articles.length === 0 && !isLoading && (
+        <div className={clsx("flex justify-center")}>
+          게시글을 불러오지 못했습니다.
+        </div>
+      )}
+
+      {/* 검색어와 관련된 게시글이 없을 때 */}
+      {/* 느린 네트워크 상황에서 잠시 게시글 없음 문구가 뜰 수 있습니다. */}
+      {!isError && !isLoading && articles.length === 0 && (
+        <div className={clsx("flex justify-center")}>
+          &quot;{keyword}&#34;에 대한 게시글이 없습니다
+        </div>
+      )}
+
       {totalPage > 0 && (
         <div className={clsx("flex justify-center")}>
           <ArticlePagination
             page={page}
             totalPages={totalPage}
-            onChange={handlePageChange}
+            onChange={onPageChange}
           />
         </div>
       )}
