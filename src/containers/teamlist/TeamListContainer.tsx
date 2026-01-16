@@ -62,7 +62,7 @@ export default function TeamListContainer({ teams }: TeamListContainerProps) {
 
           {/* 버튼 - 반응형 간격 */}
           <div className="mt-48 sm:mt-80 lg:mt-80 flex flex-col gap-10">
-            <Link href="/addteam" prefetch={false}>
+            <Link href="/addteam">
               <Button
                 label="팀 생성하기"
                 variant="solid"
