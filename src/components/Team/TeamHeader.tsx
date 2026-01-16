@@ -34,7 +34,7 @@ export default function TeamHeader({
 
   return (
     <div className="relative w-full h-64 rounded-xl border border-border-primary bg-[rgba(248,250,252,0.10)] flex items-center">
-      <h1 className="ml-24 font-medium text-xl leading-xl text-text-primary text-center">
+      <h1 className="ml-24 mr-auto font-medium text-xl leading-xl text-text-primary truncate max-w-[calc(100%-120px)] sm:max-w-[calc(100%-280px)] lg:max-w-[calc(100%-300px)]">
         {teamName}
       </h1>
 
@@ -43,7 +43,7 @@ export default function TeamHeader({
       </div>
 
       {userRole === "ADMIN" && (
-        <div className="absolute right-24 top-1/2 -translate-y-1/2 flex items-center justify-center">
+        <div className="absolute right-24 top-1/2 -translate-y-1/2 flex items-center justify-center [&_ul]:overflow-hidden">
           <Dropdown
             options={[DROPDOWN_ACTIONS.EDIT, DROPDOWN_ACTIONS.DELETE]}
             onSelect={handleSelect}

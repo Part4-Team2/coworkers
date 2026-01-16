@@ -16,6 +16,7 @@ interface HeaderStoreState {
   profileImage: string | null;
   teams: HeaderTeam[];
   activeTeam: HeaderTeam | null;
+  isHydrated: boolean;
   setActiveTeam: (team: HeaderTeam) => void;
   fetchUser: () => Promise<void>;
   clearUser: () => void;
@@ -31,6 +32,7 @@ export const useHeaderStore = create<HeaderStoreState>()(
       profileImage: null,
       teams: [],
       activeTeam: null,
+      isHydrated: false,
 
       // 유저 정보를 갖고옵니다. 팀 소속 여부에 따라 분기점이 다릅니다.
       fetchUser: async () => {
@@ -107,6 +109,15 @@ export const useHeaderStore = create<HeaderStoreState>()(
       partialize: (state) => ({
         activeTeam: state.activeTeam,
       }),
+      // SSR/CSR 불일치 방지
+      skipHydration: true,
+      // hydration 완료 시 isHydrated를 true로 설정
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.isHydrated = true;
+          state.fetchUser(); // hydration 완료 마킹 후 fetch
+        }
+      },
     }
   )
 );
