@@ -15,14 +15,13 @@ async function ArticlePage({
 
   if (Number.isNaN(id)) notFound();
 
-  let article, comments, likes;
+  let article, comments;
 
   try {
     [article, comments] = await Promise.all([
       getArticle({ articleId: id }),
       getArticleComments({ articleId: id, limit: PAGE_LIMIT }),
     ]);
-    likes = article.likeCount;
   } catch (error) {
     console.log("게시글 불러오기 실패", error);
     notFound();
@@ -32,7 +31,7 @@ async function ArticlePage({
     // Page Wrapper
     <div className={clsx("min-h-screen bg-background-primary")}>
       {/* Content Wrapper */}
-      <ArticleClient article={article} comments={comments} likes={likes} />
+      <ArticleClient article={article} comments={comments} />
     </div>
   );
 }

@@ -1,11 +1,11 @@
 "use client";
 
 import clsx from "clsx";
-import Avatar from "../Common/Avatar/Avatar";
 import SVGIcon from "../Common/SVGIcon/SVGIcon";
 import Dropdown from "../Common/Dropdown/Dropdown";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteArticle } from "@/lib/api/boards";
+import { deleteArticle, postLike, deleteLike } from "@/lib/api/boards";
 import { Article } from "@/types/article";
 
 interface Props {
@@ -20,6 +20,9 @@ function ArticleHeader({ article, commentCount, currentUserId }: Props) {
   const articleId = article.id;
   const router = useRouter();
   const isAuthor = currentUserId === article.writer.id;
+
+  const [likeCount, setLikeCount] = useState(article.likeCount);
+  const [isLike, setIsLike] = useState(article.isLiked);
 
   // 게시글을 삭제하는 함수입니다.
   const handleDeleteArticle = async ({ articleId }: { articleId: number }) => {
@@ -43,6 +46,29 @@ function ArticleHeader({ article, commentCount, currentUserId }: Props) {
 
     if (value === "삭제하기") {
       handleDeleteArticle({ articleId });
+    }
+  };
+
+  // 게시글 좋아요 반영하는 함수입니다. 상태에 따라 갈라집니다.
+  const handleLikeClick = async () => {
+    if (isLike === false) {
+      try {
+        await postLike(article.id);
+        alert("좋아요 추가 성공"); //Toast
+        setLikeCount((prev) => prev + 1);
+        setIsLike((prev) => !prev);
+      } catch (error) {
+        console.error("좋아요 추가 오류", error);
+      }
+    } else {
+      try {
+        await deleteLike(article.id);
+        alert("좋아요 삭제 성공"); //Toast
+        setLikeCount((prev) => prev - 1);
+        setIsLike((prev) => !prev);
+      } catch (error) {
+        console.error("좋아요 삭제 오류", error);
+      }
     }
   };
 
@@ -71,7 +97,6 @@ function ArticleHeader({ article, commentCount, currentUserId }: Props) {
         {/* 작성자, 게시글 생성일자 */}
         <div className="flex gap-16 items-center">
           <div className="flex gap-12 items-center">
-            <Avatar imageUrl={undefined} altText="none" size="large" />
             <span className="text-text-primary">{article.writer.nickname}</span>
           </div>
           <div className="text-text-primary/10">|</div>
@@ -83,11 +108,16 @@ function ArticleHeader({ article, commentCount, currentUserId }: Props) {
             <SVGIcon icon="comment" size={14} />
             <span>{commentCount}</span>
           </div>
-          <div className="flex gap-4 items-center cursor-pointer">
-            <SVGIcon icon="heart" size={14} />
-            <span>
-              {article.likeCount > 9999 ? "9999+" : article.likeCount}
-            </span>
+          <div
+            className="flex gap-4 items-center cursor-pointer"
+            onClick={handleLikeClick}
+          >
+            <SVGIcon
+              icon="heart"
+              size={14}
+              className={clsx(isLike ? "fill-gray-500" : "")}
+            />
+            <span>{likeCount > 9999 ? "9999+" : likeCount}</span>
           </div>
         </div>
       </div>
