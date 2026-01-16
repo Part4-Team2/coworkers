@@ -43,7 +43,10 @@ function CommentSection({
       return;
     }
 
-    if (!content.trim()) return; // 댓글 내용 없으면 바로 리턴.
+    if (!content.trim()) {
+      alert("댓글 최소 1글자 이상 입력해야합니다.");
+      return;
+    } // 댓글 내용 없으면 바로 리턴.
 
     try {
       await postComment(articleId, { content });
