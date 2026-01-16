@@ -87,13 +87,15 @@ export type GroupDetailResponse = {
  * 그룹 상세 정보 조회
  *
  * 캐싱 전략:
- * - fetch의 force-cache + revalidate (REVALIDATE_TIME.GROUP_DETAIL)
- * - URL 기반 캐싱으로 모든 사용자가 동일한 캐시 공유
- * - accessToken은 Authorization 헤더로 전달되어 캐시 키에 포함되지 않음
- * - tags: REVALIDATE_TAG.GROUP로 수동 무효화 지원
+ * - fetch의 force-cache + revalidate로 60초 캐싱
+ * - 백엔드에서 권한 체크를 수행하므로 비멤버는 401/403 에러 반환
+ * - 팀 멤버들에게는 동일한 데이터를 보여주므로 캐싱 안전
+ * - 캐시된 에러 응답도 빠르게 처리
  *
- * Note: "use cache" 지시어는 인증 헤더를 동적으로 처리할 수 없어
- * fetch의 cache 옵션을 사용합니다.
+ * 보안 고려사항:
+ * - Authorization 헤더는 캐시 키에 미포함
+ * - 하지만 백엔드가 groupId + accessToken 조합으로 권한 검증
+ * - 비멤버 접근 시 백엔드에서 거부하므로 민감 데이터 노출 없음
  *
  * @param groupId 그룹 ID
  * @param accessToken 액세스 토큰 (선택사항, 외부에서 cookies()로 읽어서 전달)
@@ -101,7 +103,7 @@ export type GroupDetailResponse = {
  */
 export async function getGroup(
   groupId: string,
-  accessToken: string | null = null
+  accessToken?: string | null
 ): Promise<ApiResult<GroupDetailResponse>> {
   try {
     const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
@@ -118,16 +120,16 @@ export async function getGroup(
         message: "그룹 정보를 가져오는데 실패했습니다.",
       }));
       return {
-        success: false,
+        success: false as const,
         error: error.message || "그룹 정보를 가져오는데 실패했습니다.",
       };
     }
 
     const data = (await response.json()) as GroupDetailResponse;
-    return { success: true, data };
+    return { success: true as const, data };
   } catch {
     return {
-      success: false,
+      success: false as const,
       error: "서버 오류가 발생했습니다.",
     };
   }

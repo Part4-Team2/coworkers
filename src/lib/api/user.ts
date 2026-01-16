@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/lib/api";
-import { REVALIDATE_TIME, REVALIDATE_TAG } from "@/constants/cache";
 import { Role } from "@/types/schemas";
 import {
   UpdateUserRequestBody,
@@ -109,21 +108,17 @@ export async function getUserMemberships() {
  * 사용자가 참여한 그룹(팀) 목록 조회
  *
  * 캐싱 전략:
- * - URL 기반 캐싱으로 모든 사용자가 동일한 캐시 공유
- * - accessToken은 Authorization 헤더로 전달되어 캐시 키에 포함되지 않음
- * - 팀 목록은 자주 보지만 변경은 드물어 캐싱 효과적
+ * - 사용자별 데이터이므로 Next.js fetch 캐싱 비활성화 (보안)
+ * - measureSSR의 React cache()가 단일 요청 내 중복 호출 방지
+ * - 페이지 로드 시 1번만 API 호출, 이후 캐시된 값 재사용
  *
  * @param accessToken 액세스 토큰 (선택사항, 외부에서 cookies()로 읽어서 전달)
  */
-export async function getUserGroups(accessToken: string | null = null) {
+export async function getUserGroups(accessToken?: string | null) {
   try {
     const response = await fetchApi(`${BASE_URL}/user/groups`, {
       accessToken,
-      cache: "force-cache",
-      next: {
-        revalidate: REVALIDATE_TIME.GROUP_LIST, // 60초
-        tags: [REVALIDATE_TAG.GROUP_LIST],
-      },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -225,21 +220,17 @@ export async function deleteUser() {
  * 사용자의 완료된 할 일 목록 조회
  *
  * 캐싱 전략:
- * - URL 기반 캐싱으로 모든 사용자가 동일한 캐시 공유
- * - accessToken은 Authorization 헤더로 전달되어 캐시 키에 포함되지 않음
- * - 히스토리는 자주 보지만 변경은 드물어 캐싱 효과적
+ * - 사용자별 데이터이므로 Next.js fetch 캐싱 비활성화 (보안)
+ * - measureSSR의 React cache()가 단일 요청 내 중복 호출 방지
+ * - 페이지 로드 시 1번만 API 호출, 이후 캐시된 값 재사용
  *
  * @param accessToken 액세스 토큰 (선택사항, 외부에서 cookies()로 읽어서 전달)
  */
-export async function getUserHistory(accessToken: string | null = null) {
+export async function getUserHistory(accessToken?: string | null) {
   try {
     const response = await fetchApi(`${BASE_URL}/user/history`, {
       accessToken,
-      cache: "force-cache",
-      next: {
-        tags: [REVALIDATE_TAG.USER_HISTORY(0)],
-        revalidate: REVALIDATE_TIME.USER_HISTORY,
-      },
+      cache: "no-store",
     });
 
     if (!response.ok) {

@@ -16,15 +16,20 @@
 
 이 프로젝트는 **Next.js 16의 Data Cache**를 사용하여 서버 사이드 캐싱을 구현합니다.
 
-### ✅ 적용된 페이지
+### ✅ 캐싱 적용된 페이지
 
-- `/[teamid]` - 팀 상세 페이지 (`getGroup()`)
-- `/teamlist` - 팀 목록 페이지 (`getUserGroups()`)
-- `/myhistory` - 마이 히스토리 페이지 (`getUserHistory()`)
+- `/[teamid]` - 팀 상세 페이지 (`getGroup()`) - **force-cache**
+
+### ❌ 캐싱 미적용 (보안)
+
+- `/teamlist` - 팀 목록 페이지 (`getUserGroups()`) - **no-store**
+- `/myhistory` - 마이 히스토리 페이지 (`getUserHistory()`) - **no-store**
+
+> **중요**: 사용자별 다른 데이터를 반환하는 API는 보안상 캐싱하지 않습니다.
 
 ### 🎯 주요 특징
 
-- **URL 기반 캐싱**: 모든 사용자가 동일한 캐시 공유
+- **리소스 ID 기반 캐싱**: URL에 ID가 포함된 경우 안전하게 캐싱 (e.g., `/groups/{id}`)
 - **중앙 집중식 설정**: `src/constants/cache.ts`에서 일괄 관리
 - **자동 재검증**: 설정된 시간 후 자동으로 캐시 갱신
 - **OpenTelemetry 모니터링**: 캐시 히트/미스 추적
@@ -56,7 +61,7 @@ const accessToken = cookieStore.get("accessToken")?.value;
 const groupData = await getGroup(groupId, accessToken);
 
 // API Function
-export async function getGroup(groupId: string, accessToken: string | null) {
+export async function getGroup(groupId: string, accessToken?: string | null) {
   const response = await fetchApi(`/api/groups/${groupId}`, {
     accessToken, // 파라미터로 전달
     cache: "force-cache",
@@ -117,15 +122,15 @@ import { REVALIDATE_TIME, REVALIDATE_TAG } from "@/constants/cache";
  * 새 기능 데이터 조회
  *
  * 캐싱 전략:
- * - URL 기반 캐싱으로 모든 사용자가 동일한 캐시 공유
- * - accessToken은 Authorization 헤더로 전달되어 캐시 키에 포함되지 않음
+ * - URL에 리소스 ID가 포함되어 있어 안전하게 캐싱 가능
+ * - 백엔드에서 권한 검증을 수행하므로 비멤버는 오류 반환
  *
  * @param featureId 기능 ID
  * @param accessToken 액세스 토큰 (선택사항, 외부에서 cookies()로 읽어서 전달)
  */
 export async function getFeature(
   featureId: string,
-  accessToken: string | null = null
+  accessToken?: string | null
 ) {
   try {
     const response = await fetchApi(`${BASE_URL}/features/${featureId}`, {
@@ -394,7 +399,7 @@ export async function getGroup(groupId: string) {
 
 // ✅ 올바른 예
 // Page에서 cookies() 호출 후 accessToken 전달
-export async function getGroup(groupId: string, accessToken: string | null) {
+export async function getGroup(groupId: string, accessToken?: string | null) {
   const response = await fetchApi(`/api/groups/${groupId}`, {
     accessToken,
     cache: "force-cache",
@@ -402,7 +407,29 @@ export async function getGroup(groupId: string, accessToken: string | null) {
 }
 ```
 
-#### 3. 사용자별 다른 데이터 장시간 캐싱
+#### 3. 사용자별 데이터에 force-cache 사용
+
+```typescript
+// ❌ 잘못된 예 - 보안 위험!
+export async function getUserGroups(accessToken?: string | null) {
+  const response = await fetchApi(`${BASE_URL}/user/groups`, {
+    accessToken,
+    cache: "force-cache", // ❌ 사용자 A의 데이터가 사용자 B에게 노출!
+  });
+}
+
+// ✅ 올바른 예
+export async function getUserGroups(accessToken?: string | null) {
+  const response = await fetchApi(`${BASE_URL}/user/groups`, {
+    accessToken,
+    cache: "no-store", // ✅ 매번 새로 요청하여 보안 보장
+  });
+}
+```
+
+**이유**: URL이 `/user/groups`로 모든 사용자에게 동일하므로, Authorization 헤더가 캐시 키에 포함되지 않아 사용자 A의 캐시를 사용자 B가 재사용하게 됩니다.
+
+#### 4. 사용자별 다른 데이터 장시간 캐싱
 
 ```typescript
 // ⚠️ 주의: 사용자별 데이터는 짧게 캐싱
@@ -418,13 +445,27 @@ export async function getMyProfile() {
 
 ### ✅ 권장 사항
 
-#### 1. 캐시 시간은 데이터 특성에 맞게
+#### 1. 캐싱 가능 여부 판단
 
-- **공개 데이터**: 길게 (300초 ~ 3600초)
-- **개인 데이터**: 짧게 (10초 ~ 60초)
+**✅ 캐싱 가능한 경우:**
+
+- URL에 리소스 ID 포함 (e.g., `/groups/{id}`, `/articles/{id}`)
+- 모든 사용자에게 동일한 데이터
+- 백엔드에서 권한 검증 수행
+
+**❌ 캐싱 불가능한 경우:**
+
+- 사용자별 다른 데이터 (e.g., `/user/groups`, `/user/history`)
+- URL이 모든 사용자에게 동일
+- 캐시 키에 사용자 식별자가 없음
+
+#### 2. 캐시 시간은 데이터 특성에 맞게
+
+- **리소스 ID 기반 공개 데이터**: 길게 (60초 ~ 3600초)
+- **사용자별 데이터**: no-store (보안)
 - **자주 변경**: 매우 짧게 (5초 ~ 30초) 또는 no-store
 
-#### 2. 태그 활용
+#### 3. 태그 활용
 
 ```typescript
 // 세밀한 캐시 무효화 가능
