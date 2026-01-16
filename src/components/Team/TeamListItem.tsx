@@ -44,7 +44,7 @@ export default function TeamListItem({
           </div>
         )}
       </div>
-      <span className="text-text-primary text-md font-medium leading-md">
+      <span className="text-text-primary text-md font-medium leading-md truncate flex-1 text-left">
         {teamName}
       </span>
     </button>

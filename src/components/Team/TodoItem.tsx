@@ -92,9 +92,9 @@ const TodoItem = memo(function TodoItem({
         style={{ backgroundColor: color || FALLBACK_COLOR }}
       />
 
-      <div className="flex items-center justify-between flex-1 pl-16 pr-8">
+      <div className="flex items-center justify-between flex-1 pl-16 pr-8 min-w-0">
         <div
-          className="flex-1 cursor-pointer"
+          className="flex-1 cursor-pointer min-w-0"
           onClick={onClick}
           role="button"
           tabIndex={0}
@@ -134,7 +134,7 @@ const TodoItem = memo(function TodoItem({
           {/* 케밥 메뉴 */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center justify-center"
+            className="flex items-center justify-center [&_ul]:overflow-hidden!"
           >
             <Dropdown
               options={[DROPDOWN_ACTIONS.EDIT, DROPDOWN_ACTIONS.DELETE]}

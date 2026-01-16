@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import List from "@/components/Tasklist/List/List";
 import { formatDate } from "@/utils/date";
 import { TaskDetail } from "@/types/task";
 import { FrequencyType } from "@/types/schemas";
+import { showErrorToast } from "@/utils/error";
 
 interface DoneListContainerProps {
   initialData:
@@ -30,10 +31,16 @@ interface DoneListContainerProps {
 export default function DoneListContainer({
   initialData,
 }: DoneListContainerProps) {
+  // 에러 발생 시 토스트 표시
+  useEffect(() => {
+    if ("error" in initialData) {
+      showErrorToast(initialData.message);
+    }
+  }, [initialData]);
+
   // 서버에서 받은 데이터를 Task 타입으로 변환
   const tasks = useMemo(() => {
     if ("error" in initialData) {
-      // 개발 환경에서만 MOCK_TASKS 사용, 프로덕션에서는 빈 배열
       return [];
     }
 
@@ -64,17 +71,21 @@ export default function DoneListContainer({
     (acc, task) => {
       if (!task.doneAt) return acc;
 
-      if (!acc[task.doneAt]) {
-        acc[task.doneAt] = [];
+      // doneAt에서 날짜 부분만 추출 (YYYY-MM-DD)
+      const dateKey = task.doneAt.split("T")[0];
+
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
       }
-      acc[task.doneAt].push(task);
+      acc[dateKey].push(task);
       return acc;
     },
     {} as Record<string, TaskDetail[]>
   );
 
-  const sortedDates = Object.keys(groupedTasks).sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime()
+  // 날짜 문자열을 내림차순 정렬 (최신 날짜가 먼저)
+  const sortedDates = Object.keys(groupedTasks).sort((a, b) =>
+    b.localeCompare(a)
   );
 
   if (sortedDates.length === 0) {

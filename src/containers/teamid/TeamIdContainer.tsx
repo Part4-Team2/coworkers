@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Member from "@/components/Team/Member";
 import Report from "@/components/Team/Report";
@@ -15,6 +15,7 @@ import { useTeamActions } from "@/hooks/Team/useTeamActions";
 import { useTodoActions } from "@/hooks/Team/useTodoActions";
 import { useMemberActions } from "@/hooks/Team/useMemberActions";
 import { useHeaderStore } from "@/store/headerStore";
+import { displayPendingToast } from "@/utils/pendingToast";
 
 // 상수 정의 - globals.css의 CSS 변수 참조
 const TODO_COLORS = [
@@ -127,31 +128,10 @@ export default function TeamIdContainer({
     resetModalState: handleCloseModal,
   });
 
-  // userId가 없는 경우 에러 처리
-  if (!userId) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background-primary">
-        <p className="text-text-primary text-lg font-medium mb-16">
-          로그인 정보를 확인할 수 없습니다.
-        </p>
-        <p className="text-text-secondary text-md">다시 로그인해주세요.</p>
-      </div>
-    );
-  }
-
-  // currentTeam이 없는 경우 에러 처리
-  if (!currentTeam) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background-primary">
-        <p className="text-text-primary text-lg font-medium mb-16">
-          팀 정보를 찾을 수 없습니다.
-        </p>
-        <p className="text-text-secondary text-md">
-          팀 목록에서 다시 선택해주세요.
-        </p>
-      </div>
-    );
-  }
+  // 페이지 초기화: 토스트 표시
+  useEffect(() => {
+    displayPendingToast();
+  }, []);
 
   // 할 일 목록 클릭 핸들러
   const handleTodoListClick = (todoId: number) => {
