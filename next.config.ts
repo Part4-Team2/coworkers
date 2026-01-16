@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
+const isProd = process.env.NODE_ENV === "production";
 const nextConfig: NextConfig = {
+  compiler: {
+    removeConsole: isProd,
+  },
   compress: true,
   generateEtags: true,
   poweredByHeader: false,
