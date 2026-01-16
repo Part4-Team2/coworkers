@@ -69,11 +69,11 @@ function BoardClient() {
     if (totalPage > 0 && page > totalPage) {
       const params = new URLSearchParams(searchParams.toString());
       params.set("page", String(totalPage));
-      params.set("orderBy", "recent");
+      params.set("orderBy", orderBy);
 
       router.replace(`/boards?${params.toString()}`);
     }
-  }, [page, totalPage, searchParams, router]);
+  }, [page, totalPage, searchParams, router, orderBy]);
 
   // 페이지 바뀔 때 작동하는 함수입니다.
   const handlePageChange = (nextPage: number) => {
