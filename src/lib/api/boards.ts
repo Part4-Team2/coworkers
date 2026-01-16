@@ -96,7 +96,7 @@ export async function deleteArticle(articleId: number) {
 // 게시글 댓글 불러오기
 export async function getArticleComments({
   articleId,
-  limit = 3,
+  limit,
   cursor,
 }: GetArticleCommentsProps): Promise<GetArticleComments> {
   const params = new URLSearchParams({ limit: String(limit) });

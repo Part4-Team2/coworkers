@@ -21,6 +21,8 @@ interface Pageprops {
   onCommentDelete: () => void;
 }
 
+const COMMENT_LIMIT = 100;
+
 function CommentSection({
   articleId,
   comments,
@@ -31,8 +33,6 @@ function CommentSection({
   const router = useRouter();
 
   const [commentList, setCommentList] = useState(comments.list);
-  const [cursor, setCursor] = useState<number | undefined>(comments.nextCursor);
-  const [hasNext, setHasNext] = useState(!!comments.nextCursor); // cursor 존재 여부로 다음 댓글 fetching합니다.
   const [content, setContent] = useState("");
 
   // 댓글 작성 후 버튼을 누르면 처리되는 함수입니다.
@@ -59,30 +59,10 @@ function CommentSection({
   const fetchComments = async () => {
     const data = await getArticleComments({
       articleId,
-      limit: 3,
+      limit: COMMENT_LIMIT,
     });
 
     setCommentList(data.list);
-    setCursor(data.nextCursor);
-    setHasNext(!!data.nextCursor);
-  };
-
-  // 댓글이 3개 넘는 경우에 새로운 댓글을 갖고옵니다.
-  const fetchMoreComments = async () => {
-    if (!cursor) {
-      setHasNext(false);
-      return;
-    }
-
-    const res = await getArticleComments({
-      articleId,
-      limit: 3,
-      cursor,
-    });
-
-    setCommentList((prev) => [...prev, ...res.list]);
-    setCursor(res.nextCursor);
-    if (!res.nextCursor) setHasNext(false);
   };
 
   // 댓글 삭제하면 삭제한 상태로 렌더링합니다.
@@ -147,17 +127,6 @@ function CommentSection({
       <div className="border-b border-b-text-primary/10"></div>
       {/* 등록된 댓글 전시 영역 */}
       <div>{renderComment()}</div>
-      {/* 댓글 더 갖고오기 버튼 */}
-      {hasNext && (
-        <div className={clsx("flex justify-center")}>
-          <button
-            className={clsx("cursor-pointer")}
-            onClick={fetchMoreComments}
-          >
-            ...더 보기
-          </button>
-        </div>
-      )}
     </section>
   );
 }
