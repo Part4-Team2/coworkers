@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { postArticle } from "@/lib/api/boards";
 import { postImage } from "@/lib/api/image";
+import { CreateArticle } from "@/types/article";
 
 // 게시글을 작성할 수 있는 페이지입니다. (이미 작성된 페이지의 경우 수정할 수 있습니다...)
 function WriteArticle() {
@@ -16,6 +17,7 @@ function WriteArticle() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [articleImagePreview, setArticleImagePreview] = useState<string | null>(
     null
   );
@@ -32,11 +34,13 @@ function WriteArticle() {
 
   // 게시글 작성하고 등록하면 작동하는 함수입니다.
   const handleSubmitClick = async () => {
+    setIsLoading(true);
+
     console.log("게시글 올라갑니다");
     if (!title.trim() || !content.trim()) return;
 
     try {
-      let imageUrl: string | null = null;
+      let imageUrl: string | undefined = undefined;
 
       if (articleImageFile) {
         const res = await uploadImage(articleImageFile);
@@ -47,10 +51,20 @@ function WriteArticle() {
         }
       }
 
-      await postArticle({ content, title, image: imageUrl });
+      const articleData: CreateArticle = {
+        content,
+        title,
+        image: imageUrl,
+      };
+
+      await postArticle(articleData);
+
+      alert("게시글 올리기 성공, 자유게시판으로 이동합니다.");
       router.push("/boards");
     } catch (error) {
       console.log("게시글 작성 오류", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
