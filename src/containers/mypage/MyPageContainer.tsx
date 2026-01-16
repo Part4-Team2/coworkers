@@ -46,6 +46,7 @@ export default function MyPageContainer({
     handleImageClick,
     handleImageChange,
     selectedFile,
+    resetImage,
   } = useImageUpload(initialImage ?? undefined);
 
   const {
@@ -144,6 +145,11 @@ export default function MyPageContainer({
           setNameError(response.message || "업데이트에 실패했습니다.");
           setIsSubmitting(false);
           return;
+        }
+
+        // 성공 시 이미지 상태 초기화
+        if (shouldUpdateImage) {
+          resetImage();
         }
 
         // 성공 피드백 및 데이터 갱신
