@@ -9,10 +9,11 @@ import { useState, useEffect, useRef } from "react";
 interface DropdownProps {
   options: string[];
   onSelect: (value: string) => void;
-  size: "sm" | "md";
-  trigger: "icon" | "text";
+  size: "sm" | "md" | "lg";
+  trigger: "icon" | "text" | "avatar";
   value?: string;
   icon?: IconMapTypes;
+  background?: "primary" | "secondary";
 
   // 해당 props는 위치를 조절할 수 있게 됩니다.
   listPosition?: string;
@@ -26,6 +27,7 @@ function Dropdown({
   value,
   icon = "toggle",
   listPosition = "top-full",
+  background = "secondary",
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -57,6 +59,7 @@ function Dropdown({
         value={value}
         size={size}
         icon={icon}
+        background={background}
         onClick={toggleDropdown}
       />
 
