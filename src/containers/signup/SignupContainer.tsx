@@ -128,6 +128,14 @@ export default function SignupContainer() {
             full: true,
             registerOptions: {
               required: "이메일은 필수 입력입니다.",
+              minLength: {
+                value: 1,
+                message: "이메일은 필수 입력입니다.",
+              },
+              maxLength: {
+                value: 150,
+                message: "이메일은 최대 150자까지 가능합니다.",
+              },
               pattern: {
                 value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                 message: "이메일 형식으로 작성해 주세요.",
