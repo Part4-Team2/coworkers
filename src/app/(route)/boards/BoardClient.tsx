@@ -27,15 +27,21 @@ function BoardClient() {
     : "recent";
   const keyword = searchParams.get("keyword") ?? "";
 
-  const [inputVal, setInputVal] = useState("");
+  const [inputVal, setInputVal] = useState(keyword);
   const [totalPage, setTotalPage] = useState(0);
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState<Error | null>(null);
 
+  // 키워드를 동기화하는 함수입니다.
+  useEffect(() => {
+    setInputVal(keyword);
+  }, [keyword]);
+
   // 게시글을 불러오는 함수입니다.
   useEffect(() => {
     if (totalPage > 0 && page > totalPage) return;
+    let ignore = false;
 
     const loadArticles = async () => {
       setIsLoading(true);
@@ -48,9 +54,11 @@ function BoardClient() {
           orderBy,
           keyword: keyword || undefined,
         });
+        if (ignore) return;
         setArticles(res.list);
         setTotalPage(Math.ceil(res.totalCount / PAGE_SIZE));
       } catch (error) {
+        if (ignore) return;
         setIsError(
           error instanceof Error ? error : new Error("게시글 불러오기 실패")
         );
@@ -58,10 +66,13 @@ function BoardClient() {
         setTotalPage(0);
         console.error("게시글 불러오기 실패", error);
       } finally {
-        setIsLoading(false);
+        if (ignore) setIsLoading(false);
       }
     };
     loadArticles();
+    return () => {
+      ignore = true;
+    };
   }, [page, orderBy, keyword]);
 
   // 페이지가 전체 페이지를 초과하는 경우 마지막 페이지로 대체됩니다.
