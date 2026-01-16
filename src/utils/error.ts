@@ -46,7 +46,12 @@ export async function handleApiResponse<T>(response: Response): Promise<T> {
     );
   }
 
-  return response.json();
+  // 빈 응답(204 등) 처리
+  const text = await response.text();
+  if (!text) {
+    return undefined as T;
+  }
+  return JSON.parse(text) as T;
 }
 
 /**

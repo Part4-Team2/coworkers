@@ -2,7 +2,7 @@
 
 ### 📁 파일 구조
 
-```
+```text
 src/
 ├── lib/
 │   ├── api/
@@ -226,6 +226,7 @@ export default function TeamIdContainer({ teamId, teamName, members, taskLists }
 export default function EditTeamContainer({ teamId }: Props) {
   const teams = useHeaderStore((state) => state.teams);
   const isHydrated = useHeaderStore((state) => state.isHydrated);
+  const isLogin = useHeaderStore((state) => state.isLogin);
 
   const currentTeam = useMemo(
     () => teams.find((team) => team.teamId === teamId),
@@ -238,13 +239,13 @@ export default function EditTeamContainer({ teamId }: Props) {
     },
   });
 
-  // Hydration 완료 후에만 체크
+  // Hydration 완료 후에만 체크 (isLogin으로 fetchUser 완료 확인)
   useEffect(() => {
-    if (isHydrated && !currentTeam) {
+    if (isHydrated && isLogin && !currentTeam) {
       showErrorToast("팀 정보를 찾을 수 없습니다. 팀 목록에서 다시 선택해주세요.");
       router.push("/teamlist");
     }
-  }, [isHydrated, currentTeam, router]);
+  }, [isHydrated, isLogin, currentTeam, router]);
 
   // currentTeam이 업데이트되면 form 값 초기화
   useEffect(() => {

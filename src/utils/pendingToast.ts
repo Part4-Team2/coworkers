@@ -73,5 +73,7 @@ export function displayPendingToast() {
     warning: showWarningToast,
   };
 
-  toastFunctions[pendingToast.type](pendingToast.message);
+  const toastFn = toastFunctions[pendingToast.type];
+  if (!toastFn) return;
+  toastFn(pendingToast.message);
 }

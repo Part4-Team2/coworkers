@@ -29,6 +29,7 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
   // 전역 상태에서 현재 팀 정보 가져오기
   const teams = useHeaderStore((state) => state.teams);
   const isHydrated = useHeaderStore((state) => state.isHydrated);
+  const isLogin = useHeaderStore((state) => state.isLogin);
 
   const currentTeam = useMemo(
     () => teams.find((team) => team.teamId === teamId),
@@ -37,13 +38,13 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
 
   // currentTeam 검증 및 리다이렉트 (hydration 완료 후에만)
   useEffect(() => {
-    if (isHydrated && !currentTeam) {
+    if (isHydrated && isLogin && !currentTeam) {
       showErrorToast(
         "팀 정보를 찾을 수 없습니다. 팀 목록에서 다시 선택해주세요."
       );
       router.push("/teamlist");
     }
-  }, [isHydrated, currentTeam, router]);
+  }, [isHydrated, isLogin, currentTeam, router]);
 
   const initialTeamName = currentTeam?.teamName || "";
   const initialTeamImage = currentTeam?.teamImage || undefined;
