@@ -15,37 +15,37 @@ const PAGE_SIZE = 6;
 interface PageProps {
   page: number;
   keyword: string;
+  orderBy: string;
 }
 
-// 게시글 정렬 리스트입니다.
+// 게시글 정렬 방식.
 const ARRANGE: string[] = ["최신순", "좋아요 많은순"];
 
 // 나머지 게시글이 올라가는 section 입니다.
-function ArticleSection({ page, keyword }: PageProps) {
+function ArticleSection({ page, keyword, orderBy }: PageProps) {
   const userId = useHeaderStore((state) => state.userId);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const ordering = orderBy === "recent" ? ARRANGE[0] : ARRANGE[1];
 
   const [totalPage, setTotalPage] = useState(0);
-  const [orderBy, setOrderBy] = useState("recent");
   const [articles, setArticles] = useState<Article[]>([]);
-
-  const currentArrange = orderBy === "recent" ? ARRANGE[0] : ARRANGE[1];
 
   // 페이지 바뀔 때 작동하는 함수입니다.
   const handlePageChange = (nextPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(nextPage));
+    params.set("orderBy", orderBy);
     router.push(`/boards?${params.toString()}`);
   };
 
   // 드롭다운 클릭시 작동하는 함수입니다.
   const handleDropdownClick = (value: string) => {
     const nextOrder = value === "최신순" ? "recent" : "like";
-    setOrderBy(nextOrder);
 
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", "1");
+    params.set("orderBy", nextOrder);
     router.push(`/boards?${params.toString()}`);
   };
 
@@ -77,7 +77,7 @@ function ArticleSection({ page, keyword }: PageProps) {
           onSelect={handleDropdownClick}
           size="lg"
           trigger="text"
-          value={currentArrange}
+          value={ordering}
           listPosition="top-full right-0"
         />
       </div>

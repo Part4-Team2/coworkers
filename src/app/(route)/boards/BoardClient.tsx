@@ -13,6 +13,7 @@ function BoardClient() {
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page") ?? 1);
   const keyword = searchParams.get("keyword") ?? "";
+  const orderBy = searchParams.get("orderBy") ?? "recent";
 
   const [inputVal, setInputVal] = useState("");
 
@@ -33,6 +34,7 @@ function BoardClient() {
     }
 
     params.set("page", "1");
+    params.set("orderBy", "recent");
     router.push(`/boards?${params.toString()}`);
   };
 
@@ -67,7 +69,7 @@ function BoardClient() {
           <BestArticleSection />
           <div className="border-b border-b-border-primary/10"></div>
           {/* 게시글 */}
-          <ArticleSection keyword={keyword} page={page} />
+          <ArticleSection keyword={keyword} page={page} orderBy={orderBy} />
         </section>
         <div className="fixed right-24 bottom-61 z-30">
           <ButtonFloating
