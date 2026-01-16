@@ -4,7 +4,7 @@ interface Props {
   isOpen: boolean;
   options: string[];
   value?: string;
-  size: "sm" | "md";
+  size: "sm" | "md" | "lg";
   position: string;
   onSelect: (value: string) => void;
 }
@@ -12,6 +12,7 @@ interface Props {
 const sizeClass = {
   sm: "w-94 text-sm",
   md: "w-120 text-md",
+  lg: "w-180 text-md",
 };
 
 export default function DropdownList({
@@ -28,7 +29,7 @@ export default function DropdownList({
     <ul
       className={clsx(
         sizeClass[size],
-        "absolute z-50 bg-background-secondary border rounded-xl overflow-y-auto max-h-160",
+        "absolute z-50 bg-background-secondary border border-text-primary/10 rounded-xl overflow-y-auto max-h-160",
         position
       )}
     >
