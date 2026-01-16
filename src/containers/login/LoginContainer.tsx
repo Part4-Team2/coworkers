@@ -74,7 +74,7 @@ export default function LoginContainer() {
         setIsSubmitting(false);
         return;
       }
-      fetchUser();
+      await fetchUser();
       router.push("/");
       // 관련된 모든 처리는 서버에서 관리해야함! 현재는 클라이언트
     } catch (error) {

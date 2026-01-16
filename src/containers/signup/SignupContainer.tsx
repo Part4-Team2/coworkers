@@ -53,7 +53,7 @@ export default function SignupContainer() {
         setIsSubmitting(false);
         return;
       }
-      fetchUser();
+      await fetchUser();
       router.push("/");
     } catch (error) {
       const errorMessage =
