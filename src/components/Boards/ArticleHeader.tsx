@@ -3,26 +3,32 @@
 import clsx from "clsx";
 import SVGIcon from "../Common/SVGIcon/SVGIcon";
 import Dropdown from "../Common/Dropdown/Dropdown";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteArticle, postLike, deleteLike } from "@/lib/api/boards";
+import { deleteArticle } from "@/lib/api/boards";
 import { Article } from "@/types/article";
 
 interface Props {
   article: Article;
   commentCount: number;
   currentUserId: number | null;
+  likeCount: number;
+  isLike: boolean;
+  toggleLike: () => void;
 }
 
 const ARTICLEDATA = ["수정하기", "삭제하기"];
 
-function ArticleHeader({ article, commentCount, currentUserId }: Props) {
+function ArticleHeader({
+  article,
+  commentCount,
+  currentUserId,
+  likeCount,
+  isLike,
+  toggleLike,
+}: Props) {
   const articleId = article.id;
   const router = useRouter();
   const isAuthor = currentUserId === article.writer.id;
-
-  const [likeCount, setLikeCount] = useState(article.likeCount);
-  const [isLike, setIsLike] = useState(article.isLiked);
 
   // 게시글을 삭제하는 함수입니다.
   const handleDeleteArticle = async ({ articleId }: { articleId: number }) => {
@@ -46,29 +52,6 @@ function ArticleHeader({ article, commentCount, currentUserId }: Props) {
 
     if (value === "삭제하기") {
       handleDeleteArticle({ articleId });
-    }
-  };
-
-  // 게시글 좋아요 반영하는 함수입니다. 상태에 따라 갈라집니다.
-  const handleLikeClick = async () => {
-    if (isLike === false) {
-      try {
-        await postLike(article.id);
-        alert("좋아요 추가 성공"); //Toast
-        setLikeCount((prev) => prev + 1);
-        setIsLike((prev) => !prev);
-      } catch (error) {
-        console.error("좋아요 추가 오류", error);
-      }
-    } else {
-      try {
-        await deleteLike(article.id);
-        alert("좋아요 삭제 성공"); //Toast
-        setLikeCount((prev) => prev - 1);
-        setIsLike((prev) => !prev);
-      } catch (error) {
-        console.error("좋아요 삭제 오류", error);
-      }
     }
   };
 
@@ -110,7 +93,7 @@ function ArticleHeader({ article, commentCount, currentUserId }: Props) {
           </div>
           <div
             className="flex gap-4 items-center cursor-pointer"
-            onClick={handleLikeClick}
+            onClick={toggleLike}
           >
             <SVGIcon
               icon="heart"
