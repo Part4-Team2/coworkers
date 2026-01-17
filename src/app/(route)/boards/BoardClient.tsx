@@ -30,7 +30,7 @@ function BoardClient() {
   const [inputVal, setInputVal] = useState(keyword);
   const [totalPage, setTotalPage] = useState(0);
   const [articles, setArticles] = useState<Article[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState<Error | null>(null);
 
   // 키워드를 동기화하는 함수입니다.

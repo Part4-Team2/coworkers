@@ -33,7 +33,7 @@ function ArticleComp({ article, currentUserId }: ArticleProps) {
             className={clsx(
               "flex-1 text-text-secondary text-2lg",
               "overflow-hidden text-ellipsis line-clamp-2",
-              "pr-8"
+              "break-all pr-8"
             )}
           >
             {article.title}

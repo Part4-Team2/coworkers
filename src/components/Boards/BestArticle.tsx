@@ -40,7 +40,7 @@ function BestArticle({
             </div>
             <div className="flex flex-col gap-12">
               <div className="flex justify-between items-start gap-16">
-                <div className="flex-1 text-2lg text-text-secondary overflow-hidden text-ellipsis line-clamp-2 pr-8">
+                <div className="flex-1 text-2lg text-text-secondary overflow-hidden text-ellipsis line-clamp-2 break-all pr-8">
                   {title}
                 </div>
                 <div className="shrink-0">

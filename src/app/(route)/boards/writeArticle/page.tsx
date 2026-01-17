@@ -10,13 +10,30 @@ import { useRouter } from "next/navigation";
 import { postArticle } from "@/lib/api/boards";
 import { postImage } from "@/lib/api/image";
 import { CreateArticle } from "@/types/article";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+
+interface ArticleFormData {
+  title: string;
+  content: string;
+}
 
 // 게시글을 작성할 수 있는 페이지입니다. (이미 작성된 페이지의 경우 수정할 수 있습니다...)
 function WriteArticle() {
   const router = useRouter();
 
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ArticleFormData>({
+    mode: "onChange",
+    defaultValues: {
+      title: "",
+      content: "",
+    },
+  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [articleImagePreview, setArticleImagePreview] = useState<string | null>(
     null
@@ -33,8 +50,8 @@ function WriteArticle() {
   };
 
   // 게시글 작성하고 등록하면 작동하는 함수입니다.
-  const handleSubmitClick = async () => {
-    if (!title.trim() || !content.trim()) return;
+  const onSubmit = async (data: ArticleFormData) => {
+    if (isLoading) return;
     setIsLoading(true);
 
     try {
@@ -46,21 +63,23 @@ function WriteArticle() {
           imageUrl = res.url;
         } else {
           console.error("이미지 업로드 오류", res.message);
+          toast.error("이미지 업로드에 실패했습니다.");
         }
       }
 
       const articleData: CreateArticle = {
-        content,
-        title,
+        content: data.content,
+        title: data.title,
         image: imageUrl,
       };
 
       await postArticle(articleData);
 
-      alert("게시글 올리기 성공, 자유게시판으로 이동합니다.");
+      toast.success("게시글이 등록되었습니다!");
       router.push("/boards");
     } catch (error) {
       console.log("게시글 작성 오류", error);
+      toast.error("게시글 등록에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +99,12 @@ function WriteArticle() {
           <section className="flex justify-between items-center">
             <span className="text-xl">게시글 쓰기</span>
             <div className="hidden sm:block">
-              <Button label="등록" width="184px" onClick={handleSubmitClick} />
+              <Button
+                label="등록"
+                width="184px"
+                onClick={handleSubmit(onSubmit)}
+                loading={isLoading}
+              />
             </div>
           </section>
           <div className="border-b border-b-text-primary/10"></div>
@@ -92,9 +116,23 @@ function WriteArticle() {
             <Input
               placeholder="제목을 입력해주세요."
               width="1200"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              {...register("title", {
+                required: "제목을 입력해주세요.",
+                minLength: {
+                  value: 1,
+                  message: "제목은 최소 1글자 이상이어야 합니다.",
+                },
+                maxLength: {
+                  value: 50,
+                  message: "제목은 최대 50글자까지 입력 가능합니다.",
+                },
+              })}
             />
+            {errors.title && (
+              <p className="text-status-danger text-sm">
+                {errors.title.message}
+              </p>
+            )}
           </section>
           {/* 내용 영역 */}
           <section className="flex flex-col gap-16">
@@ -104,10 +142,24 @@ function WriteArticle() {
             <InputBox
               placeholder="내용을 입력해주세요."
               maxHeight="240px"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+              {...register("content", {
+                required: "내용을 입력해주세요.",
+                minLength: {
+                  value: 1,
+                  message: "내용은 최소 1글자 이상이어야 합니다.",
+                },
+                maxLength: {
+                  value: 1000,
+                  message: "내용은 최대 1000글자까지 입력 가능합니다.",
+                },
+              })}
               full
             />
+            {errors.content && (
+              <p className="text-status-danger text-sm">
+                {errors.content.message}
+              </p>
+            )}
           </section>
           {/* 이미지 영역 */}
           <section className="flex flex-col gap-16">
@@ -124,8 +176,13 @@ function WriteArticle() {
               }}
             />
           </section>
-          <div className="flex justify-center sm:hidden">
-            <Button label="등록" onClick={handleSubmitClick} />
+          <div className="sm:hidden">
+            <Button
+              label="등록"
+              onClick={handleSubmit(onSubmit)}
+              full
+              loading={isLoading}
+            />
           </div>
         </main>
       </div>

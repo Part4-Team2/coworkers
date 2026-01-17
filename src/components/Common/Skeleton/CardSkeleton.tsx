@@ -18,11 +18,7 @@ interface CardSkeletonProps {
  */
 export default function CardSkeleton({
   showImage = false,
-  imageHeight = 120,
   showTitle = true,
-  titleWidth = "70%",
-  showDescription = true,
-  descriptionLines = 2,
   showFooter = true,
   className = "",
   variant = "article",
@@ -49,7 +45,7 @@ export default function CardSkeleton({
               </div>
 
               {showImage && (
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <Skeleton
                     variant="rectangular"
                     width={64}
@@ -81,7 +77,7 @@ export default function CardSkeleton({
   // 일반 Article 스켈레톤
   return (
     <div
-      className={`h-162 sm:h-176 bg-slate-800 rounded-xl border border-text-primary/10 p-24 ${className}`}
+      className={`h-162 sm:h-176 bg-slate-800 rounded-xl border border-text-primary/10 px-32 py-24 ${className}`}
     >
       <div className="h-full flex flex-col justify-between">
         {/* 상단: 타이틀과 이미지 */}
@@ -96,7 +92,7 @@ export default function CardSkeleton({
 
           {/* 이미지 영역 */}
           {showImage && (
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <Skeleton
                 variant="rectangular"
                 width={64}
@@ -109,9 +105,11 @@ export default function CardSkeleton({
 
         {/* 하단: 작성자 정보와 좋아요 */}
         {showFooter && (
-          <div className="flex items-center justify-between gap-16">
+          <div className="flex items-center gap-16 text-md">
             <Skeleton variant="text" width={80} height={14} />
-            <div className="flex items-center gap-8">
+            <Skeleton variant="text" width={8} height={14} />
+            <div className="flex flex-1 justify-between">
+              <Skeleton variant="text" width={100} height={14} />
               <Skeleton variant="text" width={60} height={14} />
             </div>
           </div>

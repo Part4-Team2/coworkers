@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import ArticleComp from "./Article";
 import ArticlePagination from "./ArticlePagination";
-import BoardListSkeleton from "../Common/Skeleton/BoardListSkeleton";
+import CardSkeleton from "../Common/Skeleton/CardSkeleton";
 import Dropdown from "../Common/Dropdown/Dropdown";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useHeaderStore } from "@/store/headerStore";
@@ -49,33 +49,9 @@ function ArticleSection({
     router.push(`/boards?${params.toString()}`);
   };
 
-  // 로딩중
-  if (isLoading) {
-    return <BoardListSkeleton showBestArticles={false} />;
-  }
-
-  // 게시글 에러
-  if (isError) {
-    return (
-      <div className="flex justify-center items-center">
-        게시글을 불러오지 못했습니다.
-      </div>
-    );
-  }
-
-  // 키워드 검색 실패
-  if (articles.length === 0) {
-    return (
-      <div className="flex justify-center items-center">
-        {keyword
-          ? `&quot;${keyword}&quot; 검색 결과가 없습니다.`
-          : "게시글이 없습니다."}
-      </div>
-    );
-  }
-
   return (
     <article className="flex flex-col gap-32">
+      {/* 타이틀과 드롭다운은 항상 표시 */}
       <div className="flex items-center justify-between">
         <span className="text-text-primary text-2xl">게시글</span>
         <Dropdown
@@ -87,19 +63,50 @@ function ArticleSection({
           listPosition="top-full right-0"
         />
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 gap-10 max-w-1200">
-        {articles.map((article) => {
-          if (typeof article.id !== "number") return null;
-          return (
-            <ArticleComp
-              key={article.id}
-              article={article}
-              currentUserId={userId}
-            />
-          );
-        })}
-      </div>
-      {totalPage > 0 && (
+
+      {/* 게시글 영역 */}
+      {isError ? (
+        // 게시글 에러
+        <div className="flex justify-center items-center py-40">
+          게시글을 불러오지 못했습니다.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 gap-10 max-w-1200">
+          {isLoading ? (
+            // 로딩 중 - 스켈레톤 6개 표시
+            Array.from({ length: 6 }).map((_, index) => (
+              <CardSkeleton
+                key={index}
+                showImage={true}
+                showTitle={true}
+                showFooter={true}
+              />
+            ))
+          ) : articles.length === 0 ? (
+            // 게시글 없음 - grid 첫 번째 셀에 메시지 표시 (CLS 방지)
+            <div className="lg:col-span-2 flex justify-center items-center py-40">
+              {keyword
+                ? `"${keyword}" 검색 결과가 없습니다.`
+                : "게시글이 없습니다."}
+            </div>
+          ) : (
+            // 정상 게시글 표시
+            articles.map((article) => {
+              if (typeof article.id !== "number") return null;
+              return (
+                <ArticleComp
+                  key={article.id}
+                  article={article}
+                  currentUserId={userId}
+                />
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* 페이지네이션 */}
+      {!isLoading && totalPage > 0 && (
         <div className={clsx("flex justify-center pb-40")}>
           <ArticlePagination
             page={page}
