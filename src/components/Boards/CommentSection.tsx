@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import Button from "../Common/Button/Button";
 import Comment from "./Comment";
+import CommentSkeleton from "../Common/Skeleton/CommentSkeleton";
 import InputBox from "../Common/Input/InputBox";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -184,7 +185,9 @@ function CommentSection({
       <div className="border-b border-b-text-primary/10"></div>
       {/* 등록된 댓글 전시 영역 */}
       <div>{renderComment()}</div>
-      {isLoading && <div>댓글 로딩중</div>}
+      {/* 댓글 로딩 시 스켈레톤이 나옵니다 */}
+      {isLoading && <CommentSkeleton />}
+      {/* 무한 페이지 */}
       <div ref={bottomRef} />
     </section>
   );
