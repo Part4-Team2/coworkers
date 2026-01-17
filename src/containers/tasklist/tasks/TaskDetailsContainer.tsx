@@ -38,7 +38,10 @@ export default function TaskDetailsContainer({
 
   const kebab = useKebabMenu({
     initialContent: task.name,
-    onSave: (newContent) => onTaskUpdated?.({ id: task.id, name: newContent }),
+    onSave: (newContent) => {
+      // name만 전달
+      onTaskUpdated?.({ id: task.id, name: newContent });
+    },
 
     onEdit: () => setIsEditing(true),
 
@@ -57,17 +60,13 @@ export default function TaskDetailsContainer({
   };
 
   const handleSave = () => {
-    const updates: Partial<Task> = {
+    // name과 description만 전달
+    onTaskUpdated?.({
+      id: task.id,
       name: editedName,
       description: editedDescription,
-    };
-    onTaskUpdated?.({ ...updates, id: task.id });
+    });
     setIsEditing(false);
-  };
-
-  const handleDelete = () => {
-    onTaskDeleted?.(task.id);
-    onClose?.();
   };
 
   return (
@@ -80,7 +79,7 @@ export default function TaskDetailsContainer({
             <SVGIcon
               icon="check"
               size="xxs"
-              className="[--icon-stroke:theme(colors.brand.tertiary)]"
+              className="[--icon-stroke:var(--color-brand-tertiary)]"
             />
             <span className="text-xs font-medium text-brand-tertiary">
               완료
@@ -119,6 +118,7 @@ export default function TaskDetailsContainer({
                   icon="kebabLarge"
                   listPosition="absolute right-0 top-full mt-5"
                   onSelect={kebab.handleDropdownSelect}
+                  align="center"
                 />
               </div>
             </>
@@ -177,10 +177,10 @@ export default function TaskDetailsContainer({
             value={editedDescription}
             onChange={(e) => setEditedDescription(e.target.value)}
             autoFocus
-            className="min-h-[180px] flex-1 resize-none placeholder-text-default text-text-primary text-md font-regular focus:outline-none focus:border-b focus:border-brand-primary"
+            className="min-h-180 flex-1 resize-none placeholder-text-default text-text-primary text-md font-regular focus:outline-none focus:border-b focus:border-brand-primary"
           />
         ) : (
-          <div className="min-h-[200px] text-text-primary text-md font-regular">
+          <div className="min-h-200 text-text-primary text-md font-regular">
             {task.description || "메모가 없습니다."}
           </div>
         )}
@@ -220,7 +220,7 @@ export default function TaskDetailsContainer({
                 <SVGIcon
                   icon="check"
                   size="xxs"
-                  className="[--icon-stroke:theme(colors.icon.inverse)] mr-4"
+                  className="[--icon-stroke:var(--color-icon-inverse)] mr-4"
                 />
               }
               variant="solid"

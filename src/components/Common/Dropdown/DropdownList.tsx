@@ -7,11 +7,12 @@ interface Props {
   size: "sm" | "md" | "lg";
   position: string;
   onSelect: (value: string) => void;
+  align?: "left" | "center";
 }
 
 const sizeClass = {
   sm: "w-94 text-sm",
-  md: "w-130 text-md",
+  md: "w-120 text-md",
   lg: "w-180 text-md",
 };
 
@@ -22,6 +23,7 @@ export default function DropdownList({
   size,
   position,
   onSelect,
+  align = "left",
 }: Props) {
   if (!isOpen) return null;
 
@@ -29,7 +31,7 @@ export default function DropdownList({
     <ul
       className={clsx(
         sizeClass[size],
-        "absolute z-50 bg-background-secondary border border-text-primary/10 rounded-xl overflow-y-auto max-h-160",
+        "absolute z-50 bg-background-secondary border border-text-primary/10 rounded-xl overflow-y-auto max-h-160 py-4",
         position
       )}
     >
@@ -37,7 +39,11 @@ export default function DropdownList({
         <li
           key={option}
           onClick={() => onSelect(option)}
-          className={clsx("hover:bg-background-primary", "cursor-pointer p-8")}
+          className={clsx(
+            "hover:bg-background-primary",
+            "cursor-pointer py-12 px-10",
+            align === "center" ? "text-center" : "text-left"
+          )}
         >
           {option}
         </li>

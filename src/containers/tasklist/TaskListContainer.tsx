@@ -79,7 +79,7 @@ export default function TaskListPageContainer({
         } else {
           toast.error("리스트를 가져오는 중 오류가 발생했습니다.");
         }
-      } catch (e) {
+      } catch {
         toast.error("리스트를 가져오는 중 오류가 발생했습니다.");
       }
       setLoading(false);
@@ -103,7 +103,7 @@ export default function TaskListPageContainer({
         } else {
           toast.error("할 일 불러오는 중 오류가 발생했습니다.");
         }
-      } catch (e) {
+      } catch {
         toast.error("할 일 불러오는 중 오류가 발생했습니다.");
       }
     }
@@ -135,6 +135,9 @@ export default function TaskListPageContainer({
 
     const willBeDone = !targetTask.doneAt;
 
+    // 원본 데이터 저장 (rollback용)
+    const originalData = selectedTaskListData;
+
     // 낙관적 업데이트
     setSelectedTaskListData({
       ...selectedTaskListData,
@@ -157,10 +160,19 @@ export default function TaskListPageContainer({
           done: willBeDone,
         }
       );
+
       if (!response.success) {
+        // Rollback
+        setSelectedTaskListData(originalData);
         toast.error("완료 상태 변경 중 오류가 발생했습니다.");
+      } else {
+        toast.success(
+          willBeDone ? "완료되었습니다." : "완료가 취소되었습니다."
+        );
       }
     } catch {
+      // Rollback
+      setSelectedTaskListData(originalData);
       toast.error("완료 상태 변경 중 오류가 발생했습니다.");
     }
   };
@@ -168,6 +180,9 @@ export default function TaskListPageContainer({
   // Task 업데이트
   const handleUpdateTask = async (taskId: number, updates: Partial<Task>) => {
     if (!selectedTaskListData) return;
+
+    // 원본 데이터 저장 (rollback용)
+    const originalData = selectedTaskListData;
 
     // 낙관적 업데이트
     setSelectedTaskListData({
@@ -184,10 +199,23 @@ export default function TaskListPageContainer({
         String(taskId),
         updates
       );
+
+      console.log("updateTask response:", response);
+
       if (!response.success) {
+        console.log("updateTask failed:", response.error);
+        // Rollback
+        setSelectedTaskListData(originalData);
         toast.error("할 일 수정 중 오류가 발생했습니다.");
+        return;
       }
-    } catch {
+
+      console.log("updateTask success!");
+      toast.success("할 일이 수정되었습니다.");
+    } catch (error) {
+      console.log("updateTask catch error:", error);
+      // Rollback
+      setSelectedTaskListData(originalData);
       toast.error("할 일 수정 중 오류가 발생했습니다.");
     }
 
@@ -200,6 +228,9 @@ export default function TaskListPageContainer({
     recurringId: number;
   }) => {
     if (!selectedTaskListData) return;
+
+    // 원본 데이터 저장 (rollback용)
+    const originalData = selectedTaskListData;
 
     // 낙관적 업데이트
     setSelectedTaskListData({
@@ -225,9 +256,16 @@ export default function TaskListPageContainer({
       }
 
       if (!response.success) {
+        // Rollback
+        setSelectedTaskListData(originalData);
         toast.error("할 일 삭제 중 오류가 발생했습니다.");
+        return;
       }
+
+      toast.success("할 일이 삭제되었습니다.");
     } catch {
+      // Rollback
+      setSelectedTaskListData(originalData);
       toast.error("할 일 삭제 중 오류가 발생했습니다.");
     }
 
@@ -245,21 +283,21 @@ export default function TaskListPageContainer({
   const handleCreateTask = async (form: CreateTaskForm) => {
     if (!selectedTaskListData) return;
 
-    // ✅ 날짜와 시간을 올바르게 병합
-    const year = form.startDate.getFullYear();
-    const month = form.startDate.getMonth();
-    const date = form.startDate.getDate();
-    const hours = form.startTime.getHours();
-    const minutes = form.startTime.getMinutes();
+    // form.startDate는 이미 병합된 로컬 시간
+    const localDateTime = form.startDate;
 
-    // 로컬 시간으로 Date 객체 생성
-    const localDateTime = new Date(year, month, date, hours, minutes, 0, 0);
+    console.log("=== 할일 생성 데이터 전송 ===");
+    console.log(
+      "1. 사용자가 선택한 시간:",
+      localDateTime.toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
+    );
+    console.log("2. UTC로 변환된 시간:", localDateTime.toISOString());
 
     const createPayload = (() => {
       const basePayload = {
         name: form.name,
         description: form.description,
-        // ✅ 로컬 시간을 UTC로 자동 변환하여 전송
+        // 로컬 시간을 UTC로 자동 변환하여 전송
         startDate: localDateTime.toISOString(),
       };
 
@@ -289,16 +327,28 @@ export default function TaskListPageContainer({
       }
     })();
 
+    console.log("3. API 전송 데이터:", JSON.stringify(createPayload, null, 2));
+
     const response = await createTasks(
       groupId,
       selectedTaskListId,
       createPayload
     );
 
+    console.log("4. 백엔드 응답:", JSON.stringify(response, null, 2));
+
     if (!response.success) {
       toast.error("할 일 생성에 실패했습니다.");
       return;
     }
+
+    toast.success("할 일이 생성되었습니다.");
+
+    // UTC 기준 날짜로 계산 (서버에 저장되는 날짜와 일치)
+    const utcDate = new Date(localDateTime.toISOString());
+    const year = utcDate.getUTCFullYear();
+    const month = utcDate.getUTCMonth();
+    const date = utcDate.getUTCDate();
 
     const targetDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
     const currentDate = selectedDate || new Date().toISOString().split("T")[0];
@@ -313,7 +363,21 @@ export default function TaskListPageContainer({
         date: targetDate,
       });
 
+      console.log("=== 할일 목록 새로고침 ===");
+
       if (refreshResponse.success) {
+        console.log("5. 백엔드에서 받은 할일 데이터:");
+        refreshResponse.data.tasks.forEach((task, index) => {
+          console.log(`  할일 ${index + 1}: ${task.name}`);
+          console.log(`    - 백엔드 date 필드: ${task.date}`);
+          console.log(
+            `    - Date 객체로 변환: ${new Date(task.date).toISOString()}`
+          );
+          console.log(
+            `    - 한국 시간으로 표시: ${new Date(task.date).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`
+          );
+        });
+
         setSelectedTaskListData({
           ...refreshResponse.data,
           tasks: refreshResponse.data.tasks,
@@ -325,40 +389,39 @@ export default function TaskListPageContainer({
   const handleCreateList = async (name: string) => {
     if (!name.trim()) return;
 
-    // 낙관적 업데이트
-    setTaskLists((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        name,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        groupId: Number(groupId),
-        displayIndex: prev.length,
-        tasks: [],
-      },
-    ]);
+    // 중복 체크: 현재 팀의 task-list 중 같은 이름이 있는지 확인
+    const isDuplicate = taskLists.some(
+      (list) => list.name.trim().toLowerCase() === name.trim().toLowerCase()
+    );
+
+    if (isDuplicate) {
+      toast.error("이미 존재하는 목록 이름입니다.");
+      return;
+    }
 
     try {
       const response = await createTaskList(groupId, name);
+
       if (!response.success) {
         toast.error("할 일 목록 생성 중 오류가 발생했습니다.");
+        return;
       }
+
+      // API 응답으로 받은 실제 데이터로 업데이트 (tasks 배열 추가)
+      setTaskLists((prev) => [...prev, { ...response.data, tasks: [] }]);
+
+      toast.success("할 일 목록이 생성되었습니다.");
     } catch {
       toast.error("할 일 목록 생성 중 오류가 발생했습니다.");
     }
   };
 
   if (loading) {
-    return (
-      <div className="relative max-w-[1200px] mx-auto my-0 sm:px-24 px-16">
-        <div className="text-xl font-bold mt-40">로딩중...</div>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="relative max-w-[1200px] mx-auto my-0 sm:px-24 px-16 mb-80">
+    <div className="relative max-w-1200 mx-auto my-0 sm:px-24 px-16 mb-80">
       <div className="flex flex-col gap-24">
         <div className="text-xl font-bold mt-40">할 일</div>
 
@@ -376,7 +439,12 @@ export default function TaskListPageContainer({
             <div className="flex flex-col gap-16">
               {selectedTaskListData.tasks.length === 0 ? (
                 <div className="text-text-default text-center mx-auto my-0 p-100">
-                  아직 할 일이 없습니다 <br /> 할 일을 추가해보세요.
+                  <p className="hidden md:block">
+                    아직 할 일이 없습니다 <br /> 할 일을 추가해보세요.
+                  </p>
+                  <p className="md:hidden whitespace-nowrap">
+                    아직 할 일이 없습니다 <br /> 할 일을 추가해보세요.
+                  </p>
                 </div>
               ) : (
                 <>
@@ -402,7 +470,11 @@ export default function TaskListPageContainer({
                       taskToEdit={editingTask}
                       onSubmit={(form) => {
                         if (editTaskId) {
-                          handleUpdateTask(editTaskId, form); // PATCH
+                          // 수정 시에는 name과 description만 전달
+                          handleUpdateTask(editTaskId, {
+                            name: form.name,
+                            description: form.description,
+                          });
                         } else {
                           handleCreateTask(form); // POST
                         }
@@ -417,15 +489,16 @@ export default function TaskListPageContainer({
                     >
                       <div
                         onClick={(e) => e.stopPropagation()}
-                        className="fixed right-0 top-0 h-full w-full sm:w-[600px] bg-background-secondary shadow-xl overflow-y-auto"
+                        className="fixed right-0 top-0 h-full w-full sm:w-600 bg-background-secondary shadow-xl overflow-y-auto"
                       >
                         <TaskDetailsContainer
                           task={openTask}
                           onClose={handleCloseSidebar}
                           onToggleDone={(id) => handleTaskToggle(id)}
-                          onTaskUpdated={(update) =>
-                            handleUpdateTask(update.id, update)
-                          }
+                          onTaskUpdated={(update) => {
+                            const { id, ...updates } = update;
+                            handleUpdateTask(id, updates);
+                          }}
                           onTaskDeleted={(id) =>
                             handleDeleteTask({
                               id,

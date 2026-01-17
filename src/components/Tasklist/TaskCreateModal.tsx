@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Input from "@/components/Common/Input/Input";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import InputBox from "@/components/Common/Input/InputBox";
@@ -9,7 +9,7 @@ import Button from "@/components/Common/Button/Button";
 import { BaseModal } from "@/components/Common/Modal";
 import ModalHeader from "@/components/Common/Modal/ModalHeader";
 import ModalFooter from "@/components/Common/Modal/ModalFooter";
-import { formatDate, formatTime } from "@/utils/date";
+import { formatDate } from "@/utils/date";
 import { frequencyToEnum } from "@/constants/frequency";
 import { FrequencyType } from "@/types/schemas";
 import { useForm } from "react-hook-form";
@@ -21,16 +21,16 @@ export interface CreateTaskForm {
   name: string;
   description?: string;
   startDate: Date;
-  startTime: Date;
   frequencyType: "DAILY" | "WEEKLY" | "MONTHLY" | "ONCE";
   weekDays?: number[];
   monthDay?: number;
 }
+
 interface TaskCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (values: CreateTaskForm) => void; // 부모가 처리
-  taskToEdit?: TaskForEdit | null; // 수정이면 Task 전달
+  onSubmit: (values: CreateTaskForm) => void;
+  taskToEdit?: TaskForEdit | null;
 }
 
 const WEEK_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
@@ -42,9 +42,6 @@ export default function TaskCreateModal({
   taskToEdit,
 }: TaskCreateModalProps) {
   const today = new Date();
-  const defaultTime = new Date();
-  defaultTime.setHours(9, 0, 0, 0); // fix
-
   const isEditMode = !!taskToEdit;
 
   const {
@@ -59,7 +56,6 @@ export default function TaskCreateModal({
       name: "",
       description: "",
       startDate: today,
-      startTime: defaultTime,
       frequencyType: "ONCE",
     },
     mode: "onChange",
@@ -67,24 +63,22 @@ export default function TaskCreateModal({
 
   const [weekDays, setWeekDays] = useState<number[]>([]);
   const [monthDay, setMonthDay] = useState<number | undefined>(undefined);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const datePickerRef = useRef<HTMLDivElement>(null);
 
   // 생성 모드로 모달이 열릴 때 초기화
   useEffect(() => {
     if (isOpen && !taskToEdit) {
-      const freshDefaultTime = new Date();
-      freshDefaultTime.setHours(9, 0, 0, 0);
-
       reset({
         name: "",
         description: "",
         startDate: new Date(),
-        startTime: freshDefaultTime,
         frequencyType: "ONCE",
       });
       setWeekDays([]);
       setMonthDay(undefined);
     }
-  }, [isOpen]);
+  }, [isOpen, taskToEdit, reset]);
 
   // 수정 모드일 때 데이터 채우기
   useEffect(() => {
@@ -93,7 +87,6 @@ export default function TaskCreateModal({
         name: taskToEdit.name,
         description: taskToEdit.description,
         startDate: new Date(taskToEdit.date),
-        startTime: new Date(taskToEdit.date),
         frequencyType: taskToEdit.frequency,
       });
       setWeekDays(taskToEdit.weekDays ?? []);
@@ -101,27 +94,29 @@ export default function TaskCreateModal({
     }
   }, [taskToEdit, reset]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form watch is required for real-time form value tracking
   const watchStartDate = watch("startDate");
-  const watchStartTime = watch("startTime");
   const watchFrequency = watch("frequencyType");
 
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-
-  const timePickerRef = useRef<HTMLDivElement>(null);
-
+  // 외부 클릭 감지
   useEffect(() => {
-    const close = (e: MouseEvent) => {
-      if (!timePickerRef.current?.contains(e.target as Node)) {
-        setShowTimePicker(false);
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        datePickerRef.current &&
+        !datePickerRef.current.contains(event.target as Node)
+      ) {
+        setShowDatePicker(false);
       }
-    };
-
-    if (showTimePicker) {
-      document.addEventListener("mousedown", close);
     }
-    return () => document.removeEventListener("mousedown", close);
-  }, [showTimePicker]);
+
+    if (showDatePicker) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showDatePicker]);
 
   const submitHandler = async (form: CreateTaskForm) => {
     try {
@@ -130,41 +125,32 @@ export default function TaskCreateModal({
         form.frequencyType === "WEEKLY" &&
         (!weekDays || weekDays.length === 0)
       ) {
-        toast.error("주 반복을 선택하려면 최소 하나의 요일을 선택해주세요.");
+        toast.error("최소 하나의 요일을 선택해주세요");
         return;
       }
 
       if (form.frequencyType === "MONTHLY" && !monthDay) {
-        toast.error("월 반복을 선택하려면 날짜를 선택해주세요.");
+        toast.error("날짜를 선택해주세요");
         return;
       }
 
-      // 날짜와 시간을 정확하게 병합
+      // 시간을 9시로 고정
       const year = form.startDate.getFullYear();
       const month = form.startDate.getMonth();
       const date = form.startDate.getDate();
-      const hours = form.startTime.getHours();
-      const minutes = form.startTime.getMinutes();
 
-      const merged = new Date(year, month, date, hours, minutes, 0, 0);
-      const utcMerged = new Date(
-        merged.getTime() - merged.getTimezoneOffset() * 60000
-      );
+      const localDateTime = new Date(year, month, date, 9, 0, 0, 0);
 
       await onSubmit({
         ...form,
-        startDate: utcMerged,
-        startTime: utcMerged,
+        startDate: localDateTime,
         weekDays,
         monthDay,
       });
 
-      toast.success(
-        isEditMode ? "할 일이 수정되었습니다!" : "할 일이 생성되었습니다!"
-      );
       onClose();
       reset();
-    } catch (error) {
+    } catch {
       toast.error("할일 생성/수정에 실패했습니다.");
     }
   };
@@ -176,7 +162,7 @@ export default function TaskCreateModal({
         할 일은 실제로 행동 가능한 작업 중심으로 <br /> 작성해주시면 좋습니다.
       </div>
 
-      <div className="h-[400px] overflow-y-auto custom-scrollbar">
+      <div className="h-400 overflow-y-auto custom-scrollbar">
         <form className="flex flex-col gap-24 mb-32 mr-12">
           <section>
             <Input
@@ -209,172 +195,38 @@ export default function TaskCreateModal({
             <>
               <section>
                 <h3 className="text-lg font-medium text-text-primary mb-16">
-                  시작 날짜 및 시간
+                  시작 날짜
                 </h3>
-                <div className="flex gap-8 relative">
-                  <div className="flex-[2] min-w-0">
-                    <Input
-                      label="시작 날짜"
-                      labelClassName="sr-only"
-                      placeholder={formatDate(today.toISOString())}
-                      readOnly
-                      value={formatDate(watchStartDate.toISOString())}
-                      onClick={() => {
-                        setShowDatePicker(!showDatePicker);
-                      }}
-                      className="cursor-pointer"
-                    />
+                <div className="relative" ref={datePickerRef}>
+                  <Input
+                    label="시작 날짜"
+                    labelClassName="sr-only"
+                    placeholder={formatDate(today.toISOString())}
+                    readOnly
+                    value={formatDate(watchStartDate.toISOString())}
+                    onClick={() => {
+                      setShowDatePicker(!showDatePicker);
+                    }}
+                    className="cursor-pointer"
+                  />
 
-                    {showDatePicker && (
-                      <div className="absolute sm:w-full top-full mt-8 z-50 border border-interaction-hover bg-background-secondary rounded-xl">
-                        <div className="p-8 shadow-xl">
-                          <DatePicker
-                            selected={watchStartDate}
-                            onChange={(date: Date | null) => {
-                              if (!date) return;
-                              setValue("startDate", date);
-                              setShowDatePicker(false);
-                            }}
-                            inline
-                            formatWeekDay={(day) => day.substring(0, 3)}
-                            onClickOutside={() => setShowDatePicker(false)}
-                            minDate={new Date()}
-                          />
-                        </div>
+                  {showDatePicker && (
+                    <div className="absolute sm:w-full top-full mt-8 z-50 border border-interaction-hover bg-background-secondary rounded-xl">
+                      <div className="p-8 shadow-xl">
+                        <DatePicker
+                          selected={watchStartDate}
+                          onChange={(date: Date | null) => {
+                            if (!date) return;
+                            setValue("startDate", date);
+                            setShowDatePicker(false);
+                          }}
+                          inline
+                          formatWeekDay={(day) => day.substring(0, 3)}
+                          minDate={new Date()}
+                        />
                       </div>
-                    )}
-                  </div>
-
-                  <div className="flex-[1] min-w-0">
-                    <Input
-                      label="시작 시간"
-                      labelClassName="sr-only"
-                      placeholder="오후 3:00"
-                      readOnly
-                      value={formatTime(watchStartTime)}
-                      onClick={() => {
-                        setShowTimePicker(!showTimePicker);
-                      }}
-                      className="cursor-pointer"
-                    />
-
-                    {showTimePicker && (
-                      <div
-                        ref={timePickerRef}
-                        className="absolute top-full sm:w-full mt-8 right-0 z-50"
-                      >
-                        <div className="flex gap-14 w-auto bg-background-secondary rounded-xl p-12 border-1 border-interaction-hover shadow-xl">
-                          {/* 오전/오후 */}
-                          <div className="flex flex-col gap-8">
-                            <Button
-                              label="오전"
-                              className="text-md"
-                              width="78px"
-                              variant={
-                                watchStartTime.getHours() < 12
-                                  ? "solid"
-                                  : "unselected"
-                              }
-                              onClick={() => {
-                                const newTime = new Date(
-                                  watchStartDate.getFullYear(),
-                                  watchStartDate.getMonth(),
-                                  watchStartDate.getDate(),
-                                  watchStartTime.getHours() >= 12
-                                    ? watchStartTime.getHours() - 12
-                                    : watchStartTime.getHours(),
-                                  watchStartTime.getMinutes()
-                                );
-                                setValue("startTime", newTime, {
-                                  shouldDirty: true,
-                                });
-                              }}
-                            />
-                            <Button
-                              label="오후"
-                              className="text-md"
-                              width="78px"
-                              variant={
-                                watchStartTime.getHours() >= 12
-                                  ? "solid"
-                                  : "unselected"
-                              }
-                              onClick={() => {
-                                const newTime = new Date(
-                                  watchStartDate.getFullYear(),
-                                  watchStartDate.getMonth(),
-                                  watchStartDate.getDate(),
-                                  watchStartTime.getHours() < 12
-                                    ? watchStartTime.getHours() + 12
-                                    : watchStartTime.getHours(),
-                                  watchStartTime.getMinutes()
-                                );
-                                setValue("startTime", newTime, {
-                                  shouldDirty: true,
-                                });
-                              }}
-                            />
-                          </div>
-
-                          {/* 시간 목록 */}
-                          <div className="h-[152px] w-[220px] rounded-xl bg-[#18212f] overflow-hidden py-8">
-                            <div className="h-full overflow-y-auto custom-scrollbar pl-16 mr-8">
-                              {Array.from({ length: 24 }, (_, i) => [
-                                i,
-                                i + 0.5,
-                              ])
-                                .flat()
-                                .map((hour) => {
-                                  const hours = Math.floor(hour);
-                                  const minutes = (hour % 1) * 60;
-
-                                  const isAM = watchStartTime.getHours() < 12;
-                                  const timeIsAM = hours < 12;
-                                  if (isAM !== timeIsAM) return null;
-
-                                  const displayHours = hours % 12 || 12;
-                                  const displayMinutes = minutes
-                                    .toString()
-                                    .padStart(2, "0");
-
-                                  const isSelected =
-                                    watchStartTime.getHours() === hours &&
-                                    watchStartTime.getMinutes() === minutes;
-
-                                  return (
-                                    <button
-                                      key={`${hours}-${minutes}`}
-                                      type="button"
-                                      onClick={() => {
-                                        const newTime = new Date(
-                                          watchStartDate.getFullYear(),
-                                          watchStartDate.getMonth(),
-                                          watchStartDate.getDate(),
-                                          hours,
-                                          minutes
-                                        );
-                                        setValue("startTime", newTime, {
-                                          shouldDirty: true,
-                                        });
-                                        setShowTimePicker(false);
-                                      }}
-                                      className={clsx(
-                                        "w-full py-10 text-left rounded-lg font-regular",
-                                        isSelected
-                                          ? "bg-interaction-primary text-brand-primary"
-                                          : "text-text-default hover:bg-interaction-hover"
-                                      )}
-                                    >
-                                      {displayHours}:{displayMinutes}
-                                    </button>
-                                  );
-                                })}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </section>
             </>
@@ -406,6 +258,8 @@ export default function TaskCreateModal({
               trigger="text"
               size="md"
               value={getFrequencyText(watchFrequency)}
+              background="primary"
+              listPosition="top-full mt-2"
             />
 
             {/* WEEKLY UI */}
@@ -432,7 +286,7 @@ export default function TaskCreateModal({
 
             {/* MONTHLY UI */}
             {watchFrequency === FrequencyType.MONTHLY && (
-              <div className="mt-8 ml-12">
+              <div className="mt-8 w-120">
                 <Dropdown
                   options={Array.from({ length: 31 }, (_, i) => `${i + 1}일`)}
                   onSelect={(label) => {
@@ -440,8 +294,10 @@ export default function TaskCreateModal({
                     setMonthDay(day);
                   }}
                   trigger="text"
-                  size="sm"
+                  size="md"
                   value={monthDay ? `${monthDay}일` : "날짜 선택"}
+                  background="primary"
+                  listPosition="top-full mt-2"
                 />
               </div>
             )}
