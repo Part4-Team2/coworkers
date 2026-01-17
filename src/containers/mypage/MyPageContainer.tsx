@@ -143,8 +143,8 @@ export default function MyPageContainer({
         }
 
         const response = await patchUser(updateData);
-        if ("error" in response) {
-          const errorMessage = response.message || "업데이트에 실패했습니다.";
+        if (!response.success) {
+          const errorMessage = response.error || "업데이트에 실패했습니다.";
           setNameError(errorMessage);
           showErrorToast(errorMessage);
           setIsSubmitting(false);
@@ -189,9 +189,8 @@ export default function MyPageContainer({
       setIsSubmitting(true);
       const response = await patchUserPassword(requestData);
 
-      if ("error" in response) {
-        const errorMessage =
-          response.message || "비밀번호 변경에 실패했습니다.";
+      if (!response.success) {
+        const errorMessage = response.error || "비밀번호 변경에 실패했습니다.";
         setPasswordChangeError(errorMessage);
         showErrorToast(errorMessage);
         setIsSubmitting(false);
@@ -216,8 +215,8 @@ export default function MyPageContainer({
       setIsSubmitting(true);
       const response = await deleteUser();
 
-      if ("error" in response) {
-        const errorMessage = response.message || "회원 탈퇴에 실패했습니다.";
+      if (!response.success) {
+        const errorMessage = response.error || "회원 탈퇴에 실패했습니다.";
         setNameError(errorMessage);
         showErrorToast(errorMessage);
         return;

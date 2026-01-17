@@ -2,14 +2,9 @@
 "use server";
 
 import { fetchApi } from "@/utils/api";
-import { revalidatePath } from "next/cache";
 import { BASE_URL } from ".";
 import { CommentResponse } from "../types/comment";
-
-// 공통 API 응답 타입
-export type ApiResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+import { ApiResult } from "@/lib/types/api";
 
 export async function getComments(
   taskId: string

@@ -1,7 +1,7 @@
 "use server";
 
 import { fetchApi } from "@/utils/api";
-import { ApiResult } from "./group";
+import { ApiResult } from "@/lib/types/api";
 import { BASE_URL } from ".";
 import {
   CreateTaskRequestBody,

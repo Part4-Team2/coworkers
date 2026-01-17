@@ -29,7 +29,7 @@ export default async function TeamListPage() {
   }
 
   // 데이터 가공
-  const teams = groupsData.map((group) => ({
+  const teams = groupsData.data.map((group) => ({
     id: group.id,
     name: group.name,
     image: group.image,

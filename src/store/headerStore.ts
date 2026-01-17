@@ -38,7 +38,7 @@ export const useHeaderStore = create<HeaderStoreState>()(
       fetchUser: async () => {
         const res = await getUser();
 
-        if ("error" in res) {
+        if (!res.success) {
           set({
             userId: null,
             isLogin: false,
@@ -50,7 +50,7 @@ export const useHeaderStore = create<HeaderStoreState>()(
           return;
         }
 
-        const teams: HeaderTeam[] = res.memberships.map((team) => ({
+        const teams: HeaderTeam[] = res.data.memberships.map((team) => ({
           teamId: team.group.id.toString(),
           teamName: team.group.name,
           teamImage: team.group.image,
@@ -62,10 +62,10 @@ export const useHeaderStore = create<HeaderStoreState>()(
         // 팀 소속이 없을 때 전역상태 설정
         if (teams.length === 0) {
           set({
-            userId: res.id,
+            userId: res.data.id,
             isLogin: true,
-            nickname: res.nickname,
-            profileImage: res.image,
+            nickname: res.data.nickname,
+            profileImage: res.data.image,
             teams: [],
             activeTeam: null,
           });
@@ -80,10 +80,10 @@ export const useHeaderStore = create<HeaderStoreState>()(
           : teams[0];
 
         set({
-          userId: res.id,
+          userId: res.data.id,
           isLogin: true,
-          nickname: res.nickname,
-          profileImage: res.image,
+          nickname: res.data.nickname,
+          profileImage: res.data.image,
           teams,
           activeTeam: nextActiveTeam ?? null,
         });

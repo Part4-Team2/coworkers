@@ -11,8 +11,61 @@ import {
   ResetPasswordBody,
   UpdatePasswordBody,
 } from "@/lib/types/user";
+import { ApiResult } from "@/lib/types/api";
 
-export async function getUser() {
+export type User = {
+  teamId: string;
+  image: string | null;
+  nickname: string;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  id: number;
+  memberships: Array<{
+    group: {
+      teamId: string;
+      updatedAt: string;
+      createdAt: string;
+      image: string | null;
+      name: string;
+      id: number;
+    };
+    role: Role;
+    userImage: string | null;
+    userEmail: string;
+    userName: string;
+    groupId: number;
+    userId: number;
+  }>;
+};
+
+export type UserGroup = {
+  id: number;
+  name: string;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+  teamId: string;
+};
+
+export type UserHistory = {
+  tasksDone: Array<{
+    displayIndex: number;
+    writerId: number;
+    userId: number;
+    deletedAt: string | null;
+    frequency: string;
+    description: string;
+    name: string;
+    recurringId: number;
+    doneAt: string;
+    date: string;
+    updatedAt: string;
+    id: number;
+  }>;
+};
+
+export async function getUser(): Promise<ApiResult<User>> {
   try {
     const response = await fetchApi(`${BASE_URL}/user`, {
       // 사용자 정보는 자주 변경될 수 있으므로 짧은 시간 캐싱 (60초)
@@ -25,81 +78,17 @@ export async function getUser() {
         message: "사용자 정보를 가져오는데 실패했습니다.",
       }));
       return {
-        error: true as const,
-        message: error.message || "사용자 정보를 가져오는데 실패했습니다.",
+        success: false,
+        error: error.message || "사용자 정보를 가져오는데 실패했습니다.",
       };
     }
 
-    return (await response.json()) as {
-      teamId: string;
-      image: string | null;
-      nickname: string;
-      updatedAt: string;
-      createdAt: string;
-      email: string;
-      id: number;
-      memberships: Array<{
-        group: {
-          teamId: string;
-          updatedAt: string;
-          createdAt: string;
-          image: string | null;
-          name: string;
-          id: number;
-        };
-        role: Role;
-        userImage: string | null;
-        userEmail: string;
-        userName: string;
-        groupId: number;
-        userId: number;
-      }>;
-    };
-  } catch (error) {
+    const responseData = (await response.json()) as User;
+    return { success: true, data: responseData };
+  } catch {
     return {
-      error: true as const,
-      message: "서버 오류가 발생했습니다.",
-    };
-  }
-}
-
-/**
- * 사용자의 멤버십 정보 조회
- */
-export async function getUserMemberships() {
-  try {
-    const response = await fetchApi(`${BASE_URL}/user/memberships`);
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "멤버십 정보를 가져오는데 실패했습니다.",
-      }));
-      return {
-        error: true as const,
-        message: error.message || "멤버십 정보를 가져오는데 실패했습니다.",
-      };
-    }
-
-    return (await response.json()) as Array<{
-      userId: number;
-      groupId: number;
-      userName: string;
-      userEmail: string;
-      userImage: string | null;
-      role: Role;
-      group: {
-        id: number;
-        name: string;
-        image: string | null;
-        createdAt: string;
-        updatedAt: string;
-        teamId: string;
-      };
-    }>;
-  } catch (error: unknown) {
-    return {
-      error: true as const,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
@@ -107,7 +96,7 @@ export async function getUserMemberships() {
 /**
  * 사용자가 참여한 그룹(팀) 목록 조회
  */
-export async function getUserGroups() {
+export async function getUserGroups(): Promise<ApiResult<UserGroup[]>> {
   try {
     const response = await fetchApi(`${BASE_URL}/user/groups`);
 
@@ -116,28 +105,24 @@ export async function getUserGroups() {
         message: "팀 목록을 가져오는데 실패했습니다.",
       }));
       return {
-        error: true as const,
-        message: error.message || "팀 목록을 가져오는데 실패했습니다.",
+        success: false,
+        error: error.message || "팀 목록을 가져오는데 실패했습니다.",
       };
     }
 
-    return (await response.json()) as Array<{
-      id: number;
-      name: string;
-      image: string | null;
-      createdAt: string;
-      updatedAt: string;
-      teamId: string;
-    }>;
-  } catch (error: unknown) {
+    const responseData = (await response.json()) as UserGroup[];
+    return { success: true, data: responseData };
+  } catch {
     return {
-      error: true as const,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
 
-export async function patchUser(data: UpdateUserRequestBody) {
+export async function patchUser(
+  data: UpdateUserRequestBody
+): Promise<ApiResult<{ message: string }>> {
   try {
     const response = await fetchApi(`${BASE_URL}/user`, {
       method: "PATCH",
@@ -150,28 +135,28 @@ export async function patchUser(data: UpdateUserRequestBody) {
         message: "사용자 정보 수정에 실패했습니다.",
       }));
       return {
-        error: true,
-        message: error.message || "사용자 정보 수정에 실패했습니다.",
+        success: false,
+        error: error.message || "사용자 정보 수정에 실패했습니다.",
       };
     }
 
-    const result = (await response.json()) as { message: string };
+    const responseData = (await response.json()) as { message: string };
 
     // 사용자 정보 수정 성공 후 관련 캐시 무효화
     revalidatePath("/mypage");
     // 태그 기반 캐시 무효화 (getUser에서 사용하는 태그)
     // revalidateTag는 타입 이슈로 주석 처리, 필요시 revalidatePath로 대체
 
-    return result;
-  } catch (error) {
+    return { success: true, data: responseData };
+  } catch {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
 
-export async function deleteUser() {
+export async function deleteUser(): Promise<ApiResult<void>> {
   try {
     const response = await fetchApi(`${BASE_URL}/user`, {
       method: "DELETE",
@@ -181,8 +166,8 @@ export async function deleteUser() {
     if (!response.ok) {
       const error = await response.json();
       return {
-        error: true,
-        message: error.message || "사용자 삭제에 실패했습니다.",
+        success: false,
+        error: error.message || "사용자 삭제에 실패했습니다.",
       };
     }
 
@@ -197,11 +182,11 @@ export async function deleteUser() {
     // 모든 사용자 관련 페이지 캐시 무효화
 
     // 성공 응답 반환 (클라이언트에서 리다이렉트 처리)
-    return { success: true };
-  } catch (error) {
+    return { success: true, data: undefined };
+  } catch {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
@@ -214,7 +199,6 @@ export async function getUserHistory() {
     const response = await fetchApi(`${BASE_URL}/user/history`, {
       next: {
         tags: ["user-history"],
-        revalidate: 300, // 5분간 캐시
       },
     });
 
@@ -223,32 +207,16 @@ export async function getUserHistory() {
         message: "완료된 할 일 목록을 가져오는데 실패했습니다.",
       }));
       return {
-        error: true as const,
-        message:
-          error.message || "완료된 할 일 목록을 가져오는데 실패했습니다.",
+        success: false,
+        error: error.message || "완료된 할 일 목록을 가져오는데 실패했습니다.",
       };
     }
 
-    return (await response.json()) as {
-      tasksDone: Array<{
-        displayIndex: number;
-        writerId: number;
-        userId: number;
-        deletedAt: string | null;
-        frequency: string;
-        description: string;
-        name: string;
-        recurringId: number;
-        doneAt: string;
-        date: string;
-        updatedAt: string;
-        id: number;
-      }>;
-    };
-  } catch (error) {
+    return (await response.json()) as UserHistory;
+  } catch {
     return {
-      error: true as const,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
@@ -267,7 +235,7 @@ e.g. "https://coworkers.vercel.app/reset-password?token=1234567890"
 */
 export async function postUserResetPassword(
   data: SendResetPasswordEmailRequest
-) {
+): Promise<ApiResult<{ message: string }>> {
   try {
     const response = await fetchApi(
       `${BASE_URL}/user/send-reset-password-email`,
@@ -281,16 +249,17 @@ export async function postUserResetPassword(
     if (!response.ok) {
       const error = await response.json();
       return {
-        error: true,
-        message: error.message || "비밀번호 재설정 이메일 전송에 실패했습니다.",
+        success: false,
+        error: error.message || "비밀번호 재설정 이메일 전송에 실패했습니다.",
       };
     }
 
-    return (await response.json()) as { message: string };
-  } catch (error) {
+    const responseData = (await response.json()) as { message: string };
+    return { success: true, data: responseData };
+  } catch {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
@@ -302,7 +271,9 @@ POST user/send-reset-password-email 요청으로 발송한 메일의 링크에 �
 
 토큰 유효 시간: 1시간
 */
-export async function patchUserResetPassword(data: ResetPasswordBody) {
+export async function patchUserResetPassword(
+  data: ResetPasswordBody
+): Promise<ApiResult<{ message: string }>> {
   try {
     const response = await fetchApi(`${BASE_URL}/user/reset-password`, {
       method: "PATCH",
@@ -313,21 +284,24 @@ export async function patchUserResetPassword(data: ResetPasswordBody) {
     if (!response.ok) {
       const error = await response.json();
       return {
-        error: true,
-        message: error.message || "비밀번호 재설정에 실패했습니다.",
+        success: false,
+        error: error.message || "비밀번호 재설정에 실패했습니다.",
       };
     }
 
-    return (await response.json()) as { message: string };
-  } catch (error) {
+    const responseData = (await response.json()) as { message: string };
+    return { success: true, data: responseData };
+  } catch {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
 
-export async function patchUserPassword(data: UpdatePasswordBody) {
+export async function patchUserPassword(
+  data: UpdatePasswordBody
+): Promise<ApiResult<{ message: string }>> {
   try {
     const response = await fetchApi(`${BASE_URL}/user/password`, {
       method: "PATCH",
@@ -338,21 +312,21 @@ export async function patchUserPassword(data: UpdatePasswordBody) {
     if (!response.ok) {
       const error = await response.json();
       return {
-        error: true,
-        message: error.message || "비밀번호 변경에 실패했습니다.",
+        success: false,
+        error: error.message || "비밀번호 변경에 실패했습니다.",
       };
     }
 
-    const result = (await response.json()) as { message: string };
+    const responseData = (await response.json()) as { message: string };
 
     // 비밀번호 변경 성공 후 사용자 관련 캐시 무효화
     revalidatePath("/mypage");
 
-    return result;
-  } catch (error) {
+    return { success: true, data: responseData };
+  } catch {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }

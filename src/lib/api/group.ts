@@ -5,11 +5,7 @@ import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/lib/api";
 import { CreateGroupBody } from "@/lib/types/group";
 import { Role } from "@/types/schemas";
-
-// 공통 API 응답 타입
-export type ApiResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+import { ApiResult } from "@/lib/types/api";
 
 // 개별 응답 타입 정의
 export type TaskListResponse = {
@@ -97,116 +93,6 @@ export async function getGroup(
 
     const data = (await response.json()) as GroupDetailResponse;
     return { success: true, data };
-  } catch {
-    return {
-      success: false,
-      error: "서버 오류가 발생했습니다.",
-    };
-  }
-}
-
-/**
- * 할 일 목록 생성
- */
-export async function createTaskList(
-  groupId: string,
-  name: string
-): Promise<ApiResult<TaskListResponse>> {
-  try {
-    const response = await fetchApi(
-      `${BASE_URL}/groups/${groupId}/task-lists`,
-      {
-        method: "POST",
-        body: JSON.stringify({ name }),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "할 일 목록 생성에 실패했습니다.",
-      }));
-      return {
-        success: false,
-        error: error.message || "할 일 목록 생성에 실패했습니다.",
-      };
-    }
-
-    const data = (await response.json()) as TaskListResponse;
-    revalidatePath(`/${groupId}`);
-    return { success: true, data };
-  } catch {
-    return {
-      success: false,
-      error: "서버 오류가 발생했습니다.",
-    };
-  }
-}
-
-/**
- * 할 일 목록 수정
- */
-export async function updateTaskList(
-  groupId: string,
-  taskListId: number,
-  name: string
-): Promise<ApiResult<TaskListResponse>> {
-  try {
-    const response = await fetchApi(
-      `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify({ name }),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "할 일 목록 수정에 실패했습니다.",
-      }));
-      return {
-        success: false,
-        error: error.message || "할 일 목록 수정에 실패했습니다.",
-      };
-    }
-
-    const data = (await response.json()) as TaskListResponse;
-    revalidatePath(`/${groupId}`);
-    return { success: true, data };
-  } catch {
-    return {
-      success: false,
-      error: "서버 오류가 발생했습니다.",
-    };
-  }
-}
-
-/**
- * 할 일 목록 삭제
- */
-export async function deleteTaskList(
-  groupId: string,
-  taskListId: number
-): Promise<ApiResult<void>> {
-  try {
-    const response = await fetchApi(
-      `${BASE_URL}/groups/${groupId}/task-lists/${taskListId}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "할 일 목록 삭제에 실패했습니다.",
-      }));
-      return {
-        success: false,
-        error: error.message || "할 일 목록 삭제에 실패했습니다.",
-      };
-    }
-
-    revalidatePath(`/${groupId}`);
-    return { success: true, data: undefined };
   } catch {
     return {
       success: false,

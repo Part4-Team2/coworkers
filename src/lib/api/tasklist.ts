@@ -2,7 +2,7 @@
 
 import { BASE_URL } from "@/lib/api";
 import { fetchApi } from "@/utils/api";
-import { ApiResult } from "./group";
+import { ApiResult } from "@/lib/types/api";
 import { TaskListResponse } from "../types/tasklist";
 import { GetTaskListResponse, GetTasksParams } from "../types/task";
 

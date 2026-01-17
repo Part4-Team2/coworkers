@@ -104,10 +104,10 @@ export default function LoginContainer() {
     setIsSubmitting(true);
     try {
       const response = await postUserResetPassword(requestData);
-      if ("error" in response) {
+      if (!response.success) {
         // "User not found" 에러 메시지를 "회원가입되지 않은 이메일입니다."로 변경
         let errorMessage =
-          response.message || "비밀번호 재설정 이메일 전송에 실패했습니다.";
+          response.error || "비밀번호 재설정 이메일 전송에 실패했습니다.";
         if (errorMessage.toLowerCase().includes("user not found")) {
           errorMessage = "회원가입되지 않은 이메일입니다.";
         }

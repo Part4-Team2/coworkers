@@ -10,10 +10,7 @@ import {
 } from "@/types/articleComment";
 import { fetchApi } from "@/utils/api";
 import { REVALIDATE_TIME } from "@/constants/revalidate";
-
-export type ApiResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+import { ApiResult } from "@/lib/types/api";
 
 interface GetArticlesProps {
   page?: number;

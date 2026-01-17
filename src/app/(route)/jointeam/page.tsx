@@ -11,10 +11,10 @@ export const metadata = createMetadata({
 
 export default async function JoinTeamPage() {
   const user = await getUser();
-  if ("error" in user) {
+  if (!user.success) {
     redirect("/login");
   }
-  const email = user.email;
+  const email = user.data.email;
   if (!email) {
     redirect("/login");
   }
