@@ -4,10 +4,10 @@ import { useState } from "react";
 import Form from "@/components/Common/Form/Form";
 import Avatar from "@/components/Common/Avatar/Avatar";
 import Button from "@/components/Common/Button/Button";
+import Input from "@/components/Common/Input/Input";
 import Modal from "@/components/Common/Modal/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { useForm } from "react-hook-form";
-import { InputConfig } from "@/components/Common/Form/types";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { postImage } from "@/lib/api/image";
 import { patchUser, deleteUser, patchUserPassword } from "@/lib/api/user";
@@ -53,9 +53,9 @@ export default function MyPageContainer({
   const {
     register: registerName,
     handleSubmit: handleSubmitName,
-    formState: { errors: nameErrors },
+    formState: { errors: nameErrors, isDirty: isNameDirty },
     trigger: triggerName,
-    watch: watchName,
+    getValues: getNameValues,
   } = useForm<NameFormData>({
     mode: "onBlur",
     defaultValues: {
@@ -63,10 +63,9 @@ export default function MyPageContainer({
     },
   });
 
-  const currentName = watchName("name");
-
   // 변경사항이 있는지 확인
-  const hasNameChanged = currentName !== initialNickname;
+  const hasNameChanged =
+    isNameDirty && getNameValues("name") !== initialNickname;
   const hasImageChanged =
     selectedFile !== null ||
     (previewUrl && previewUrl !== (initialImage || undefined));
@@ -76,6 +75,7 @@ export default function MyPageContainer({
     register: registerPassword,
     handleSubmit: handleSubmitPassword,
     formState: { errors: passwordErrors },
+    getValues: getPasswordValues,
     watch: watchPassword,
     trigger: triggerPassword,
     reset: resetPassword,
@@ -83,15 +83,13 @@ export default function MyPageContainer({
     mode: "onBlur",
   });
 
-  const newPassword = watchPassword("newPassword");
-  const newPasswordConfirmation = watchPassword("newPasswordConfirmation");
-
   // 비밀번호 변경 모달에서 에러가 있는지 확인
   const hasPasswordErrors =
     !!passwordErrors.newPassword || !!passwordErrors.newPasswordConfirmation;
 
   // 비밀번호 필드가 비어있는지 확인
-  const isPasswordEmpty = !newPassword || !newPasswordConfirmation;
+  const isPasswordEmpty =
+    !watchPassword("newPassword") || !watchPassword("newPasswordConfirmation");
 
   const handleClose = () => {
     setOpenModal(null);
@@ -252,7 +250,8 @@ export default function MyPageContainer({
           centered={false}
           topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
           onSubmit={handleSubmitName(onNameSubmit)}
-          profile={
+        >
+          <div className="w-full">
             <div className="w-full flex flex-col gap-4 sm:gap-6 lg:gap-8">
               <label className="text-lg sm:text-xl font-bold">계정 설정</label>
               <div className="relative inline-block w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64">
@@ -265,59 +264,61 @@ export default function MyPageContainer({
                 />
               </div>
             </div>
-          }
-          register={registerName}
-          errors={nameErrors}
-          trigger={triggerName}
-          input={[
-            {
-              name: "name",
-              label: "이름",
-              placeholder: "이름을 입력해주세요.",
-              variant: nameErrors.name ? "error" : "default",
-              size: "large",
-              type: "text",
-              full: true,
-              onKeyDown: handleNameKeyDown,
-              registerOptions: {
-                required: "이름은 필수 입력입니다.",
-                maxLength: {
-                  value: 20,
-                  message: "이름은 최대 20자까지 가능합니다.",
-                },
-              },
-              message: nameErrors.name?.message,
-              showError: !!nameErrors.name,
-            } as InputConfig,
-            {
-              label: "이메일",
-              placeholder: "이메일을 입력해주세요.",
-              variant: "default",
-              size: "large",
-              type: "email",
-              full: true,
-              value: initialEmail || "",
-              disabled: true,
-            } as InputConfig,
-            {
-              label: "비밀번호",
-              placeholder: "비밀번호를 입력해주세요.",
-              variant: "default",
-              size: "large",
-              type: "password",
-              rightElement: (
-                <Button
-                  label="변경하기"
-                  variant="solid"
-                  size="xSmall"
-                  onClick={() => setOpenModal("password-change")}
-                />
-              ),
-              full: true,
-              disabled: true,
-            } as InputConfig,
-          ]}
-          option={
+          </div>
+          <div className="w-full flex flex-col items-center gap-24 mt-24">
+            <div className="w-full">
+              <Input
+                full
+                label="이름"
+                placeholder="이름을 입력해주세요."
+                variant={nameErrors.name ? "error" : "default"}
+                size="large"
+                type="text"
+                message={nameErrors.name?.message}
+                showError={!!nameErrors.name}
+                onKeyDown={handleNameKeyDown}
+                {...registerName("name", {
+                  required: "이름은 필수 입력입니다.",
+                  maxLength: {
+                    value: 20,
+                    message: "이름은 최대 20자까지 가능합니다.",
+                  },
+                })}
+              />
+            </div>
+            <div className="w-full">
+              <Input
+                full
+                label="이메일"
+                placeholder="이메일을 입력해주세요."
+                variant="default"
+                size="large"
+                type="email"
+                value={initialEmail || ""}
+                disabled={true}
+              />
+            </div>
+            <div className="w-full">
+              <Input
+                full
+                label="비밀번호"
+                placeholder="비밀번호를 입력해주세요."
+                variant="default"
+                size="large"
+                type="password"
+                rightElement={
+                  <Button
+                    label="변경하기"
+                    variant="solid"
+                    size="xSmall"
+                    onClick={() => setOpenModal("password-change")}
+                  />
+                }
+                disabled={true}
+              />
+            </div>
+          </div>
+          <div className="mt-12 w-full flex justify-start">
             <div className="flex flex-col gap-4">
               {nameError && (
                 <p className="w-full text-xs text-status-danger">{nameError}</p>
@@ -330,17 +331,19 @@ export default function MyPageContainer({
                 <span>회원 탈퇴하기</span>
               </div>
             </div>
-          }
-          optionAlign="start"
-          button={{
-            label: "수정하기",
-            variant: "solid",
-            size: "large",
-            full: true,
-            disabled: isSubmitting || !hasChanges,
-            loading: isSubmitting,
-          }}
-        />
+          </div>
+          <div className="mt-40 w-full flex justify-center">
+            <Button
+              full
+              label="수정하기"
+              variant="solid"
+              size="large"
+              type="submit"
+              disabled={isSubmitting || !hasChanges}
+              loading={isSubmitting}
+            />
+          </div>
+        </Form>
       </div>
 
       {/* 비밀번호 변경 모달 */}
@@ -388,7 +391,8 @@ export default function MyPageContainer({
             ...registerPassword("newPasswordConfirmation", {
               required: "비밀번호 확인을 입력해주세요.",
               validate: (value) =>
-                value === newPassword || "비밀번호가 일치하지 않습니다.",
+                value === getPasswordValues("newPassword") ||
+                "비밀번호가 일치하지 않습니다.",
               onBlur: () => triggerPassword("newPasswordConfirmation"),
             }),
             message: passwordErrors.newPasswordConfirmation?.message,

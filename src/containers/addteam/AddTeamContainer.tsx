@@ -3,10 +3,11 @@
 import Form from "@/components/Common/Form/Form";
 import FormFooter from "@/components/Common/Form/FormFooter";
 import Avatar from "@/components/Common/Avatar/Avatar";
+import Input from "@/components/Common/Input/Input";
+import Button from "@/components/Common/Button/Button";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { InputConfig } from "@/components/Common/Form/types";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { postGroup } from "@/lib/api/group";
 import { postImage } from "@/lib/api/image";
@@ -110,7 +111,8 @@ export default function AddTeamContainer() {
           topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
           onSubmit={handleSubmit(onSubmit)}
           title="팀 생성하기"
-          profile={
+        >
+          <div className="w-full">
             <div className="w-full flex flex-col gap-4 sm:gap-6 lg:gap-8">
               <label className="text-sm sm:text-md text-text-primary">
                 팀 프로필
@@ -126,46 +128,47 @@ export default function AddTeamContainer() {
                 />
               </div>
             </div>
-          }
-          register={register}
-          errors={errors}
-          trigger={trigger}
-          input={[
-            {
-              name: "teamName",
-              label: "팀 이름",
-              placeholder: "팀 이름을 입력해주세요.",
-              variant: errors.teamName || addTeamError ? "error" : "default",
-              size: "large",
-              type: "text",
-              full: true,
-              registerOptions: {
-                required: "팀 이름은 필수 입력입니다.",
-                maxLength: {
-                  value: 30,
-                  message: "팀 이름은 30자 이하로 입력해주세요.",
-                },
-              },
-              message:
-                errors.teamName?.message || (addTeamError ? "" : undefined),
-              showError: !!errors.teamName || !!addTeamError,
-            } as InputConfig,
-          ]}
-          optionAlign="start"
-          option={
-            addTeamError && (
+          </div>
+          <div className="w-full flex flex-col items-center gap-24 mt-24">
+            <div className="w-full">
+              <Input
+                full
+                label="팀 이름"
+                placeholder="팀 이름을 입력해주세요."
+                variant={errors.teamName || addTeamError ? "error" : "default"}
+                size="large"
+                type="text"
+                message={
+                  errors.teamName?.message || (addTeamError ? "" : undefined)
+                }
+                showError={!!errors.teamName || !!addTeamError}
+                {...register("teamName", {
+                  required: "팀 이름은 필수 입력입니다.",
+                  maxLength: {
+                    value: 30,
+                    message: "팀 이름은 30자 이하로 입력해주세요.",
+                  },
+                })}
+              />
+            </div>
+          </div>
+          {addTeamError && (
+            <div className="mt-12 w-full flex justify-start">
               <p className="text-xs text-status-danger">{addTeamError}</p>
-            )
-          }
-          button={{
-            label: "생성하기",
-            variant: "solid",
-            size: "large",
-            full: true,
-            disabled: isSubmitting,
-            loading: isSubmitting,
-          }}
-        />
+            </div>
+          )}
+          <div className="mt-40 w-full flex justify-center">
+            <Button
+              full
+              label="생성하기"
+              variant="solid"
+              size="large"
+              type="submit"
+              disabled={isSubmitting}
+              loading={isSubmitting}
+            />
+          </div>
+        </Form>
         <FormFooter>
           <span className="text-sm sm:text-md">
             팀 이름은 회사명이나 모임 이름 등으로 설정하면 좋아요.

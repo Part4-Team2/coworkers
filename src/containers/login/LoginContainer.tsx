@@ -5,11 +5,12 @@ import Link from "next/link";
 import FormFooter from "@/components/Common/Form/FormFooter";
 import SocialForm from "@/components/Common/Form/SocialForm";
 import Modal from "@/components/Common/Modal/Modal";
+import Input from "@/components/Common/Input/Input";
+import Button from "@/components/Common/Button/Button";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useHeaderStore } from "@/store/headerStore";
-import { InputConfig } from "@/components/Common/Form/types";
 import { postSignin } from "@/lib/api/auth";
 import { postUserResetPassword } from "@/lib/api/user";
 import { SignInRequestBody } from "@/lib/types/auth";
@@ -163,62 +164,61 @@ export default function LoginContainer() {
           topOffsetClassName="pt-40 sm:pt-56 lg:pt-64"
           onSubmit={handleSubmit(onSubmit)}
           title="로그인"
-          register={register}
-          errors={errors}
-          trigger={trigger}
-          input={[
-            {
-              name: "email",
-              label: "이메일",
-              placeholder: "이메일을 입력해주세요.",
-              variant: errors.email || loginError ? "error" : "default",
-              size: "large",
-              type: "email",
-              full: true,
-              registerOptions: {
-                required: "이메일은 필수 입력입니다.",
-                pattern: {
-                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: "이메일 형식으로 작성해 주세요.",
-                },
-              },
-              message: errors.email?.message || (loginError ? "" : undefined),
-              showError: !!errors.email || !!loginError,
-            } as InputConfig,
-            {
-              name: "password",
-              label: "비밀번호",
-              placeholder:
-                "비밀번호 (영문, 숫자, 특수문자 포함, 8-50자)를 입력해주세요.",
-              variant: errors.password || loginError ? "error" : "default",
-              size: "large",
-              type: "password",
-              allowPasswordToggle: true,
-              full: true,
-              registerOptions: {
-                required: "비밀번호는 필수 입력입니다.",
-                minLength: {
-                  value: 8,
-                  message: "비밀번호는 최소 8자 이상입니다.",
-                },
-                maxLength: {
-                  value: 50,
-                  message: "비밀번호는 최대 50자까지 가능합니다.",
-                },
-                pattern: {
-                  value:
-                    /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]+$/,
-                  message:
-                    "비밀번호는 숫자, 영문, 특수문자를 각각 최소 1개 이상 포함해야 합니다.",
-                },
-              },
-              message:
-                errors.password?.message || (loginError ? "" : undefined),
-              showError: !!errors.password || !!loginError,
-            } as InputConfig,
-          ]}
-          optionAlign="start"
-          option={
+        >
+          <div className="w-full flex flex-col items-center gap-24 mt-24">
+            <div className="w-full">
+              <Input
+                full
+                label="이메일"
+                placeholder="이메일을 입력해주세요."
+                variant={errors.email || loginError ? "error" : "default"}
+                size="large"
+                type="email"
+                message={errors.email?.message || (loginError ? "" : undefined)}
+                showError={!!errors.email || !!loginError}
+                {...register("email", {
+                  required: "이메일은 필수 입력입니다.",
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: "이메일 형식으로 작성해 주세요.",
+                  },
+                })}
+              />
+            </div>
+            <div className="w-full">
+              <Input
+                full
+                label="비밀번호"
+                placeholder="비밀번호 (영문, 숫자, 특수문자 포함, 8-50자)를 입력해주세요."
+                variant={errors.password || loginError ? "error" : "default"}
+                size="large"
+                type="password"
+                allowPasswordToggle={true}
+                message={
+                  errors.password?.message || (loginError ? "" : undefined)
+                }
+                showError={!!errors.password || !!loginError}
+                {...register("password", {
+                  required: "비밀번호는 필수 입력입니다.",
+                  minLength: {
+                    value: 8,
+                    message: "비밀번호는 최소 8자 이상입니다.",
+                  },
+                  maxLength: {
+                    value: 50,
+                    message: "비밀번호는 최대 50자까지 가능합니다.",
+                  },
+                  pattern: {
+                    value:
+                      /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]+$/,
+                    message:
+                      "비밀번호는 숫자, 영문, 특수문자를 각각 최소 1개 이상 포함해야 합니다.",
+                  },
+                })}
+              />
+            </div>
+          </div>
+          <div className="mt-12 w-full flex justify-start">
             <div className="flex flex-col gap-4 w-full">
               {loginError && (
                 <p className="text-xs text-status-danger">{loginError}</p>
@@ -230,16 +230,19 @@ export default function LoginContainer() {
                 비밀번호를 잊으셨나요?
               </div>
             </div>
-          }
-          button={{
-            label: "로그인",
-            variant: "solid",
-            size: "large",
-            full: true,
-            disabled: isSubmitting,
-            loading: isSubmitting,
-          }}
-        />
+          </div>
+          <div className="mt-40 w-full flex justify-center">
+            <Button
+              full
+              label="로그인"
+              variant="solid"
+              size="large"
+              type="submit"
+              disabled={isSubmitting}
+              loading={isSubmitting}
+            />
+          </div>
+        </Form>
         <FormFooter>
           <span className="text-xs sm:text-sm text-text-primary">
             아직 계정이 없으신가요?
