@@ -3,95 +3,325 @@
 ## 📖 목차
 
 1. [개요](#개요)
-2. [캐싱 아키텍처](#캐싱-아키텍처)
-3. [캐싱 적용 방법](#캐싱-적용-방법)
-4. [캐시 시간 변경](#캐시-시간-변경)
+2. [파일 분리 전략 (use cache vs use server)](#파일-분리-전략-use-cache-vs-use-server)
+3. [캐싱 가능 여부 판단](#캐싱-가능-여부-판단)
+4. [캐싱 적용 방법](#캐싱-적용-방법)
 5. [캐시 무효화](#캐시-무효화)
-6. [모니터링](#모니터링)
-7. [주의사항](#주의사항)
+6. [주의사항](#주의사항)
 
 ---
 
 ## 개요
 
-이 프로젝트는 **Next.js 16의 Data Cache**를 사용하여 서버 사이드 캐싱을 구현합니다.
+이 프로젝트는 **Next.js 16의 Data Cache**를 활용하되, **보안을 최우선**으로 합니다.
 
-### ✅ 캐싱 적용된 페이지
+### ✅ 캐싱 적용 (공개 데이터)
 
-- `/[teamid]` - 팀 상세 페이지 (`getGroup()`) - **force-cache**
+**인증이 필요 없는 공개 API만 캐싱합니다:**
 
-### ❌ 캐싱 미적용 (보안)
+- `/boards` - 자유게시판 목록 (`getArticles()`) - **force-cache (2분)**
+- `/boards/[id]` - 게시글 상세 (`getArticle()`) - **force-cache (1분)**
 
+### ❌ 캐싱 미적용 (권한 기반 데이터)
+
+**Authorization 헤더를 사용하는 모든 API는 캐싱하지 않습니다:**
+
+- `/[teamid]` - 팀 상세 페이지 (`getGroup()`) - **no-store**
 - `/teamlist` - 팀 목록 페이지 (`getUserGroups()`) - **no-store**
 - `/myhistory` - 마이 히스토리 페이지 (`getUserHistory()`) - **no-store**
 
-> **중요**: 사용자별 다른 데이터를 반환하는 API는 보안상 캐싱하지 않습니다.
-
-### 🎯 주요 특징
-
-- **리소스 ID 기반 캐싱**: URL에 ID가 포함된 경우 안전하게 캐싱 (e.g., `/groups/{id}`)
-- **중앙 집중식 설정**: `src/constants/cache.ts`에서 일괄 관리
-- **자동 재검증**: 설정된 시간 후 자동으로 캐시 갱신
-- **OpenTelemetry 모니터링**: 캐시 히트/미스 추적
+> **중요**: Authorization 헤더는 캐시 키에 포함되지 않습니다.
+> `force-cache` 사용 시 첫 사용자의 데이터가 모든 사용자에게 반환되어 **심각한 보안 문제** 발생!
 
 ---
 
-## 캐싱 아키텍처
+## 파일 분리 전략 (use cache vs use server)
 
-### 핵심 원리
+### 왜 파일을 분리하는가?
 
-Next.js 16에서 `cookies()`와 같은 동적 데이터 소스는 캐시 함수 내부에서 사용할 수 없습니다.
+Next.js 15+에서 **"use cache"**와 **"use server"** 지시문은 **같은 파일에서 함께 사용할 수 없습니다.**
 
 ```typescript
-// ❌ 잘못된 예 - 캐싱 불가
-export async function getGroup(groupId: string) {
-  const cookieStore = await cookies(); // Error!
-  const accessToken = cookieStore.get("accessToken")?.value;
+// ❌ 불가능 - 같은 파일에 두 지시문 혼용
+"use server";
+"use cache"; // Error!
 
-  const response = await fetch(`/api/groups/${groupId}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    cache: "force-cache",
+export async function createGroup() { ... }
+export async function getGroup() { ... }
+```
+
+### 현재 프로젝트 구조
+
+```
+src/lib/api/
+├── group.ts           → "use server" (Server Actions - 생성/수정/삭제)
+└── group-queries.ts   → "use cache"  (조회 함수 - 캐싱)
+```
+
+#### group.ts - Server Actions ("use server")
+
+```typescript
+"use server";
+
+import { revalidatePath } from "next/cache";
+
+/**
+ * 그룹 상세 조회 (캐싱 없음)
+ * - cache: "no-store" 사용
+ * - React cache()로 단일 요청 내 중복 방지만 적용
+ */
+export async function getGroup(
+  groupId: string,
+  accessToken?: string | null
+): Promise<ApiResult<GroupDetailResponse>> {
+  const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+    accessToken,
+    cache: "no-store",
   });
+  // ...
 }
 
-// ✅ 올바른 예 - 캐싱 가능
-// Page.tsx
-const cookieStore = await cookies();
-const accessToken = cookieStore.get("accessToken")?.value;
-const groupData = await getGroup(groupId, accessToken);
+/**
+ * 할 일 목록 생성
+ * - POST 요청이므로 캐싱 안됨
+ * - 완료 후 revalidatePath로 캐시 무효화
+ */
+export async function createTaskList(
+  groupId: string,
+  name: string
+): Promise<ApiResult<TaskListResponse>> {
+  const response = await fetchApi(`${BASE_URL}/groups/${groupId}/task-lists`, {
+    method: "POST",
+    body: JSON.stringify({ name }),
+    cache: "no-store",
+  });
 
-// API Function
+  if (response.ok) {
+    revalidatePath(`/${groupId}`); // 캐시 무효화
+  }
+  // ...
+}
+
+// updateTaskList, deleteTaskList 등 Server Actions...
+```
+
+#### group-queries.ts - 조회 함수 ("use cache")
+
+```typescript
+"use cache";
+
+import type { ApiResult, GroupDetailResponse } from "./group";
+
+/**
+ * 그룹 상세 정보 조회 (Next.js 16 "use cache" 적용)
+ *
+ * 캐싱 전략:
+ * - "use cache" 지시어로 함수 레벨 캐싱
+ * - userId를 인자로 받아 캐시 키에 자동 포함 → 사용자별 분리
+ * - 캐시 키: "getGroup-{groupId}-{userId}"
+ *
+ * 작동 원리:
+ * - 사용자 A (userId: 123): 캐시 키 "getGroup-3740-123"
+ * - 사용자 B (userId: 456): 캐시 키 "getGroup-3740-456"
+ * - 결과: 완전히 분리된 캐시, 보안 보장 ✅
+ *
+ * 성능:
+ * - 첫 요청: 80ms (API 호출)
+ * - 이후 요청: 3-5ms (캐시 히트)
+ */
+export async function getGroup(
+  groupId: string,
+  userId: string,
+  accessToken?: string | null
+): Promise<ApiResult<GroupDetailResponse>> {
+  const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+    accessToken,
+    // "use cache"가 활성화되어 있으면 자동으로 캐싱됨
+  });
+  // ...
+}
+```
+
+### 핵심 차이점
+
+| 항목            | group.ts                        | group-queries.ts        |
+| --------------- | ------------------------------- | ----------------------- |
+| **지시문**      | `"use server"`                  | `"use cache"`           |
+| **용도**        | Server Actions (생성/수정/삭제) | 조회 함수 (GET)         |
+| **캐싱**        | `cache: "no-store"`             | 자동 캐싱 (userId 기반) |
+| **함수 예시**   | createTaskList, updateTaskList  | getGroup                |
+| **userId 인자** | 불필요                          | 필수 (캐시 키 분리용)   |
+| **성능**        | 40-80ms (매번 API 호출)         | 3-5ms (캐시 히트)       |
+| **캐시 무효화** | revalidatePath 호출             | 불필요 (읽기 전용)      |
+
+### 사용 예시
+
+#### 페이지에서 조회 (group-queries.ts 사용)
+
+```typescript
+// app/(route)/[teamid]/page.tsx
+import { getGroup } from "@/lib/api/group-queries"; // ← queries 파일
+
+export default async function TeamPage({ params }) {
+  const { teamid } = await params;
+
+  // 1. 인증 체크
+  const user = await getUser();
+
+  // 2. 캐싱된 데이터 조회 (userId 포함)
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value || null;
+
+  const groupData = await getGroup(teamid, user.id.toString(), accessToken);
+
+  return <TeamContent group={groupData} />;
+}
+```
+
+#### 클라이언트에서 생성/수정 (group.ts 사용)
+
+```typescript
+// components/TaskListCreateModal.tsx
+"use client";
+
+import { createTaskList } from "@/lib/api/group"; // ← 기본 파일
+
+export function TaskListCreateModal({ groupId }: { groupId: string }) {
+  const handleSubmit = async (name: string) => {
+    const result = await createTaskList(groupId, name);
+
+    if (result.success) {
+      // revalidatePath가 자동으로 캐시 무효화
+      alert("할 일 목록이 생성되었습니다.");
+    }
+  };
+
+  // ...
+}
+```
+
+### 왜 이렇게 설계했는가?
+
+#### 1. Next.js 제약사항
+
+- `"use cache"`와 `"use server"`는 파일 레벨 지시문
+- 동일 파일에서 혼용 불가
+
+#### 2. 기능별 분리
+
+- **group.ts**: 상태 변경 (POST/PATCH/DELETE) → 캐싱 금지
+- **group-queries.ts**: 조회 (GET) → 캐싱 최적화
+
+#### 3. 보안 강화
+
+- `userId`를 캐시 키에 포함하여 사용자별 캐시 분리
+- Authorization 헤더 의존성 제거 (캐시 안전성 확보)
+
+### 다른 접근 방식과 비교
+
+#### Repository 패턴 (블로그 예시)
+
+```typescript
+// post.repository.ts - 조회만
+export const getPostList = async (props: GetPostListParams) => {
+  'use cache'  // ← 함수 내부에 선언
+  // ...
+}
+
+// post.actions.ts - Server Actions만
+"use server";
+export async function createPost(data: CreatePost) { ... }
+```
+
+**특징:**
+
+- 함수 내부에 `'use cache'` 선언 (파일 레벨 아님)
+- 조회 로직이 이미 Repository로 분리됨
+
+#### 현재 프로젝트 방식
+
+```typescript
+// group-queries.ts - 파일 레벨 "use cache"
+"use cache";
+export async function getGroup(...) { ... }
+
+// group.ts - 파일 레벨 "use server"
+"use server";
+export async function createTaskList(...) { ... }
+```
+
+**특징:**
+
+- 파일 레벨에서 명확히 분리
+- 기존 코드가 혼재되어 있어서 파일 분리가 필요
+
+**결론: 두 방식 모두 올바르며, 프로젝트 구조에 따라 선택하면 됩니다.**
+
+---
+
+## 캐싱 가능 여부 판단
+
+### ✅ 캐싱 가능한 경우
+
+**다음 조건을 모두 만족해야 합니다:**
+
+1. **Authorization 헤더 불필요** (공개 API)
+2. **모든 사용자에게 동일한 데이터 반환**
+3. **민감한 개인 정보 미포함**
+
+**예시:**
+
+```typescript
+// ✅ 공개 게시판 - 캐싱 가능
+export async function getArticles() {
+  const response = await fetchApi(`${BASE_URL}/articles`, {
+    // Authorization 헤더 없음
+    cache: "force-cache",
+    next: { revalidate: 120 },
+  });
+}
+```
+
+### ❌ 캐싱 불가능한 경우
+
+**다음 중 하나라도 해당하면 캐싱 불가:**
+
+1. **Authorization 헤더 필요** (권한 기반 API)
+2. **사용자별로 다른 데이터 반환**
+3. **멤버 정보, role, 권한 등 민감 데이터 포함**
+
+**예시:**
+
+```typescript
+// ❌ 팀 상세 정보 - 캐싱 불가
 export async function getGroup(groupId: string, accessToken?: string | null) {
-  const response = await fetchApi(`/api/groups/${groupId}`, {
-    accessToken, // 파라미터로 전달
-    cache: "force-cache",
-    next: { revalidate: 60, tags: [`group-${groupId}`] },
+  const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+    accessToken, // Authorization 헤더로 변환됨
+    cache: "no-store", // 반드시 no-store!
   });
 }
 ```
 
-### 데이터 흐름
+### 왜 권한 기반 API는 캐싱하면 안 되는가?
 
+**보안 취약점:**
+
+```typescript
+// 시나리오: getGroup에 force-cache 적용 시
+1. 멤버 A → getGroup(3740, tokenA)
+   → 백엔드: "tokenA 검증 ✅ 멤버 정보 반환"
+   → Next.js: 캐시 저장 (키: /groups/3740)
+
+2. 비멤버 B → getGroup(3740, tokenB)
+   → Next.js: "캐시 히트!"
+   → A의 멤버 정보 반환 ❌ (백엔드 검증 우회!)
 ```
-┌─────────────┐
-│  Page.tsx   │ cookies() 호출 → accessToken 읽기
-└──────┬──────┘
-       │ accessToken 전달
-       ▼
-┌─────────────┐
-│  API 함수    │ cache: "force-cache" + revalidate
-└──────┬──────┘
-       │ accessToken을 헤더로 전환
-       ▼
-┌─────────────┐
-│  fetchApi   │ createHeadersWithToken(accessToken)
-└──────┬──────┘
-       │ Authorization 헤더 추가
-       ▼
-┌─────────────┐
-│ External API│
-└─────────────┘
-```
+
+**문제점:**
+
+- Authorization 헤더는 **캐시 키에 미포함**
+- 캐시 히트 시 **백엔드로 요청이 가지 않음**
+- 권한 검증 완전 우회 → **민감 데이터 노출**
 
 ---
 
@@ -102,144 +332,58 @@ export async function getGroup(groupId: string, accessToken?: string | null) {
 ```typescript
 // src/constants/cache.ts
 export const REVALIDATE_TIME = {
-  NEW_FEATURE: 120, // 2분 - 새 기능 데이터
+  ARTICLE_LIST: 120, // 2분 - 게시글 목록
+  ARTICLE_DETAIL: 60, // 1분 - 게시글 상세
 } as const;
 
 export const REVALIDATE_TAG = {
-  NEW_FEATURE: (id: string) => `new-feature-${id}`,
+  ARTICLE_LIST: "article-list",
+  ARTICLE: (id: number) => `article-${id}`,
 } as const;
 ```
 
-### 2단계: API 함수 수정
+### 2단계: API 함수에 캐싱 적용
 
 ```typescript
-// src/lib/api/새파일.ts
-import { fetchApi } from "@/utils/api";
-import { BASE_URL } from "@/lib/api";
+// src/lib/api/boards.ts
 import { REVALIDATE_TIME, REVALIDATE_TAG } from "@/constants/cache";
 
 /**
- * 새 기능 데이터 조회
+ * 게시글 목록 조회
  *
- * 캐싱 전략:
- * - URL에 리소스 ID가 포함되어 있어 안전하게 캐싱 가능
- * - 백엔드에서 권한 검증을 수행하므로 비멤버는 오류 반환
- *
- * @param featureId 기능 ID
- * @param accessToken 액세스 토큰 (선택사항, 외부에서 cookies()로 읽어서 전달)
+ * ✅ 공개 API - 인증 불필요하므로 캐싱 안전
  */
-export async function getFeature(
-  featureId: string,
-  accessToken?: string | null
-) {
-  try {
-    const response = await fetchApi(`${BASE_URL}/features/${featureId}`, {
-      accessToken,
-      cache: "force-cache",
-      next: {
-        revalidate: REVALIDATE_TIME.NEW_FEATURE,
-        tags: [REVALIDATE_TAG.NEW_FEATURE(featureId)],
-      },
-    });
-
-    if (!response.ok) {
-      return { success: false, error: "데이터 로드 실패" };
-    }
-
-    const data = await response.json();
-    return { success: true, data };
-  } catch {
-    return { success: false, error: "서버 오류" };
-  }
-}
-```
-
-### 3단계: 페이지에서 사용
-
-```typescript
-// src/app/(route)/새페이지/page.tsx
-import { cookies } from "next/headers";
-import { measureSSR } from "@/utils/measure";
-import { getFeature } from "@/lib/api/새파일";
-
-export default async function NewFeaturePage() {
-  // 1. cookies()를 페이지에서 호출
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value || null;
-
-  // 2. measureSSR로 래핑 (성능 모니터링)
-  const getFeatureWithMeasure = measureSSR({
-    name: "getFeature",
-    fn: () => getFeature("feature-id", accessToken),
+export async function getArticles() {
+  const response = await fetchApi(`${BASE_URL}/articles`, {
+    cache: "force-cache",
+    next: {
+      revalidate: REVALIDATE_TIME.ARTICLE_LIST,
+      tags: [REVALIDATE_TAG.ARTICLE_LIST],
+    },
   });
 
-  // 3. 데이터 가져오기
-  const { result: featureData } = await getFeatureWithMeasure();
-
-  return <FeatureContainer data={featureData} />;
+  if (!response.ok) throw new Error("게시글 조회 실패");
+  return response.json();
 }
 ```
 
-### 변경(mutation) 작업 시 캐시 무효화
+### 3단계: 변경 작업 시 캐시 무효화
 
-```typescript
-// src/lib/api/새파일.ts
-import { revalidatePath } from "next/cache";
-
-export async function updateFeature(featureId: string, data: any) {
-  const response = await fetchApi(`${BASE_URL}/features/${featureId}`, {
-    method: "PATCH",
+````typescript
+// 게시글 생성 후 캐시 무효화
+export async function postArticle(data: CreateArticle) {
+  const response = await fetchApi(`${BASE_URL}/articles`, {
+    method: "POST",
     body: JSON.stringify(data),
-    cache: "no-store", // 변경 작업은 캐싱하지 않음
+    cache: "no-store", // POST는 캐싱 안함
   });
 
   if (response.ok) {
-    // 캐시 무효화
-    revalidatePath(`/features/${featureId}`);
-    // 또는
-    // revalidateTag(REVALIDATE_TAG.NEW_FEATURE(featureId));
+    revalidatePath("/boards"); // 게시판 목록 캐시 무효화
   }
 
-  return response;
+  return response.json();
 }
-```
-
----
-
-## 캐시 시간 변경
-
-### 중앙 집중식 관리
-
-**모든 캐시 시간은 `src/constants/cache.ts`에서 관리됩니다.**
-
-```typescript
-// src/constants/cache.ts
-export const REVALIDATE_TIME = {
-  GROUP_DETAIL: 60, // 60초 → 변경하려면 이 값만 수정
-  USER_HISTORY: 120, // 120초
-} as const;
-```
-
-### 시간 변경 가이드
-
-| 데이터 변경 빈도 | 권장 시간                  | 예시            |
-| ---------------- | -------------------------- | --------------- |
-| 거의 변경 안됨   | 1시간 ~ 1일 (3600 ~ 86400) | 공지사항, 통계  |
-| 가끔 변경        | 5분 ~ 10분 (300 ~ 600)     | 팀 정보, 프로필 |
-| 자주 변경        | 30초 ~ 1분 (30 ~ 60)       | 댓글, 좋아요    |
-| 실시간           | 10초 또는 no-store         | 채팅, 알림      |
-
-### 변경 예시
-
-```typescript
-// Before
-GROUP_DETAIL: 60,  // 1분
-
-// After - 5분으로 변경
-GROUP_DETAIL: 300,  // 5분
-
-// 모든 getGroup() 호출에 자동 적용됨!
-```
 
 ---
 
@@ -253,7 +397,7 @@ import { revalidatePath } from "next/cache";
 // 특정 페이지의 캐시 무효화
 revalidatePath(`/${groupId}`);
 revalidatePath("/teamlist");
-```
+````
 
 ### 방법 2: revalidateTag
 
@@ -268,7 +412,7 @@ revalidateTag(REVALIDATE_TAG.GROUP_LIST);
 
 ### 사용 시점
 
-```typescript
+````typescript
 // 팀 생성 후
 export async function createGroup(data: any) {
   const response = await fetchApi(`${BASE_URL}/groups`, {
@@ -282,93 +426,237 @@ export async function createGroup(data: any) {
   }
 }
 
-// 팀 정보 수정 후
-export async function updateGroup(groupId: string, data: any) {
-  const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+---
+
+## 캐시 무효화
+
+### revalidatePath 사용
+
+```typescript
+import { revalidatePath } from "next/cache";
+
+// 게시글 생성 후 캐시 무효화
+export async function postArticle(data: CreateArticle) {
+  const response = await fetchApi(`${BASE_URL}/articles`, {
+    method: "POST",
+    body: JSON.stringify(data),
+    cache: "no-store",
+  });
+
+  if (response.ok) {
+    revalidatePath("/boards"); // 게시판 목록 페이지 캐시 무효화
+  }
+
+  return response.json();
+}
+
+// 게시글 수정 후 캐시 무효화
+export async function patchArticle(articleId: number, data: CreateArticle) {
+  const response = await fetchApi(`${BASE_URL}/articles/${articleId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
     cache: "no-store",
   });
 
   if (response.ok) {
-    revalidatePath(`/${groupId}`); // 해당 팀 페이지 캐시 무효화
+    revalidatePath(`/boards/${articleId}`); // 특정 게시글 페이지 캐시 무효화
+    revalidatePath("/boards"); // 목록도 갱신
   }
+
+  return response.json();
 }
-```
+````
 
 ---
 
-## 모니터링
+## Next.js 16 "use cache" 방식 (향후 개선)
 
-### 개발 환경 로그
+### 현재 구현의 한계
 
-```bash
-# 개발 서버 실행
-npm run dev
+현재는 `no-store`를 사용하지만, Next.js 16의 **"use cache" 지시어**를 활용하면 더 효율적입니다.
 
-# 콘솔 출력 예시
-[Measure] getGroup: 3.45ms ✅ (캐시 가능성)  # CACHE HIT
-[Measure] getGroup: 178.54ms ❌ (API 호출)   # CACHE MISS
+### "use cache"가 해결하는 문제
+
+```typescript
+// 현재 방식: 매번 API 호출
+export async function getGroup(groupId: string, accessToken?: string | null) {
+  const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+    accessToken,
+    cache: "no-store", // 40-80ms
+  });
+}
+
+// "use cache" 방식: 사용자별 캐싱 + 보안
+("use cache");
+export async function getGroup(groupId: string, userId: string) {
+  // userId가 캐시 키에 자동 포함 → 사용자별 분리
+  const response = await fetchApi(`${BASE_URL}/groups/${groupId}`);
+  return response.json(); // 3-5ms (캐시 히트 시)
+}
 ```
 
-### 프로덕션 로그
+### 적용 방법
 
-```bash
-# 프로덕션 빌드 및 실행
-npm run build && npm start
+#### 1. next.config.ts 설정
 
-# 콘솔 출력 예시
-[getGroup] CACHE_HIT 3.4ms
-[getGroup] CACHE_MISS 180.5ms
+```typescript
+// next.config.ts
+const nextConfig: NextConfig = {
+  cacheComponents: true, // "use cache" 활성화
+};
 ```
 
-### OpenTelemetry 모니터링
+#### 2. API 함수 수정
 
-OpenTelemetry로 수집되는 데이터:
+```typescript
+"use cache"; // ← 파일 최상단 또는 함수 위
 
-- `cache.hit`: true/false
-- `duration.ms`: 응답 시간
-- `cache.threshold.ms`: 캐시 히트 판정 임계값
-- `function.name`: 함수 이름
+/**
+ * 그룹 상세 정보 조회
+ *
+ * userId를 인자로 받아 사용자별 캐시 분리
+ */
+export async function getGroup(groupId: string, userId: string) {
+  // userId가 자동으로 캐시 키에 포함됨
+  const response = await fetchApi(`${BASE_URL}/groups/${groupId}`);
 
-APM 도구 (Datadog, New Relic 등)에서 확인 가능:
+  if (!response.ok) {
+    throw new Error("그룹 조회 실패");
+  }
+
+  return response.json();
+}
+```
+
+#### 3. 페이지에서 사용
+
+```typescript
+// app/[teamid]/page.tsx
+export default async function TeamPage({ params }) {
+  const { teamid } = await params;
+
+  // 1. 인증 체크 (매번 실행, 캐싱 안됨)
+  const user = await getUser();
+
+  // 2. 데이터 조회 (userId 기반 캐싱)
+  const group = await getGroup(teamid, user.id);
+
+  return <TeamContent group={group} />;
+}
+```
+
+### 작동 방식
 
 ```
-# 캐시 히트율
-cache.hit=true 비율 / 전체 요청
+사용자 A (userId: 123):
+1. getUser() 실행 → 인증 체크 ✅
+2. getGroup(teamid, "123") → 캐시 키: `getGroup-${teamid}-123`
+3. 첫 요청: 80ms → 캐시 저장
+4. 이후 요청: 3ms (캐시 사용)
 
-# 평균 응답 시간
-HIT: 2-5ms
-MISS: 100-200ms
+사용자 B (userId: 456):
+1. getUser() 실행 → 인증 체크 ✅
+2. getGroup(teamid, "456") → 캐시 키: `getGroup-${teamid}-456`
+3. A와 완전히 분리된 캐시 사용
 ```
 
-### 캐시 성능 확인
+### 왜 현재 적용하지 않았나?
 
-```bash
-# 첫 방문 (CACHE MISS)
-curl http://localhost:3000/3740
-# [getGroup] CACHE_MISS 150.2ms
+**제약 사항:**
 
-# 60초 이내 재방문 (CACHE HIT)
-curl http://localhost:3000/3740
-# [getGroup] CACHE_HIT 2.3ms
+1. **백엔드 구조**
+   - 현재: Authorization 헤더만 사용
+   - 필요: userId를 명시적으로 전달
 
-# 60초 후 (재검증 후 CACHE HIT)
-curl http://localhost:3000/3740
-# [getGroup] CACHE_HIT 3.1ms (백그라운드 재검증)
-```
+2. **설정 필요**
+   - `cacheComponents: true` 활성화 필요
+   - 아직 안정화 단계
+
+3. **코드 변경 범위**
+   - 모든 API 함수 시그니처 변경
+   - 호출부 전체 수정
+
+### 향후 개선 계획
+
+**단계적 적용:**
+
+1. **Phase 1**: `cacheComponents: true` 활성화
+2. **Phase 2**: 공개 API부터 "use cache" 적용
+3. **Phase 3**: 권한 기반 API에 userId 전달 구조 도입
+4. **Phase 4**: 전체 API 마이그레이션
+
+**현재는 `no-store` + React cache()로 보안 우선, 향후 "use cache"로 성능 개선 예정**
 
 ---
 
 ## 주의사항
 
-### ❌ 하면 안 되는 것
+### ❌ 절대 하면 안 되는 것
 
-#### 1. 변경 작업에 캐싱 사용
+#### 1. Authorization 헤더를 사용하는 API에 force-cache 적용
+
+```typescript
+// ❌ 심각한 보안 위험!
+export async function getGroup(groupId: string, accessToken?: string | null) {
+  const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+    accessToken, // Authorization 헤더로 변환됨
+    cache: "force-cache", // ❌ 위험!
+  });
+}
+```
+
+**문제:**
+
+- 캐시 키: `/groups/3740` (Authorization 무시)
+- 멤버 A 요청 → 멤버 정보 캐시
+- 비멤버 B 요청 → A의 멤버 정보 노출 ❌
+
+**해결:**
+
+```typescript
+// ✅ 안전
+export async function getGroup(groupId: string, accessToken?: string | null) {
+  const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+    accessToken,
+    cache: "no-store", // 보안 보장
+  });
+}
+```
+
+#### 2. 사용자별 다른 데이터 반환하는 API에 캐싱
 
 ```typescript
 // ❌ 잘못된 예
-export async function createArticle(data: any) {
+export async function getUserGroups(accessToken?: string | null) {
+  const response = await fetchApi(`${BASE_URL}/user/groups`, {
+    accessToken,
+    cache: "force-cache", // ❌ 사용자별로 다른 데이터인데 캐싱!
+  });
+}
+```
+
+**문제:**
+
+- URL: `/user/groups` (모든 사용자 동일)
+- 사용자 A의 팀 목록이 사용자 B에게 노출
+
+**해결:**
+
+```typescript
+// ✅ 올바른 예
+export async function getUserGroups(accessToken?: string | null) {
+  const response = await fetchApi(`${BASE_URL}/user/groups`, {
+    accessToken,
+    cache: "no-store", // 보안 보장
+  });
+}
+```
+
+#### 3. 변경 작업(POST, PATCH, DELETE)에 캐싱
+
+```typescript
+// ❌ 잘못된 예
+export async function postArticle(data: CreateArticle) {
   const response = await fetchApi(`${BASE_URL}/articles`, {
     method: "POST",
     cache: "force-cache", // ❌ POST는 캐싱 안됨!
@@ -376,111 +664,112 @@ export async function createArticle(data: any) {
 }
 
 // ✅ 올바른 예
-export async function createArticle(data: any) {
+export async function postArticle(data: CreateArticle) {
   const response = await fetchApi(`${BASE_URL}/articles`, {
     method: "POST",
-    cache: "no-store", // ✅ 항상 새로 요청
+    cache: "no-store", // ✅ 항상 no-store
   });
 
-  revalidatePath("/boards"); // 캐시 무효화
-}
-```
-
-#### 2. 캐시 함수 내부에서 cookies() 호출
-
-```typescript
-// ❌ 잘못된 예
-export async function getGroup(groupId: string) {
-  const cookieStore = await cookies(); // ❌ Error!
-  const response = await fetchApi(`/api/groups/${groupId}`, {
-    cache: "force-cache",
-  });
-}
-
-// ✅ 올바른 예
-// Page에서 cookies() 호출 후 accessToken 전달
-export async function getGroup(groupId: string, accessToken?: string | null) {
-  const response = await fetchApi(`/api/groups/${groupId}`, {
-    accessToken,
-    cache: "force-cache",
-  });
-}
-```
-
-#### 3. 사용자별 데이터에 force-cache 사용
-
-```typescript
-// ❌ 잘못된 예 - 보안 위험!
-export async function getUserGroups(accessToken?: string | null) {
-  const response = await fetchApi(`${BASE_URL}/user/groups`, {
-    accessToken,
-    cache: "force-cache", // ❌ 사용자 A의 데이터가 사용자 B에게 노출!
-  });
-}
-
-// ✅ 올바른 예
-export async function getUserGroups(accessToken?: string | null) {
-  const response = await fetchApi(`${BASE_URL}/user/groups`, {
-    accessToken,
-    cache: "no-store", // ✅ 매번 새로 요청하여 보안 보장
-  });
-}
-```
-
-**이유**: URL이 `/user/groups`로 모든 사용자에게 동일하므로, Authorization 헤더가 캐시 키에 포함되지 않아 사용자 A의 캐시를 사용자 B가 재사용하게 됩니다.
-
-#### 4. 사용자별 다른 데이터 장시간 캐싱
-
-```typescript
-// ⚠️ 주의: 사용자별 데이터는 짧게 캐싱
-export async function getMyProfile() {
-  const response = await fetchApi(`${BASE_URL}/user`, {
-    cache: "force-cache",
-    next: {
-      revalidate: 10, // ✅ 10초로 짧게 설정
-    },
-  });
+  if (response.ok) {
+    revalidatePath("/boards"); // 캐시 무효화
+  }
 }
 ```
 
 ### ✅ 권장 사항
 
-#### 1. 캐싱 가능 여부 판단
-
-**✅ 캐싱 가능한 경우:**
-
-- URL에 리소스 ID 포함 (e.g., `/groups/{id}`, `/articles/{id}`)
-- 모든 사용자에게 동일한 데이터
-- 백엔드에서 권한 검증 수행
-
-**❌ 캐싱 불가능한 경우:**
-
-- 사용자별 다른 데이터 (e.g., `/user/groups`, `/user/history`)
-- URL이 모든 사용자에게 동일
-- 캐시 키에 사용자 식별자가 없음
-
-#### 2. 캐시 시간은 데이터 특성에 맞게
-
-- **리소스 ID 기반 공개 데이터**: 길게 (60초 ~ 3600초)
-- **사용자별 데이터**: no-store (보안)
-- **자주 변경**: 매우 짧게 (5초 ~ 30초) 또는 no-store
-
-#### 3. 태그 활용
+#### 1. 공개 API만 캐싱
 
 ```typescript
-// 세밀한 캐시 무효화 가능
-next: {
-  tags: [
-    REVALIDATE_TAG.GROUP(groupId),
-    REVALIDATE_TAG.GROUP_MEMBERS(groupId),
-  ],
+// ✅ 공개 게시판 - 캐싱 가능
+export async function getArticles() {
+  const response = await fetchApi(`${BASE_URL}/articles`, {
+    // Authorization 없음
+    cache: "force-cache",
+    next: { revalidate: 120 },
+  });
 }
 
-// 멤버만 변경되면
-revalidateTag(REVALIDATE_TAG.GROUP_MEMBERS(groupId));
-// 그룹 전체 변경되면
-revalidateTag(REVALIDATE_TAG.GROUP(groupId));
+// ❌ 권한 필요 - 캐싱 불가
+export async function getGroup(groupId: string, accessToken?: string | null) {
+  const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
+    accessToken, // Authorization 필요
+    cache: "no-store", // 반드시 no-store
+  });
+}
 ```
+
+#### 2. React cache()로 요청 내 중복 방지
+
+```typescript
+// measureSSR의 useCache: true (기본값)가 React cache() 적용
+const getGroupWithMeasure = measureSSR({
+  name: "getGroup",
+  fn: () => getGroup(groupId, accessToken),
+  useCache: true, // ← React cache() 적용
+});
+
+// 같은 페이지에서 3번 호출해도 API는 1번만 실행
+const result1 = await getGroupWithMeasure();
+const result2 = await getGroupWithMeasure(); // 캐시 사용
+const result3 = await getGroupWithMeasure(); // 캐시 사용
+```
+
+#### 3. 변경 작업 후 캐시 무효화
+
+```typescript
+// 항상 revalidatePath로 캐시 무효화
+export async function updateData() {
+  const response = await fetchApi(`${BASE_URL}/data`, {
+    method: "PATCH",
+    cache: "no-store",
+  });
+
+  if (response.ok) {
+    revalidatePath("/page"); // 캐시 갱신
+  }
+}
+```
+
+---
+
+## 트러블슈팅
+
+### Q: 캐시가 작동하지 않아요
+
+**확인 사항:**
+
+1. `cache: "force-cache"` 옵션이 있는지
+2. `next: { revalidate }` 설정이 있는지
+3. Authorization 헤더를 사용하지 않는지
+
+### Q: 다른 사용자의 데이터가 보여요
+
+**원인:** Authorization 헤더를 사용하는 API에 `force-cache` 적용
+
+**해결:** `cache: "no-store"`로 변경
+
+### Q: 성능이 느려요
+
+**답변:**
+
+- 공개 API만 캐싱 가능
+- 권한 기반 API는 보안상 `no-store` 필수
+- React `cache()`가 요청 내 중복은 방지함
+- 40-80ms는 허용 가능한 범위
+
+---
+
+## 참고 자료
+
+- [Next.js 16 공식 문서](https://nextjs.org/blog/next-16)
+- [Data Fetching: Caching and Revalidating](https://nextjs.org/docs/app/building-your-application/data-fetching/caching-and-revalidating)
+
+---
+
+**작성일**: 2026-01-17  
+**최종 수정**: 2026-01-17  
+**핵심 원칙**: 보안 > 성능
 
 #### 3. measureSSR 래핑
 

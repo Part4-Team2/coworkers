@@ -1,7 +1,8 @@
 import { createMetadata } from "@/components/Common/Metadata/Metadata";
 import { cookies } from "next/headers";
 import TeamListContainer from "@/containers/teamlist/TeamListContainer";
-import { getUserGroups } from "@/lib/api/user";
+import { getUserGroups } from "@/lib/api/user-queries";
+import { getUser } from "@/lib/api/user";
 import { measureSSR } from "@/utils/measure";
 
 export const metadata = createMetadata({
@@ -13,14 +14,27 @@ export const metadata = createMetadata({
 });
 
 export default async function TeamListPage() {
-  // "캐싱 함수" 외부에서 accessToken 읽기
+  // 1. 인증 체크 (매번 실행, 캐싱 안됨)
+  const user = await getUser();
+  if ("error" in user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background-primary">
+        <p className="text-text-primary text-lg font-medium mb-16">
+          로그인이 필요합니다.
+        </p>
+      </div>
+    );
+  }
+
+  // 2. accessToken 읽기
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value || null;
 
-  // getUserGroups API 호출 (캐싱 + 성능 모니터링)
+  // 3. 캐싱된 데이터 조회 (userId 포함)
   const getUserGroupsWithMeasure = measureSSR({
     name: "getUserGroups",
-    fn: () => getUserGroups(accessToken),
+    fn: () => getUserGroups(user.id.toString(), accessToken),
+    attr: { "user.id": user.id.toString() },
   });
 
   const { result: groupsData } = await getUserGroupsWithMeasure();

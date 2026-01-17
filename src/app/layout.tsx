@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Suspense } from "react";
 import Header from "@/components/Common/Header/Header";
 
 // metadataBase는 상대 경로를 절대 URL로 변환하기 위한 기본 URL 설정
@@ -59,7 +60,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Header />
+        <Suspense fallback={<div className="h-16" />}>
+          <Header />
+        </Suspense>
         {children}
         <Analytics />
         <SpeedInsights />

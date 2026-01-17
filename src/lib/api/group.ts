@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/lib/api";
-import { REVALIDATE_TIME, REVALIDATE_TAG } from "@/constants/cache";
 import { CreateGroupBody } from "@/lib/types/group";
 import { Role } from "@/types/schemas";
 
@@ -76,26 +75,12 @@ export type GroupDetailResponse = {
 };
 
 /**
- * 그룹 상세 정보 조회 (멤버, 할 일 목록 포함)
- *
- * Next.js 16 Cache Components:
- * - 'use cache' 지시어로 함수 레벨 캐싱
- * - cacheTag로 수동 무효화 지원
- * - cacheLife 'max' 프로필: stale-while-revalidate 동작
- */
-/**
  * 그룹 상세 정보 조회
  *
  * 캐싱 전략:
- * - fetch의 force-cache + revalidate로 60초 캐싱
- * - 백엔드에서 권한 체크를 수행하므로 비멤버는 401/403 에러 반환
- * - 팀 멤버들에게는 동일한 데이터를 보여주므로 캐싱 안전
- * - 캐시된 에러 응답도 빠르게 처리
- *
- * 보안 고려사항:
- * - Authorization 헤더는 캐시 키에 미포함
- * - 하지만 백엔드가 groupId + accessToken 조합으로 권한 검증
- * - 비멤버 접근 시 백엔드에서 거부하므로 민감 데이터 노출 없음
+ * - 권한 기반 데이터(멤버 정보, role 등)를 포함하므로 캐싱 비활성화
+ * - Authorization 헤더는 캐시 키에 미포함되어 보안 위험 존재
+ * - measureSSR의 React cache()가 단일 요청 내 중복 호출 방지
  *
  * @param groupId 그룹 ID
  * @param accessToken 액세스 토큰 (선택사항, 외부에서 cookies()로 읽어서 전달)
@@ -108,11 +93,7 @@ export async function getGroup(
   try {
     const response = await fetchApi(`${BASE_URL}/groups/${groupId}`, {
       accessToken,
-      cache: "force-cache",
-      next: {
-        revalidate: REVALIDATE_TIME.GROUP_DETAIL,
-        tags: [REVALIDATE_TAG.GROUP(groupId)],
-      },
+      cache: "no-store",
     });
 
     if (!response.ok) {
