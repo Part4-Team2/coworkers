@@ -2,10 +2,11 @@
 
 import Form from "@/components/Common/Form/Form";
 import FormFooter from "@/components/Common/Form/FormFooter";
+import Input from "@/components/Common/Input/Input";
+import Button from "@/components/Common/Button/Button";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { InputConfig } from "@/components/Common/Form/types";
 import { postGroupAcceptInvitation } from "@/lib/api/group";
 
 interface JoinTeamFormData {
@@ -79,51 +80,53 @@ export default function JoinTeamContainer({ email }: { email: string }) {
           topOffsetClassName="pt-80 sm:pt-120 lg:pt-140"
           onSubmit={handleSubmit(onSubmit)}
           title="팀 참여하기"
-          register={register}
-          errors={errors}
-          trigger={trigger}
-          input={[
-            {
-              name: "teamLink",
-              label: "팀 링크",
-              placeholder: "팀 링크를 입력해주세요.",
-              variant: errors.teamLink || joinTeamError ? "error" : "default",
-              size: "large",
-              type: "text",
-              full: true,
-              registerOptions: {
-                required: "팀 링크는 필수 입력입니다.",
-                maxLength: {
-                  // 임의로 500자로 설정
-                  value: 500,
-                  message: "팀 링크는 500자 이하로 입력해주세요.",
-                },
-                pattern: {
-                  value: /^https?:\/\/.+/,
-                  message:
-                    "올바른 URL 형식으로 입력해주세요. (http:// 또는 https://로 시작해야 합니다.)",
-                },
-              },
-              message: errors.teamLink?.message,
-              showError: !!errors.teamLink,
-            } as InputConfig,
-          ]}
-          option={
-            joinTeamError ? (
+        >
+          <div className="w-full flex flex-col items-center gap-24 mt-24">
+            <div className="w-full">
+              <Input
+                full
+                label="팀 링크"
+                placeholder="팀 링크를 입력해주세요."
+                variant={errors.teamLink || joinTeamError ? "error" : "default"}
+                size="large"
+                type="text"
+                message={errors.teamLink?.message}
+                showError={!!errors.teamLink}
+                {...register("teamLink", {
+                  required: "팀 링크는 필수 입력입니다.",
+                  maxLength: {
+                    // 임의로 500자로 설정
+                    value: 500,
+                    message: "팀 링크는 500자 이하로 입력해주세요.",
+                  },
+                  pattern: {
+                    value: /^https?:\/\/.+/,
+                    message:
+                      "올바른 URL 형식으로 입력해주세요. (http:// 또는 https://로 시작해야 합니다.)",
+                  },
+                })}
+              />
+            </div>
+          </div>
+          {joinTeamError && (
+            <div className="mt-12 w-full flex justify-center">
               <p className="w-full text-xs text-status-danger">
                 {joinTeamError}
               </p>
-            ) : undefined
-          }
-          button={{
-            label: "참여하기",
-            variant: "solid",
-            size: "large",
-            full: true,
-            disabled: isSubmitting,
-            loading: isSubmitting,
-          }}
-        />
+            </div>
+          )}
+          <div className="mt-40 w-full flex justify-center">
+            <Button
+              full
+              label="참여하기"
+              variant="solid"
+              size="large"
+              type="submit"
+              disabled={isSubmitting}
+              loading={isSubmitting}
+            />
+          </div>
+        </Form>
         <FormFooter>공유받은 팀 링크를 입력해 참여할 수 있어요.</FormFooter>
       </div>
     </div>
