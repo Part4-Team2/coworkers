@@ -76,6 +76,7 @@ export default function MyPageContainer({
     handleSubmit: handleSubmitPassword,
     formState: { errors: passwordErrors },
     getValues: getPasswordValues,
+    watch: watchPassword,
     trigger: triggerPassword,
     reset: resetPassword,
   } = useForm<PasswordChangeFormData>({
@@ -88,8 +89,7 @@ export default function MyPageContainer({
 
   // 비밀번호 필드가 비어있는지 확인
   const isPasswordEmpty =
-    !getPasswordValues("newPassword") ||
-    !getPasswordValues("newPasswordConfirmation");
+    !watchPassword("newPassword") || !watchPassword("newPasswordConfirmation");
 
   const handleClose = () => {
     setOpenModal(null);
