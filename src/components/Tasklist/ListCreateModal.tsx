@@ -6,6 +6,8 @@ import ModalFooter from "@/components/Common/Modal/ModalFooter";
 import ModalHeader from "@/components/Common/Modal/ModalHeader";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 interface ListCreateModalProps {
   isOpen: boolean;
@@ -18,18 +20,24 @@ export default function ListCreateModal({
   onClose,
   onSubmit,
 }: ListCreateModalProps) {
-  const [name, setName] = useState<string>("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<{ name: string }>({
+    defaultValues: { name: "" },
+  });
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!name.trim()) return;
-
+  const onValid = async ({ name }: { name: string }) => {
     setLoading(true);
-
     try {
-      onSubmit(name);
+      onSubmit(name.trim());
       onClose();
-      setName("");
+      reset();
+    } catch (error) {
+      toast.error("할일 목록 생성에 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -53,16 +61,26 @@ export default function ListCreateModal({
           label="목록 이름"
           labelClassName="mb-0 pb-8 text-lg font-medium text-text-primary"
           placeholder="목록 이름을 입력해주세요."
-          value={name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            setName(e.target.value);
-          }}
+          {...register("name", {
+            required: "목록 이름을 입력해주세요.",
+            minLength: {
+              value: 1,
+              message: "최소 1글자 이상 입력해주세요.",
+            },
+            maxLength: {
+              value: 20,
+              message: "최대 20글자까지 입력 가능합니다.",
+            },
+          })}
         />
+        {errors.name && (
+          <p className="text-status-danger text-sm">{errors.name.message}</p>
+        )}
       </form>
       <ModalFooter
         primaryButton={{
           label: loading ? "생성 중..." : "만들기",
-          onClick: handleSubmit,
+          onClick: handleSubmit(onValid),
           disabled: loading,
         }}
       />
