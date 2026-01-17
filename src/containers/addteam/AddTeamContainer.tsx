@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { postGroup } from "@/lib/api/group";
 import { postImage } from "@/lib/api/image";
 import { CreateGroupBody } from "@/lib/types/group";
@@ -22,7 +23,7 @@ interface AddTeamFormData {
 export default function AddTeamContainer() {
   const router = useRouter();
   const [addTeamError, setAddTeamError] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate, isLoading: isSubmitting } = useApiMutation();
   const {
     previewUrl,
     fileInputRef,
@@ -42,32 +43,22 @@ export default function AddTeamContainer() {
   });
 
   const onSubmit = async (data: AddTeamFormData) => {
-    if (isSubmitting) return;
-
     setAddTeamError("");
-    setIsSubmitting(true);
 
-    try {
+    await mutate(async () => {
       let uploadedImageUrl: string | null = null;
 
       // 새 이미지가 선택된 경우 업로드
       if (selectedFile) {
-        try {
-          const imageResponse = await postImage(selectedFile);
-          if (!imageResponse.success) {
-            const errorMessage =
-              imageResponse.error || "이미지 업로드에 실패했습니다.";
-            setAddTeamError(errorMessage);
-            showErrorToast(errorMessage);
-            return;
-          }
-          uploadedImageUrl = imageResponse.data.url;
-        } catch {
-          const errorMessage = "이미지 업로드에 실패했습니다.";
+        const imageResponse = await postImage(selectedFile);
+        if (!imageResponse.success) {
+          const errorMessage =
+            imageResponse.error || "이미지 업로드에 실패했습니다.";
           setAddTeamError(errorMessage);
           showErrorToast(errorMessage);
-          return;
+          throw new Error(errorMessage);
         }
+        uploadedImageUrl = imageResponse.data.url;
       }
 
       const requestData: CreateGroupBody = {
@@ -80,19 +71,21 @@ export default function AddTeamContainer() {
         const errorMessage = response.message || "팀 생성에 실패했습니다.";
         setAddTeamError(errorMessage);
         showErrorToast(errorMessage);
-        return;
+        throw new Error(errorMessage);
       }
 
       // response 값으로 zustand에 email, teamId, nickname, image 정보 추가
       showSuccessToast("팀 생성에 성공했습니다.");
       router.push(`/${response.id}`);
-    } catch (error) {
-      const errorMessage = "팀 생성에 실패했습니다. 다시 시도해주세요.";
-      setAddTeamError(errorMessage);
-      showErrorToast(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    }).catch(() => {
+      // mutate에서 이미 에러 처리가 되지만, 추가 에러 메시지 표시
+      if (!addTeamError) {
+        const errorMessage = "팀 생성에 실패했습니다. 다시 시도해주세요.";
+        setAddTeamError(errorMessage);
+        showErrorToast(errorMessage);
+      }
+    });
   };
 
   return (

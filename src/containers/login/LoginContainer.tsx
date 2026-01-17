@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useHeaderStore } from "@/store/headerStore";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { postSignin } from "@/lib/api/auth";
 import { postUserResetPassword } from "@/lib/api/user";
 import { SignInRequestBody } from "@/lib/types/auth";
@@ -33,8 +34,12 @@ export default function LoginContainer() {
   const fetchUser = useHeaderStore((s) => s.fetchUser);
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [resetError, setResetError] = useState<string>("");
+  const { mutate: mutateLogin, isLoading: isSubmittingLogin } =
+    useApiMutation();
+  const { mutate: mutateReset, isLoading: isSubmittingReset } =
+    useApiMutation();
+  const isSubmitting = isSubmittingLogin || isSubmittingReset;
 
   const {
     register,
@@ -62,47 +67,45 @@ export default function LoginContainer() {
   };
 
   const onSubmit = async (data: LoginFormData) => {
-    if (isSubmitting) return;
     setLoginError("");
     const requestData: SignInRequestBody = {
       email: data.email,
       password: data.password,
     };
-    try {
-      setIsSubmitting(true);
+
+    await mutateLogin(async () => {
       const response = await postSignin(requestData);
       if (!response.success) {
         const errorMessage = "이메일 혹은 비밀번호를 확인해주세요.";
         setLoginError(errorMessage);
         showErrorToast(errorMessage);
-        setIsSubmitting(false);
-        return;
+        setError("email", { type: "manual", message: "" });
+        setError("password", { type: "manual", message: "" });
+        throw new Error(errorMessage);
       }
       await fetchUser();
       showSuccessToast("로그인에 성공했습니다.");
       router.push("/");
-      // 관련된 모든 처리는 서버에서 관리해야함! 현재는 클라이언트
-    } catch (error) {
-      const errorMessage = "이메일 혹은 비밀번호를 확인해주세요.";
-      setError("email", { type: "manual", message: "" });
-      setError("password", { type: "manual", message: "" });
-      setLoginError(errorMessage);
-      showErrorToast(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    }).catch(() => {
+      if (!loginError) {
+        const errorMessage = "이메일 혹은 비밀번호를 확인해주세요.";
+        setError("email", { type: "manual", message: "" });
+        setError("password", { type: "manual", message: "" });
+        setLoginError(errorMessage);
+        showErrorToast(errorMessage);
+      }
+    });
   };
 
   const onResetSubmit = async (data: ResetPasswordFormData) => {
-    if (isSubmitting) return;
-
     const requestData: SendResetPasswordEmailRequest = {
       email: data.email,
       redirectUrl: APP_URL,
     };
     setResetError("");
-    setIsSubmitting(true);
-    try {
+
+    await mutateReset(async () => {
       const response = await postUserResetPassword(requestData);
       if (!response.success) {
         // "User not found" 에러 메시지를 "회원가입되지 않은 이메일입니다."로 변경
@@ -119,22 +122,22 @@ export default function LoginContainer() {
           type: "manual",
           message: errorMessage,
         });
-        setIsSubmitting(false);
-        return;
+        throw new Error(errorMessage);
       }
       showSuccessToast("비밀번호 재설정 링크를 이메일로 보냈습니다.");
       handleClose();
-    } catch (error) {
-      const errorMessage = "링크를 보내는데 실패했습니다. 다시 시도해주세요.";
-      setResetError(errorMessage);
-      showErrorToast(errorMessage);
-      setResetErrorField("email", {
-        type: "manual",
-        message: errorMessage,
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    }).catch(() => {
+      if (!resetError) {
+        const errorMessage = "링크를 보내는데 실패했습니다. 다시 시도해주세요.";
+        setResetError(errorMessage);
+        showErrorToast(errorMessage);
+        setResetErrorField("email", {
+          type: "manual",
+          message: errorMessage,
+        });
+      }
+    });
   };
 
   const handleKakaoLogin = async () => {
@@ -238,8 +241,8 @@ export default function LoginContainer() {
               variant="solid"
               size="large"
               type="submit"
-              disabled={isSubmitting}
-              loading={isSubmitting}
+              disabled={isSubmittingLogin}
+              loading={isSubmittingLogin}
             />
           </div>
         </Form>
@@ -287,8 +290,8 @@ export default function LoginContainer() {
         primaryButton={{
           label: "링크 보내기",
           onClick: handleSubmitReset(onResetSubmit),
-          disabled: isSubmitting,
-          loading: isSubmitting,
+          disabled: isSubmittingReset,
+          loading: isSubmittingReset,
         }}
         secondaryButton={{
           label: "닫기",

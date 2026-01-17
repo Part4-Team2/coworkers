@@ -9,6 +9,7 @@ import Button from "@/components/Common/Button/Button";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { postImage } from "@/lib/api/image";
 import { patchGroup } from "@/lib/api/group";
 import { useHeaderStore } from "@/store/headerStore";
@@ -25,7 +26,7 @@ interface EditTeamContainerProps {
 
 export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate, isLoading: isSubmitting } = useApiMutation();
 
   // 전역 상태에서 현재 팀 정보 가져오기
   const teams = useHeaderStore((state) => state.teams);
@@ -90,10 +91,7 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
   }, [currentTeam, reset]);
 
   const onSubmit = async (data: EditTeamFormData) => {
-    if (isSubmitting) return;
-
-    setIsSubmitting(true);
-    try {
+    await mutate(async () => {
       let imageUrl: string | undefined = initialTeamImage;
 
       // 새 이미지가 선택된 경우 postImage API로 업로드
@@ -120,7 +118,8 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
       // 성공 메시지를 저장하고 팀 페이지로 이동
       setPendingToast("success", "팀 정보가 수정되었습니다.");
       router.push(`/${teamId}`);
-    } catch (error) {
+      return result;
+    }).catch((error) => {
       console.error("팀 수정 실패:", error);
 
       // 에러 메시지 설정
@@ -132,9 +131,7 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
         type: "manual",
         message: errorMessage,
       });
-    } finally {
-      setIsSubmitting(false);
-    }
+    });
   };
 
   return (

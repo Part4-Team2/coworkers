@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useHeaderStore } from "@/store/headerStore";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { postSignup } from "@/lib/api/auth";
 import { SignUpRequestBody } from "@/lib/types/auth";
 import { showErrorToast, showSuccessToast } from "@/utils/error";
@@ -23,7 +24,7 @@ export default function SignupContainer() {
   const router = useRouter();
   const fetchUser = useHeaderStore((s) => s.fetchUser);
   const [signupError, setSignupError] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate, isLoading: isSubmitting } = useApiMutation();
 
   const {
     register,
@@ -36,7 +37,6 @@ export default function SignupContainer() {
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    if (isSubmitting) return;
     const requestData: SignUpRequestBody = {
       email: data.email,
       password: data.password,
@@ -44,30 +44,30 @@ export default function SignupContainer() {
       nickname: data.name,
     };
     setSignupError("");
-    setIsSubmitting(true);
-    try {
+
+    await mutate(async () => {
       const response = await postSignup(requestData);
 
       if (!response.success) {
         const errorMessage = response.error || "회원가입에 실패했습니다.";
         setSignupError(errorMessage);
         showErrorToast(errorMessage);
-        setIsSubmitting(false);
-        return;
+        throw new Error(errorMessage);
       }
       await fetchUser();
       showSuccessToast("회원가입에 성공했습니다.");
       router.push("/");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "회원가입에 실패했습니다. 다시 시도해주세요.";
-      setSignupError(errorMessage);
-      showErrorToast(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    }).catch((error) => {
+      if (!signupError) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "회원가입에 실패했습니다. 다시 시도해주세요.";
+        setSignupError(errorMessage);
+        showErrorToast(errorMessage);
+      }
+    });
   };
 
   const handleKakaoSignup = async () => {
