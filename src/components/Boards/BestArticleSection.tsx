@@ -21,7 +21,12 @@ function BestArticleSection() {
       });
 
       if (ignore.current) return;
-      setArticles(res.list);
+
+      if (res.success) {
+        setArticles(res.data.list);
+      } else {
+        console.error("베스트 게시글 불러오기 오류:", res.error);
+      }
     } catch (error) {
       if (ignore.current) return;
       console.error("베스트 게시글 불러오기 오류", error);

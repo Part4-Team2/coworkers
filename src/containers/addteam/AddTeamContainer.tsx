@@ -53,15 +53,15 @@ export default function AddTeamContainer() {
       if (selectedFile) {
         try {
           const imageResponse = await postImage(selectedFile);
-          if ("error" in imageResponse) {
+          if (!imageResponse.success) {
             const errorMessage =
-              imageResponse.message || "이미지 업로드에 실패했습니다.";
+              imageResponse.error || "이미지 업로드에 실패했습니다.";
             setAddTeamError(errorMessage);
             showErrorToast(errorMessage);
             return;
           }
-          uploadedImageUrl = imageResponse.url;
-        } catch (error) {
+          uploadedImageUrl = imageResponse.data.url;
+        } catch {
           const errorMessage = "이미지 업로드에 실패했습니다.";
           setAddTeamError(errorMessage);
           showErrorToast(errorMessage);

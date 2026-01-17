@@ -59,11 +59,12 @@ function WriteArticle() {
 
       if (articleImageFile) {
         const res = await uploadImage(articleImageFile);
-        if ("url" in res) {
-          imageUrl = res.url;
+        if (res.success) {
+          imageUrl = res.data.url;
         } else {
-          console.error("이미지 업로드 오류", res.message);
-          toast.error("이미지 업로드에 실패했습니다.");
+          console.error("이미지 업로드 오류", res.error);
+          toast.error(res.error);
+          return;
         }
       }
 
@@ -73,10 +74,14 @@ function WriteArticle() {
         image: imageUrl,
       };
 
-      await postArticle(articleData);
+      const result = await postArticle(articleData);
 
-      toast.success("게시글이 등록되었습니다!");
-      router.push("/boards");
+      if (result.success) {
+        toast.success("게시글이 등록되었습니다!");
+        router.push("/boards");
+      } else {
+        toast.error(result.error);
+      }
     } catch (error) {
       console.log("게시글 작성 오류", error);
       toast.error("게시글 등록에 실패했습니다.");

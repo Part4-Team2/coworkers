@@ -55,8 +55,13 @@ function BoardClient() {
           keyword: keyword || undefined,
         });
         if (ignore) return;
-        setArticles(res.list);
-        setTotalPage(Math.ceil(res.totalCount / PAGE_SIZE));
+
+        if (res.success) {
+          setArticles(res.data.list);
+          setTotalPage(Math.ceil(res.data.totalCount / PAGE_SIZE));
+        } else {
+          throw new Error(res.error);
+        }
       } catch (error) {
         if (ignore) return;
         setIsError(
@@ -73,7 +78,7 @@ function BoardClient() {
     return () => {
       ignore = true;
     };
-  }, [page, orderBy, keyword]);
+  }, [page, orderBy, keyword, totalPage]);
 
   // 페이지가 전체 페이지를 초과하는 경우 마지막 페이지로 대체됩니다.
   useEffect(() => {

@@ -72,14 +72,18 @@ function CommentSection({
     setIsSubmitting(true);
 
     try {
-      const newComment = await postComment(articleId, {
+      const result = await postComment(articleId, {
         content: data.content,
       });
-      setCommentList((prev) => [newComment, ...prev]);
 
-      reset();
-      onCommentAdd();
-      toast.success("등록되었습니다!");
+      if (result.success) {
+        setCommentList((prev) => [result.data, ...prev]);
+        reset();
+        onCommentAdd();
+        toast.success("등록되었습니다!");
+      } else {
+        toast.error(result.error);
+      }
     } catch (error) {
       console.log("댓글 등록 오류:", error);
       toast.error("댓글 등록에 실패했습니다.");
@@ -102,14 +106,18 @@ function CommentSection({
         limit: COMMENT_LIMIT,
         cursor,
       });
-      setCommentList((prev) => {
-        const existingIds = new Set(prev.map((c) => c.id));
-        // Id 중복되는 호출을 거르는 필터입니다.
-        const filtered = res.list.filter((c) => !existingIds.has(c.id));
-        return [...prev, ...filtered];
-      });
-      setCursor(res.nextCursor ?? undefined);
-      setHasNext(!!res.nextCursor);
+
+      if (res.success) {
+        setCommentList((prev) => {
+          const existingIds = new Set(prev.map((c) => c.id));
+          const filtered = res.data.list.filter((c) => !existingIds.has(c.id));
+          return [...prev, ...filtered];
+        });
+        setCursor(res.data.nextCursor ?? undefined);
+        setHasNext(!!res.data.nextCursor);
+      } else {
+        console.error("댓글 불러오기 실패:", res.error);
+      }
     } catch (error) {
       console.error("댓글 불러오기 실패", error);
     } finally {
@@ -120,11 +128,17 @@ function CommentSection({
   // 댓글 삭제하면 삭제한 상태로 렌더링합니다.
   const deleteCommentClick = async (deleteId: number) => {
     try {
-      await deleteComment(deleteId);
-      setCommentList((prev) =>
-        prev.filter((comment) => comment.id !== deleteId)
-      );
-      onCommentDelete();
+      const result = await deleteComment(deleteId);
+
+      if (result.success) {
+        setCommentList((prev) =>
+          prev.filter((comment) => comment.id !== deleteId)
+        );
+        onCommentDelete();
+      } else {
+        console.error("삭제하기 오류:", result.error);
+        toast.error(result.error);
+      }
     } catch (error) {
       console.error("삭제하기 오류", error);
     }

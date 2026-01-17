@@ -15,17 +15,20 @@ async function ArticlePage({
 
   if (Number.isNaN(id)) notFound();
 
-  let article, comments;
+  const [articleResult, commentsResult] = await Promise.all([
+    getArticle({ articleId: id }),
+    getArticleComments({ articleId: id, limit: COMMENT_LIMIT }),
+  ]).catch(() => {
+    notFound();
+  });
 
-  try {
-    [article, comments] = await Promise.all([
-      getArticle({ articleId: id }),
-      getArticleComments({ articleId: id, limit: COMMENT_LIMIT }),
-    ]);
-  } catch (error) {
-    console.log("게시글 불러오기 실패", error);
+  if (!articleResult?.success || !commentsResult?.success) {
+    console.log("게시글 불러오기 실패");
     notFound();
   }
+
+  const article = articleResult.data;
+  const comments = commentsResult.data;
 
   return (
     // Page Wrapper

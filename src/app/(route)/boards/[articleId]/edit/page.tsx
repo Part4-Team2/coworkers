@@ -64,22 +64,27 @@ function EditArticle() {
       // 만약 게시글 사진을 바꾸는 경우 해당 분기점을 거칩니다.
       if (articleImageFile) {
         const res = await uploadImage(articleImageFile);
-        if ("url" in res) {
-          imageUrl = res.url;
+        if (res.success) {
+          imageUrl = res.data.url;
         } else {
-          console.error("이미지 업로드 오류", res.message);
-          toast.error("이미지 업로드에 실패했습니다.");
+          console.error("이미지 업로드 오류", res.error);
+          toast.error(res.error);
+          return;
         }
       }
 
-      await patchArticle(articleId, {
+      const result = await patchArticle(articleId, {
         content: data.content,
         title: data.title,
         image: imageUrl,
       });
 
-      toast.success("게시글이 수정되었습니다!");
-      router.push("/boards");
+      if (result.success) {
+        toast.success("게시글이 수정되었습니다!");
+        router.push("/boards");
+      } else {
+        toast.error(result.error);
+      }
     } catch (error) {
       console.log("게시글 수정 오류", error);
       toast.error("게시글 수정에 실패했습니다.");
@@ -94,10 +99,17 @@ function EditArticle() {
 
     const fetchArticle = async () => {
       try {
-        const article = await getArticle({ articleId });
-        setValue("title", article.title);
-        setValue("content", article.content);
-        setArticleImagePreview(article.image ?? null);
+        const result = await getArticle({ articleId });
+
+        if (result.success) {
+          const article = result.data;
+          setValue("title", article.title);
+          setValue("content", article.content);
+          setArticleImagePreview(article.image ?? null);
+        } else {
+          console.error("게시글 불러오기 실패:", result.error);
+          toast.error(result.error);
+        }
       } catch (error) {
         console.error(error);
         toast.error("게시글을 불러올 수 없습니다.");

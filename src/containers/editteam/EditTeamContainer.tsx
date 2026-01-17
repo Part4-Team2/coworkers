@@ -91,11 +91,11 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
       if (selectedFile) {
         const uploadResult = await postImage(selectedFile);
 
-        if ("error" in uploadResult) {
-          throw new Error(uploadResult.message);
+        if (!uploadResult.success) {
+          throw new Error(uploadResult.error);
         }
 
-        imageUrl = uploadResult.url;
+        imageUrl = uploadResult.data.url;
       }
 
       // 팀 수정 API 호출
