@@ -10,8 +10,11 @@ import {
   SignInWithOauthRequestBody,
 } from "@/lib/types/auth";
 import { cookies } from "next/headers";
+import { ApiResult } from "@/lib/types/api";
 
-export async function postSignup(data: SignUpRequestBody) {
+export async function postSignup(
+  data: SignUpRequestBody
+): Promise<ApiResult<SignUpResponse>> {
   try {
     const response = await fetch(`${BASE_URL}/auth/signUp`, {
       method: "POST",
@@ -26,8 +29,8 @@ export async function postSignup(data: SignUpRequestBody) {
 
     if (!response.ok) {
       return {
-        error: true,
-        message: result.message || result.error || "회원가입에 실패했습니다.",
+        success: false,
+        error: result.message || result.error || "회원가입에 실패했습니다.",
       };
     }
 
@@ -36,16 +39,18 @@ export async function postSignup(data: SignUpRequestBody) {
     // 쿠키 설정
     await setAuthCookies(responseData.accessToken, responseData.refreshToken);
 
-    return responseData;
+    return { success: true, data: responseData };
   } catch (error) {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
 
-export async function postSignin(data: SignInRequestBody) {
+export async function postSignin(
+  data: SignInRequestBody
+): Promise<ApiResult<SignInResponse>> {
   try {
     const response = await fetch(`${BASE_URL}/auth/signIn`, {
       method: "POST",
@@ -60,8 +65,8 @@ export async function postSignin(data: SignInRequestBody) {
 
     if (!response.ok) {
       return {
-        error: true,
-        message: result.message || result.error || "로그인에 실패했습니다.",
+        success: false,
+        error: result.message || result.error || "로그인에 실패했습니다.",
       };
     }
 
@@ -70,16 +75,18 @@ export async function postSignin(data: SignInRequestBody) {
     // 쿠키 설정
     await setAuthCookies(responseData.accessToken, responseData.refreshToken);
 
-    return responseData;
+    return { success: true, data: responseData };
   } catch (error) {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
 
-export async function postRefreshToken(data: { refreshToken: string }) {
+export async function postRefreshToken(data: {
+  refreshToken: string;
+}): Promise<ApiResult<{ accessToken: string }>> {
   try {
     const response = await fetch(`${BASE_URL}/auth/refresh-token`, {
       method: "POST",
@@ -93,8 +100,8 @@ export async function postRefreshToken(data: { refreshToken: string }) {
     if (!response.ok) {
       const error = await response.json();
       return {
-        error: true,
-        message: error.message || "토큰 갱신에 실패했습니다.",
+        success: false,
+        error: error.message || "토큰 갱신에 실패했습니다.",
       };
     }
 
@@ -103,16 +110,18 @@ export async function postRefreshToken(data: { refreshToken: string }) {
     // 새로운 accessToken을 쿠키에 저장
     await setAuthCookies(result.accessToken);
 
-    return result;
+    return { success: true, data: result };
   } catch (error) {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }
 
-export async function postSigninKakao(data: SignInWithOauthRequestBody) {
+export async function postSigninKakao(
+  data: SignInWithOauthRequestBody
+): Promise<ApiResult<SignInResponse>> {
   try {
     const response = await fetch(`${BASE_URL}/auth/signIn/KAKAO`, {
       method: "POST",
@@ -126,8 +135,8 @@ export async function postSigninKakao(data: SignInWithOauthRequestBody) {
     if (!response.ok) {
       const error = await response.json();
       return {
-        error: true,
-        message: error.message || "카카오 로그인에 실패했습니다.",
+        success: false,
+        error: error.message || "카카오 로그인에 실패했습니다.",
       };
     }
 
@@ -136,11 +145,11 @@ export async function postSigninKakao(data: SignInWithOauthRequestBody) {
     // 쿠키 설정
     await setAuthCookies(responseData.accessToken, responseData.refreshToken);
 
-    return responseData;
+    return { success: true, data: responseData };
   } catch (error) {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }

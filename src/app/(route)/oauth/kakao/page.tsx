@@ -56,9 +56,9 @@ export default function KakaoOAuthCallbackPage() {
           state: state || undefined,
         });
 
-        if ("error" in response) {
+        if (!response.success) {
           const errorMessage =
-            response.message || "카카오 로그인에 실패했습니다.";
+            response.error || "카카오 로그인에 실패했습니다.";
           setError(errorMessage);
           showErrorToast(errorMessage);
           setTimeout(() => router.push("/login"), 2000);

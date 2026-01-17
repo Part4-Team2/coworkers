@@ -71,7 +71,7 @@ export default function LoginContainer() {
     try {
       setIsSubmitting(true);
       const response = await postSignin(requestData);
-      if ("error" in response) {
+      if (!response.success) {
         const errorMessage = "이메일 혹은 비밀번호를 확인해주세요.";
         setLoginError(errorMessage);
         showErrorToast(errorMessage);

@@ -48,8 +48,8 @@ export default function SignupContainer() {
     try {
       const response = await postSignup(requestData);
 
-      if ("error" in response) {
-        const errorMessage = response.message || "회원가입에 실패했습니다.";
+      if (!response.success) {
+        const errorMessage = response.error || "회원가입에 실패했습니다.";
         setSignupError(errorMessage);
         showErrorToast(errorMessage);
         setIsSubmitting(false);
