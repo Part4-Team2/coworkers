@@ -20,7 +20,7 @@ export default function TabItem({
       onClick={onClick}
       role="tab"
       className={clsx(
-        "appearance-none bg-transparent p-0 pb-5 text-lg font-medium border-b-1",
+        "appearance-none bg-transparent p-0 text-lg font-medium border-b-1 whitespace-nowrap",
         isActive
           ? "text-text-tertiary border-current"
           : "text-text-default border-transparent",

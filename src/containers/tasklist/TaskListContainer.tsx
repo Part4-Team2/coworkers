@@ -291,7 +291,6 @@ export default function TaskListPageContainer({
     await createTaskList(groupId, name);
   };
 
-  // TODO: 스켈레톤 UI
   if (loading) {
     return (
       <div className="relative max-w-[1200px] mx-auto my-0 sm:px-24 px-16">
@@ -309,8 +308,11 @@ export default function TaskListPageContainer({
           <DateNavigator baseDate={baseDate} />
           <ListCreateButton onCreate={handleCreateList} />
         </div>
-
-        <TabList tabs={taskLists} />
+        <div className="h-20">
+          <div className="overflow-x-auto custom-scrollbar">
+            <TabList tabs={taskLists} />
+          </div>
+        </div>
         <main className="flex-1">
           {selectedTaskListData && (
             <div className="flex flex-col gap-16">

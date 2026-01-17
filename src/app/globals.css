@@ -246,19 +246,50 @@ body {
   margin: 2px !important;
 }
 
-/* 스크롤바 커스텀 */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 3px;
+/* 커스텀 스크롤바 */
+
+/* Firefox */
+.custom-scrollbar {
+  scrollbar-width: none; /* 기본 숨김 */
+}
+.custom-scrollbar:hover {
+  scrollbar-width: thin; /* hover 때만 표시 */
+  scrollbar-color: var(--color-background-tertiary) transparent;
 }
 
+/* Webkit (Chrome, Edge, Safari) */
+/* 기본: 스크롤바 자체를 없앰 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* hover 시에만 스크롤바가 생김 */
+.custom-scrollbar:hover::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+/* 스크롤바 배경 */
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 
+/* 스크롤 thumb */
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: var(--color-background-tertiary);
-  width: 3px;
   border-radius: 2px;
+}
+
+/* 기본은 숨김 */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* hover 시 등장 */
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
 }
 
 /* TeamId 페이지 전용 드롭다운 스타일 */
