@@ -3,9 +3,9 @@
 import { useMemo, useEffect } from "react";
 import List from "@/components/Tasklist/List/List";
 import { formatDate } from "@/utils/date";
-import { TaskDetail } from "@/types/task";
 import { FrequencyType } from "@/types/schemas";
 import { showErrorToast } from "@/utils/error";
+import { Task } from "@/lib/types/task";
 
 interface DoneListContainerProps {
   initialData:
@@ -16,7 +16,7 @@ interface DoneListContainerProps {
           userId: number;
           deletedAt?: string | null;
           frequency: string;
-          description?: string;
+          description: string;
           name: string;
           recurringId: number;
           doneAt: string;
@@ -45,7 +45,7 @@ export default function DoneListContainer({
     }
 
     return initialData.tasksDone.map(
-      (task): TaskDetail => ({
+      (task): Task => ({
         id: task.id,
         name: task.name,
         description: task.description,
@@ -55,14 +55,12 @@ export default function DoneListContainer({
         displayIndex: task.displayIndex,
         recurringId: task.recurringId,
         updatedAt: task.updatedAt,
-        deletedAt: task.deletedAt ?? undefined,
         commentCount: 0,
         writer: {
           id: task.writerId,
           nickname: "",
           image: null,
         },
-        doneBy: [],
       })
     );
   }, [initialData]);
@@ -80,7 +78,7 @@ export default function DoneListContainer({
       acc[dateKey].push(task);
       return acc;
     },
-    {} as Record<string, TaskDetail[]>
+    {} as Record<string, Task[]>
   );
 
   // 날짜 문자열을 내림차순 정렬 (최신 날짜가 먼저)

@@ -39,11 +39,13 @@ function BestArticle({
               <span className="text-white">Best</span>
             </div>
             <div className="flex flex-col gap-12">
-              <div className="flex justify-between items-center">
-                <div className="text-2lg text-text-secondary overflow-hidden text-ellipsis line-clamp-1">
+              <div className="flex justify-between items-start gap-16">
+                <div className="flex-1 text-2lg text-text-secondary overflow-hidden text-ellipsis line-clamp-2 break-all pr-8">
                   {title}
                 </div>
-                {articleImageUrl && <ArticleImage image={articleImageUrl} />}
+                <div className="shrink-0">
+                  {articleImageUrl && <ArticleImage image={articleImageUrl} />}
+                </div>
               </div>
               <div className="text-sm text-slate-400">
                 {createdAt.slice(0, 10)}

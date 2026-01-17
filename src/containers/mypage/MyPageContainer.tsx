@@ -111,16 +111,16 @@ export default function MyPageContainer({
       if (selectedFile) {
         try {
           const imageResponse = await postImage(selectedFile);
-          if ("error" in imageResponse) {
+          if (!imageResponse.success) {
             const errorMessage =
-              imageResponse.message || "이미지 업로드에 실패했습니다.";
+              imageResponse.error || "이미지 업로드에 실패했습니다.";
             setNameError(errorMessage);
             showErrorToast(errorMessage);
             setIsSubmitting(false);
             return;
           }
-          uploadedImageUrl = imageResponse.url;
-        } catch (error) {
+          uploadedImageUrl = imageResponse.data.url;
+        } catch {
           const errorMessage = "이미지 업로드에 실패했습니다.";
           setNameError(errorMessage);
           showErrorToast(errorMessage);
@@ -160,7 +160,7 @@ export default function MyPageContainer({
         showSuccessToast("프로필이 업데이트되었습니다.");
         router.refresh(); // 서버에서 최신 데이터 가져오기
       }
-    } catch (error) {
+    } catch {
       const errorMessage = "업데이트에 실패했습니다. 다시 시도해주세요.";
       setNameError(errorMessage);
       showErrorToast(errorMessage);
@@ -201,7 +201,7 @@ export default function MyPageContainer({
       // 성공 시 모달 닫기
       showSuccessToast("비밀번호가 변경되었습니다.");
       handleClose();
-    } catch (error) {
+    } catch {
       const errorMessage = "비밀번호 변경에 실패했습니다. 다시 시도해주세요.";
       setPasswordChangeError(errorMessage);
       showErrorToast(errorMessage);
@@ -226,7 +226,7 @@ export default function MyPageContainer({
       // 성공 시 로그인 페이지로 리다이렉트 (쿠키 삭제 후)
       showSuccessToast("회원 탈퇴가 완료되었습니다.");
       router.replace("/login");
-    } catch (error) {
+    } catch {
       const errorMessage = "회원 탈퇴에 실패했습니다. 다시 시도해주세요.";
       setNameError(errorMessage);
       showErrorToast(errorMessage);
@@ -411,7 +411,7 @@ export default function MyPageContainer({
         }}
       >
         {passwordChangeError && (
-          <p className="text-xs text-status-danger mt-[-8px]">
+          <p className="text-xs text-status-danger -mt-8">
             {passwordChangeError}
           </p>
         )}

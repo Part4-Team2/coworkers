@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useHeaderStore } from "@/store/headerStore";
 import { logoutAction } from "@/lib/api/auth";
 import clsx from "clsx";
@@ -39,11 +39,12 @@ function Header() {
   const isLogin = useHeaderStore((s) => s.isLogin);
   const teams = useHeaderStore((s) => s.teams);
   const activeTeam = useHeaderStore((s) => s.activeTeam);
+  const isHydrated = useHeaderStore((s) => s.isHydrated);
 
   const fetchUser = useHeaderStore((s) => s.fetchUser);
   const clearUser = useHeaderStore((s) => s.clearUser);
 
-  const checkShouldFetchRules = () => {
+  const checkShouldFetchRules = useCallback(() => {
     const shouldFetch = shouldFetchUrls.some((rule) =>
       typeof rule === "string" ? pathname.startsWith(rule) : rule.test(pathname)
     );
@@ -51,7 +52,7 @@ function Header() {
     if (!shouldFetch) return;
 
     fetchUser();
-  };
+  }, [pathname, fetchUser]);
 
   // 토글 버튼 누를시 작동하는 함수입니다. 토클로 여닫음 가능합니다.
   const handleToggle = () => {
@@ -66,15 +67,15 @@ function Header() {
     setIsSideOpen(false);
   };
 
-  // 최초 마운트 시 무조건 한 번
+  // 최초 마운트 시 유저 정보 fetch (백그라운드에서 최신 데이터 업데이트)
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   // Pathname이 달라질 때 마다 유저 정보를 다시 갖고올지 고민합니다.
   useEffect(() => {
     checkShouldFetchRules();
-  }, [pathname]);
+  }, [pathname, checkShouldFetchRules]);
 
   useEffect(() => {
     if (!isSideOpen) return;
@@ -129,6 +130,28 @@ function Header() {
       handleLogout();
     }
   };
+
+  // Hydration 전에는 전체 헤더를 블록하고 로딩 UI 표시
+  if (!isHydrated) {
+    return (
+      <div className={"bg-background-secondary"}>
+        <div
+          className={clsx(
+            "flex justify-between items-center",
+            "max-w-1200 w-full mx-auto py-14",
+            "px-19"
+          )}
+        >
+          <div className="flex items-center gap-16">
+            <Link href="/" className="pointer-events-none">
+              <SVGIcon icon="LogoLarge" width={158} height={36} />
+            </Link>
+          </div>
+          <div className="w-32 h-32 rounded-full bg-background-tertiary animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

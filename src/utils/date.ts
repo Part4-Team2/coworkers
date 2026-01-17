@@ -8,8 +8,8 @@ export const formatDate = (isoDate: string) => {
   });
 };
 
-export const formatTime = (isoDate: string) => {
-  const dateObj = new Date(isoDate);
+export const formatTime = (date: string | Date) => {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
   return dateObj.toLocaleTimeString("ko-KR", {
     hour: "numeric",
     minute: "2-digit",

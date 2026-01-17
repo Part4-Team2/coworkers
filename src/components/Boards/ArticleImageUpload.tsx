@@ -4,6 +4,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import SVGIcon from "../Common/SVGIcon/SVGIcon";
 import { useRef, useEffect } from "react";
+import { useSvgImage } from "@/hooks/useSvgImage";
 
 interface ArticleImageProps {
   image?: string | null;
@@ -16,6 +17,9 @@ const MAXSIZE = 10 * 1024 * 1024;
 // 게시글 이미지 입로드 할 수 있는 컴포넌트입니다.
 function ArticleImageUpload({ image = null, onChange }: ArticleImageProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { processedUrl, isLoading, error, isSvg } = useSvgImage(
+    image ?? undefined
+  );
 
   const handleImageClick = () => {
     if (!image) {
@@ -80,7 +84,26 @@ function ArticleImageUpload({ image = null, onChange }: ArticleImageProps) {
       />
       {image ? (
         <>
-          <Image src={image} alt="preview image" fill />
+          {isLoading ? (
+            <div className="w-full h-full bg-slate-700 animate-pulse" />
+          ) : error || !processedUrl ? (
+            <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500">
+              <span className="text-xs">이미지 로드 실패</span>
+            </div>
+          ) : isSvg ? (
+            <img
+              src={processedUrl}
+              alt="preview image"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <Image
+              src={processedUrl}
+              alt="preview image"
+              fill
+              className="object-cover"
+            />
+          )}
           <div
             className={clsx(
               "flex flex-col gap-12 items-center",
