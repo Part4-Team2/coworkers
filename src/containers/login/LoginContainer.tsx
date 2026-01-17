@@ -15,6 +15,7 @@ import { postSignin } from "@/lib/api/auth";
 import { postUserResetPassword } from "@/lib/api/user";
 import { SignInRequestBody } from "@/lib/types/auth";
 import { SendResetPasswordEmailRequest } from "@/lib/types/user";
+import { showErrorToast, showSuccessToast } from "@/utils/error";
 // login, signup은 API route가 아니라 서버 액션으로 구현
 interface LoginFormData {
   email: string;
@@ -71,17 +72,22 @@ export default function LoginContainer() {
       setIsSubmitting(true);
       const response = await postSignin(requestData);
       if ("error" in response) {
-        setLoginError("이메일 혹은 비밀번호를 확인해주세요.");
+        const errorMessage = "이메일 혹은 비밀번호를 확인해주세요.";
+        setLoginError(errorMessage);
+        showErrorToast(errorMessage);
         setIsSubmitting(false);
         return;
       }
-      fetchUser();
+      await fetchUser();
+      showSuccessToast("로그인에 성공했습니다.");
       router.push("/");
       // 관련된 모든 처리는 서버에서 관리해야함! 현재는 클라이언트
     } catch (error) {
+      const errorMessage = "이메일 혹은 비밀번호를 확인해주세요.";
       setError("email", { type: "manual", message: "" });
       setError("password", { type: "manual", message: "" });
-      setLoginError("이메일 혹은 비밀번호를 확인해주세요.");
+      setLoginError(errorMessage);
+      showErrorToast(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -107,6 +113,7 @@ export default function LoginContainer() {
         }
 
         setResetError(errorMessage);
+        showErrorToast(errorMessage);
         // 인풋에도 에러 표시
         setResetErrorField("email", {
           type: "manual",
@@ -115,10 +122,12 @@ export default function LoginContainer() {
         setIsSubmitting(false);
         return;
       }
+      showSuccessToast("비밀번호 재설정 링크를 이메일로 보냈습니다.");
       handleClose();
     } catch (error) {
       const errorMessage = "링크를 보내는데 실패했습니다. 다시 시도해주세요.";
       setResetError(errorMessage);
+      showErrorToast(errorMessage);
       setResetErrorField("email", {
         type: "manual",
         message: errorMessage,
@@ -260,6 +269,14 @@ export default function LoginContainer() {
           variant: resetErrors.email || resetError ? "error" : "default",
           ...registerReset("email", {
             required: "이메일은 필수 입력입니다.",
+            minLength: {
+              value: 1,
+              message: "이메일은 필수 입력입니다.",
+            },
+            maxLength: {
+              value: 150,
+              message: "이메일은 최대 150자까지 가능합니다.",
+            },
             pattern: {
               value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
               message: "이메일 형식으로 작성해 주세요.",

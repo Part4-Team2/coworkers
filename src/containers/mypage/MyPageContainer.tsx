@@ -13,6 +13,7 @@ import { postImage } from "@/lib/api/image";
 import { patchUser, deleteUser, patchUserPassword } from "@/lib/api/user";
 import { useRouter } from "next/navigation";
 import { UpdatePasswordBody } from "@/lib/types/user";
+import { showErrorToast, showSuccessToast } from "@/utils/error";
 
 interface NameFormData {
   name: string;
@@ -46,6 +47,7 @@ export default function MyPageContainer({
     handleImageClick,
     handleImageChange,
     selectedFile,
+    resetImage,
   } = useImageUpload(initialImage ?? undefined);
 
   const {
@@ -112,15 +114,18 @@ export default function MyPageContainer({
         try {
           const imageResponse = await postImage(selectedFile);
           if ("error" in imageResponse) {
-            setNameError(
-              imageResponse.message || "이미지 업로드에 실패했습니다."
-            );
+            const errorMessage =
+              imageResponse.message || "이미지 업로드에 실패했습니다.";
+            setNameError(errorMessage);
+            showErrorToast(errorMessage);
             setIsSubmitting(false);
             return;
           }
           uploadedImageUrl = imageResponse.url;
         } catch (error) {
-          setNameError("이미지 업로드에 실패했습니다.");
+          const errorMessage = "이미지 업로드에 실패했습니다.";
+          setNameError(errorMessage);
+          showErrorToast(errorMessage);
           setIsSubmitting(false);
           return;
         }
@@ -141,16 +146,26 @@ export default function MyPageContainer({
 
         const response = await patchUser(updateData);
         if ("error" in response) {
-          setNameError(response.message || "업데이트에 실패했습니다.");
+          const errorMessage = response.message || "업데이트에 실패했습니다.";
+          setNameError(errorMessage);
+          showErrorToast(errorMessage);
           setIsSubmitting(false);
           return;
         }
 
+        // 성공 시 이미지 상태 초기화
+        if (shouldUpdateImage) {
+          resetImage();
+        }
+
         // 성공 피드백 및 데이터 갱신
+        showSuccessToast("프로필이 업데이트되었습니다.");
         router.refresh(); // 서버에서 최신 데이터 가져오기
       }
     } catch (error) {
-      setNameError("업데이트에 실패했습니다. 다시 시도해주세요.");
+      const errorMessage = "업데이트에 실패했습니다. 다시 시도해주세요.";
+      setNameError(errorMessage);
+      showErrorToast(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -177,19 +192,21 @@ export default function MyPageContainer({
       const response = await patchUserPassword(requestData);
 
       if ("error" in response) {
-        setPasswordChangeError(
-          response.message || "비밀번호 변경에 실패했습니다."
-        );
+        const errorMessage =
+          response.message || "비밀번호 변경에 실패했습니다.";
+        setPasswordChangeError(errorMessage);
+        showErrorToast(errorMessage);
         setIsSubmitting(false);
         return;
       }
 
       // 성공 시 모달 닫기
+      showSuccessToast("비밀번호가 변경되었습니다.");
       handleClose();
     } catch (error) {
-      setPasswordChangeError(
-        "비밀번호 변경에 실패했습니다. 다시 시도해주세요."
-      );
+      const errorMessage = "비밀번호 변경에 실패했습니다. 다시 시도해주세요.";
+      setPasswordChangeError(errorMessage);
+      showErrorToast(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -202,14 +219,19 @@ export default function MyPageContainer({
       const response = await deleteUser();
 
       if ("error" in response) {
-        setNameError(response.message || "회원 탈퇴에 실패했습니다.");
+        const errorMessage = response.message || "회원 탈퇴에 실패했습니다.";
+        setNameError(errorMessage);
+        showErrorToast(errorMessage);
         return;
       }
 
       // 성공 시 로그인 페이지로 리다이렉트 (쿠키 삭제 후)
+      showSuccessToast("회원 탈퇴가 완료되었습니다.");
       router.replace("/login");
     } catch (error) {
-      setNameError("회원 탈퇴에 실패했습니다. 다시 시도해주세요.");
+      const errorMessage = "회원 탈퇴에 실패했습니다. 다시 시도해주세요.";
+      setNameError(errorMessage);
+      showErrorToast(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

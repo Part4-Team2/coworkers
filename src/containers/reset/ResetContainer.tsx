@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { patchUserResetPassword } from "@/lib/api/user";
 import { ResetPasswordBody } from "@/lib/types/user";
+import { showErrorToast, showSuccessToast } from "@/utils/error";
 
 interface ResetPasswordFormData {
   password: string;
@@ -37,9 +38,10 @@ export default function ResetContainer() {
     setIsSubmitting(true);
     const token = searchParams.get("token");
     if (!token) {
-      setResetError(
-        "링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
-      );
+      const errorMessage =
+        "링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요.";
+      setResetError(errorMessage);
+      showErrorToast(errorMessage);
       setIsSubmitting(false);
       return;
     }
@@ -51,15 +53,19 @@ export default function ResetContainer() {
     try {
       const response = await patchUserResetPassword(requestData);
       if ("error" in response) {
-        setResetError(
-          "링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
-        );
+        const errorMessage =
+          "링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요.";
+        setResetError(errorMessage);
+        showErrorToast(errorMessage);
         setIsSubmitting(false);
         return;
       }
+      showSuccessToast("비밀번호 재설정에 성공했습니다.");
       router.push("/login");
     } catch (error) {
-      setResetError("비밀번호 재설정에 실패했습니다. 다시 시도해주세요.");
+      const errorMessage = "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.";
+      setResetError(errorMessage);
+      showErrorToast(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
