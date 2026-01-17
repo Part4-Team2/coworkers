@@ -4,7 +4,7 @@ import { Metadata } from "next";
 
 type TaskListPageProps = {
   params: Promise<{ teamid: string }>;
-  searchParams: Promise<{ tab: string; date?: string }>;
+  searchParams: Promise<{ tab?: string; date?: string }>;
 };
 
 export async function generateMetadata({
@@ -37,7 +37,7 @@ export default async function TaskListPage({
     <>
       <TaskListPageContainer
         groupId={groupId}
-        selectedTaskListId={tab}
+        selectedTaskListId={tab ?? ""}
         selectedDate={date}
       />
     </>

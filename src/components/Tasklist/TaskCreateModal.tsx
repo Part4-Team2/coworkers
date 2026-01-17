@@ -455,7 +455,7 @@ export default function TaskCreateModal({
               {...register("description", {
                 maxLength: {
                   value: 1000,
-                  message: "매모는 최대 1000자까지 입력 가능합니다.",
+                  message: "메모는 최대 1000자까지 입력 가능합니다.",
                 },
               })}
             />

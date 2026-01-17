@@ -37,10 +37,12 @@ export async function getTaskList(
     // recurring 응답 대비하여 date 보정
     const mapped: GetTaskListResponse = {
       ...data,
-      tasks: (data.tasks as TaskMaybeStart[]).map((t) => ({
-        ...t,
-        date: t.date ?? t.startDate!, // 둘 중 하나는 있다고 가정
-      })),
+      tasks: (data.tasks as TaskMaybeStart[])
+        .map((t) => {
+          const date = t.date ?? t.startDate;
+          return date ? { ...t, date } : null;
+        })
+        .filter((t): t is GetTaskListResponse["tasks"][number] => t !== null),
     };
 
     return { success: true, data: mapped };

@@ -16,7 +16,9 @@ export default function TabList({ tabs, onClick, isAction }: TabsProps) {
   const pathname = usePathname();
 
   // 어떤 탭을 실제로 보여줄지 결정(UI)
-  const activeTabId = searchParams.get("tab") || tabs[0]?.id;
+  const activeTabId =
+    searchParams.get("tab") ??
+    (tabs[0]?.id !== undefined ? String(tabs[0].id) : undefined);
 
   const switchTab = (tabId: string) => {
     const params = new URLSearchParams(searchParams);
@@ -40,15 +42,19 @@ export default function TabList({ tabs, onClick, isAction }: TabsProps) {
 
   return (
     <div role="tablist" className="flex gap-12">
-      {tabs.map((tab) => (
-        <TabItem
-          key={tab.id}
-          name={tab.name}
-          isActive={String(tab.id) === activeTabId}
-          onClick={() => switchTab(String(tab.id))}
-          tabIndex={activeTabId ? 0 : -1}
-        />
-      ))}
+      {tabs.map((tab) => {
+        const isActive = String(tab.id) === activeTabId;
+        return (
+          <TabItem
+            key={tab.id}
+            name={tab.name}
+            isActive={isActive}
+            ariaSelected={isActive}
+            onClick={() => switchTab(String(tab.id))}
+            tabIndex={isActive ? 0 : -1}
+          />
+        );
+      })}
     </div>
   );
 }

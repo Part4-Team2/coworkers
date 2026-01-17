@@ -69,6 +69,8 @@ export default function ListCreateModal({
           placeholder="목록 이름을 입력해주세요."
           {...register("name", {
             required: "목록 이름을 입력해주세요.",
+            validate: (value) =>
+              value.trim().length > 0 || "공백만 입력할 수 없습니다.",
             minLength: {
               value: 1,
               message: "최소 1글자 이상 입력해주세요.",

@@ -6,6 +6,7 @@ import TaskCreateModal, {
 import ButtonFloating from "@/components/Common/Button/ButtonFloating";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 export default function TaskCreateButton({
   onCreateTask,
@@ -15,8 +16,12 @@ export default function TaskCreateButton({
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleTaskCreated = async (form: CreateTaskForm) => {
-    await onCreateTask(form); // 부모의 handleCreateTask 호출
-    setIsModalOpen(false);
+    try {
+      await onCreateTask(form); // 부모의 handleCreateTask 호출
+      setIsModalOpen(false);
+    } catch (err) {
+      toast.error("할일 생성에 실패했습니다.");
+    }
   };
 
   return (

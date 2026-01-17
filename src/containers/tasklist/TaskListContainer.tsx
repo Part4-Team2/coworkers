@@ -300,31 +300,25 @@ export default function TaskListPageContainer({
       return;
     }
 
-    if (response.success) {
-      // ✅ 로컬 날짜로 targetDate 계산
-      const targetDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
-      const currentDate =
-        selectedDate || new Date().toISOString().split("T")[0];
+    const targetDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+    const currentDate = selectedDate || new Date().toISOString().split("T")[0];
 
-      const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams);
 
-      if (targetDate !== currentDate) {
-        params.set("date", targetDate);
-        router.push(`${pathname}?${params.toString()}`);
-      } else {
-        const refreshResponse = await getTaskList(groupId, selectedTaskListId, {
-          date: targetDate,
-        });
-
-        if (refreshResponse.success) {
-          setSelectedTaskListData({
-            ...refreshResponse.data,
-            tasks: refreshResponse.data.tasks,
-          });
-        }
-      }
+    if (targetDate !== currentDate) {
+      params.set("date", targetDate);
+      router.push(`${pathname}?${params.toString()}`);
     } else {
-      toast.error("할 일 생성에 실패했습니다.");
+      const refreshResponse = await getTaskList(groupId, selectedTaskListId, {
+        date: targetDate,
+      });
+
+      if (refreshResponse.success) {
+        setSelectedTaskListData({
+          ...refreshResponse.data,
+          tasks: refreshResponse.data.tasks,
+        });
+      }
     }
   };
 
