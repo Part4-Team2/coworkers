@@ -121,7 +121,7 @@ function BoardClient() {
       className={clsx("min-h-screen bg-background-primary", "px-16 sm:px-24")}
     >
       {/* content wrapper */}
-      <main className="max-w-1200 mx-auto py-40">
+      <main className="max-w-1200 mx-auto pt-40">
         <section className="flex flex-col gap-24 sm:gap-32 lg:gap-40">
           <div className="text-text-primary text-2xl">자유게시판</div>
           {/* 검색 영역 */}

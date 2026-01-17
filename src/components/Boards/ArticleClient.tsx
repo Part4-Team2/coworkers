@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ArticleHeader from "./ArticleHeader";
 import CommentSection from "./CommentSection";
 import ArticleLike from "./ArticleLike";
+import ArticleImage from "./ArticleImage";
 import { Article } from "@/types/article";
 import { postLike, deleteLike } from "@/lib/api/boards";
 import { useState } from "react";
@@ -55,9 +56,9 @@ function ArticleClient({ article, comments }: Pageprops) {
   return (
     <main
       className={clsx(
-        "py-56 max-w-1200 w-full mx-auto",
+        "max-w-1200 w-full mx-auto",
         "flex flex-col gap-80",
-        "px-20"
+        "px-16 sm:px-24"
       )}
     >
       {/* 게시글 영역 */}
@@ -75,6 +76,12 @@ function ArticleClient({ article, comments }: Pageprops) {
         <div className={clsx("text-text-secondary text-base", "break-all")}>
           {article.content}
         </div>
+        {/* 게시글 이미지 영역 */}
+        {article.image && (
+          <div className="mt-24">
+            <ArticleImage image={article.image} size="large" />
+          </div>
+        )}
       </section>
       {/* 게시글 좋아요 클릭 영역 */}
       <ArticleLike onLikeClick={handleLikeClick} isLike={isLike} />

@@ -72,8 +72,8 @@ function WriteArticle() {
       {/* Content Wrapper */}
       <div
         className={clsx(
-          "max-w-1200 mx-auto py-56 text-text-primary",
-          "px-20 lg:px-0"
+          "max-w-1200 mx-auto pt-56 text-text-primary",
+          "px-16 sm:px-24"
         )}
       >
         <main className="flex flex-col gap-40">

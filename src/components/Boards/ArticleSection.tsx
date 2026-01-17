@@ -100,7 +100,7 @@ function ArticleSection({
         })}
       </div>
       {totalPage > 0 && (
-        <div className={clsx("flex justify-center")}>
+        <div className={clsx("flex justify-center pb-40")}>
           <ArticlePagination
             page={page}
             totalPages={totalPage}

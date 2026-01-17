@@ -27,40 +27,40 @@ function ArticleComp({ article, currentUserId }: ArticleProps) {
       )}
       onClick={() => router.push(`/boards/${article.id}`)}
     >
-      <div className="h-full flex flex-col justify-between ">
-        <div className="flex justify-between items-center">
+      <div className="h-full flex flex-col justify-between">
+        <div className="flex justify-between items-start gap-16">
           <div
             className={clsx(
-              "text-text-secondary text-2lg",
-              "overflow-hidden text-ellipsis line-clamp-1"
+              "flex-1 text-text-secondary text-2lg",
+              "overflow-hidden text-ellipsis line-clamp-2",
+              "pr-8"
             )}
           >
             {article.title}
           </div>
-          {/* 이미지 있을 때와 없을 때 레이아웃을 통일하였습니다. */}
-          {article.image ? (
-            <ArticleImage image={article.image} />
-          ) : (
-            <div
-              className={clsx(
-                "w-64 h-64 relative",
-                "border-0 rounded-lg",
-                "overflow-hidden"
-              )}
-            ></div>
-          )}
+          {/* 이미지 영역 */}
+          <div className="shrink-0">
+            {article.image ? (
+              <ArticleImage image={article.image} />
+            ) : (
+              <div className={clsx("w-64 h-64")}></div>
+            )}
+          </div>
         </div>
         {isAuthor && (
           <button
             type="button"
-            className="absolute top-10 right-5 cursor-pointer"
+            className={clsx(
+              "absolute top-8 right-8",
+              "cursor-pointer hover:opacity-70 transition-opacity"
+            )}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               router.push(`/boards/${article.id}/edit`);
             }}
           >
-            <SVGIcon icon="gear" size={20} />
+            <SVGIcon icon="edit" size={17} fill="#5e6481" />
           </button>
         )}
         <div className="flex gap-16 items-center text-slate-400 text-md">

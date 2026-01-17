@@ -22,11 +22,9 @@ export default function BoardListSkeleton({
             {Array.from({ length: 3 }).map((_, index) => (
               <CardSkeleton
                 key={index}
+                variant="best"
                 showImage={true}
-                imageHeight={160}
                 showTitle={true}
-                titleWidth="80%"
-                showDescription={false}
                 showFooter={true}
               />
             ))}
@@ -37,16 +35,12 @@ export default function BoardListSkeleton({
       {/* 일반 Article 리스트 */}
       <div className="space-y-16">
         <div className="h-28 w-120 bg-slate-700 rounded animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 gap-10 max-w-1200">
           {Array.from({ length: articleCount }).map((_, index) => (
             <CardSkeleton
               key={index}
               showImage={true}
-              imageHeight={160}
               showTitle={true}
-              titleWidth="70%"
-              showDescription={true}
-              descriptionLines={2}
               showFooter={true}
             />
           ))}
