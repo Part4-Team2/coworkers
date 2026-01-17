@@ -67,7 +67,7 @@ function CommentSection({
 
   // 아래로 스크롤 한 경우 새로운 댓글을 갖고옵니다.
   const fetchMoreComments = useCallback(async () => {
-    if (!cursor || isLoading) {
+    if (cursor === undefined || isLoading) {
       return;
     }
 
