@@ -14,7 +14,14 @@ const PAGE_SIZE = 6;
 const ORDER_BY = ["recent", "like"] as const;
 type OrderBy = (typeof ORDER_BY)[number];
 
-function BoardClient() {
+interface BoardClientProps {
+  initialData?: {
+    list: Article[];
+    totalCount: number;
+  };
+}
+
+function BoardClient({ initialData }: BoardClientProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   // 음수이거나 0보다 낮은 숫자일 때 1로 리턴합니다.
@@ -38,8 +45,19 @@ function BoardClient() {
     setInputVal(keyword);
   }, [keyword]);
 
+  // initialData가 있으면 즉시 설정
+  useEffect(() => {
+    if (initialData) {
+      setArticles(initialData.list);
+      setTotalPage(Math.ceil(initialData.totalCount / PAGE_SIZE));
+      setIsLoading(false);
+    }
+  }, [initialData]);
+
   // 게시글을 불러오는 함수입니다.
   useEffect(() => {
+    // initialData가 있으면 클라이언트에서 fetch 하지 않음
+    if (initialData) return;
     if (totalPage > 0 && page > totalPage) return;
     let ignore = false;
 
@@ -78,7 +96,7 @@ function BoardClient() {
     return () => {
       ignore = true;
     };
-  }, [page, orderBy, keyword, totalPage]);
+  }, [page, orderBy, keyword, totalPage, initialData]);
 
   // 페이지가 전체 페이지를 초과하는 경우 마지막 페이지로 대체됩니다.
   useEffect(() => {

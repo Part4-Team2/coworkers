@@ -34,23 +34,23 @@ function ArticleClient({ article, comments }: Pageprops) {
     }
 
     if (isLike === false) {
-      try {
-        await postLike(article.id);
+      const result = await postLike(article.id);
+      if (result.success) {
         toast.success("좋아요 성공!");
         setLikeCount((prev) => prev + 1);
         setIsLike((prev) => !prev);
-      } catch (error) {
-        console.error("좋아요 추가 오류", error);
+      } else {
+        console.error("좋아요 추가 오류", result.error);
         toast.error("좋아요 추가에 실패했습니다.");
       }
     } else {
-      try {
-        await deleteLike(article.id);
+      const result = await deleteLike(article.id);
+      if (result.success) {
         toast.success("좋아요가 취소되었습니다.");
         setLikeCount((prev) => prev - 1);
         setIsLike((prev) => !prev);
-      } catch (error) {
-        console.error("좋아요 삭제 오류", error);
+      } else {
+        console.error("좋아요 삭제 오류", result.error);
         toast.error("좋아요 취소에 실패했습니다.");
       }
     }

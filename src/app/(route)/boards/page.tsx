@@ -41,13 +41,14 @@ async function BoardPage({ searchParams }: BoardPageProps) {
       console.log(
         `[BoardPage] ${responseTime < 10 ? "🟢 CACHE HIT" : "🔴 CACHE MISS"} - ${responseTime}ms | page=${page}, orderBy=${orderBy}${keyword ? `, keyword=${keyword}` : ""}`
       );
+      span.end();
+      return <BoardClient initialData={result.data} />;
     } else {
       span.setAttribute("error", true);
       console.error(`[BoardPage] ❌ ERROR - ${result.error}`);
+      span.end();
+      return <BoardClient />;
     }
-
-    span.end();
-    return <BoardClient />;
   });
 }
 
