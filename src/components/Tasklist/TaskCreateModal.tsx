@@ -15,6 +15,7 @@ import { FrequencyType } from "@/types/schemas";
 import { useForm } from "react-hook-form";
 import { getFrequencyText } from "@/utils/frequency";
 import { TaskForEdit } from "@/lib/types/task";
+import { toast } from "react-toastify";
 
 export interface CreateTaskForm {
   name: string;
@@ -46,7 +47,14 @@ export default function TaskCreateModal({
 
   const isEditMode = !!taskToEdit;
 
-  const { setValue, watch, handleSubmit, reset } = useForm<CreateTaskForm>({
+  const {
+    setValue,
+    watch,
+    handleSubmit,
+    reset,
+    register,
+    formState: { errors },
+  } = useForm<CreateTaskForm>({
     defaultValues: {
       name: "",
       description: "",
@@ -92,11 +100,9 @@ export default function TaskCreateModal({
     }
   }, [taskToEdit, reset]);
 
-  const watchName = watch("name");
   const watchStartDate = watch("startDate");
   const watchStartTime = watch("startTime");
   const watchFrequency = watch("frequencyType");
-  const watchDescription = watch("description");
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -116,42 +122,50 @@ export default function TaskCreateModal({
     return () => document.removeEventListener("mousedown", close);
   }, [showTimePicker]);
 
-  const submitHandler = (form: CreateTaskForm) => {
-    // 유효성 검사
-    if (
-      form.frequencyType === "WEEKLY" &&
-      (!weekDays || weekDays.length === 0)
-    ) {
-      alert("주 반복을 선택하려면 최소 하나의 요일을 선택해주세요.");
-      return;
+  const submitHandler = async (form: CreateTaskForm) => {
+    try {
+      // 유효성 검사
+      if (
+        form.frequencyType === "WEEKLY" &&
+        (!weekDays || weekDays.length === 0)
+      ) {
+        toast.error("주 반복을 선택하려면 최소 하나의 요일을 선택해주세요.");
+        return;
+      }
+
+      if (form.frequencyType === "MONTHLY" && !monthDay) {
+        toast.error("월 반복을 선택하려면 날짜를 선택해주세요.");
+        return;
+      }
+
+      // 날짜와 시간을 정확하게 병합
+      const year = form.startDate.getFullYear();
+      const month = form.startDate.getMonth();
+      const date = form.startDate.getDate();
+      const hours = form.startTime.getHours();
+      const minutes = form.startTime.getMinutes();
+
+      const merged = new Date(year, month, date, hours, minutes, 0, 0);
+      const utcMerged = new Date(
+        merged.getTime() - merged.getTimezoneOffset() * 60000
+      );
+
+      await onSubmit({
+        ...form,
+        startDate: utcMerged,
+        startTime: utcMerged,
+        weekDays,
+        monthDay,
+      });
+
+      toast.success(
+        isEditMode ? "할 일이 수정되었습니다!" : "할 일이 생성되었습니다!"
+      );
+      onClose();
+      reset();
+    } catch (error) {
+      toast.error("할일 생성/수정에 실패했습니다.");
     }
-
-    if (form.frequencyType === "MONTHLY" && !monthDay) {
-      alert("월 반복을 선택하려면 날짜를 선택해주세요.");
-      return;
-    }
-
-    // 날짜와 시간을 정확하게 병합
-    const year = form.startDate.getFullYear();
-    const month = form.startDate.getMonth();
-    const date = form.startDate.getDate();
-    const hours = form.startTime.getHours();
-    const minutes = form.startTime.getMinutes();
-
-    const merged = new Date(year, month, date, hours, minutes, 0, 0);
-    const utcMerged = new Date(
-      merged.getTime() - merged.getTimezoneOffset() * 60000
-    );
-
-    onSubmit({
-      ...form,
-      startDate: utcMerged,
-      startTime: utcMerged,
-      weekDays,
-      monthDay,
-    });
-
-    onClose();
   };
 
   return (
@@ -171,11 +185,22 @@ export default function TaskCreateModal({
               variant="default"
               size="large"
               type="text"
-              value={watchName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setValue("name", e.target.value)
-              }
+              {...register("name", {
+                minLength: {
+                  value: 1,
+                  message: "제목은 최소 1글자 이상 입력해주세요.",
+                },
+                maxLength: {
+                  value: 100,
+                  message: "제목은 최대 100자까지 입력 가능합니다.",
+                },
+              })}
             />
+            {errors.name && (
+              <p className="text-status-danger text-xs mt-4 ml-4">
+                {errors.name.message}
+              </p>
+            )}
           </section>
 
           {!isEditMode && (
@@ -425,11 +450,18 @@ export default function TaskCreateModal({
               label="할 일 메모"
               labelClassName="text-lg font-medium text-text-primary mb-16"
               placeholder="메모를 입력해주세요."
-              value={watchDescription}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setValue("description", e.target.value)
-              }
+              {...register("description", {
+                maxLength: {
+                  value: 1000,
+                  message: "매모는 최대 1000자까지 입력 가능합니다.",
+                },
+              })}
             />
+            {errors.description && (
+              <p className="text-status-danger text-xs mt-4 ml-4">
+                {errors.description.message}
+              </p>
+            )}
           </section>
         </form>
       </div>
