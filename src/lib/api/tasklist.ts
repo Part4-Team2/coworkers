@@ -3,14 +3,40 @@
 import { BASE_URL } from "@/lib/api";
 import { fetchApi } from "@/utils/api";
 import { ApiResult } from "@/lib/types/api";
-import { TaskListResponse } from "../types/tasklist";
-import { GetTaskListResponse, GetTasksParams } from "../types/task";
+import { Task } from "@/lib/types/task";
+
+// 응답 타입 정의
+export type TaskListResponse = {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  groupId: number;
+  displayIndex: number;
+};
+
+export type GetTaskListResponse = {
+  id: number;
+  name: string;
+  displayIndex: number;
+  groupId: number;
+  updatedAt: string;
+  createdAt: string;
+  tasks: Task[];
+};
+
+export type GetTasksParams = {
+  date?: string;
+};
 
 // 함수 안에서만 쓰는 임시 타입
 type TaskMaybeStart = GetTaskListResponse["tasks"][number] & {
   startDate?: string;
 };
 
+/**
+ * 할 일 목록 상세 조회
+ */
 export async function getTaskList(
   groupId: string,
   id: string,
@@ -54,7 +80,6 @@ export async function getTaskList(
   }
 }
 
-// lib/api/group 에서 로직 가져옴 (revalidatePath 삭제)
 /**
  * 할 일 목록 생성
  */

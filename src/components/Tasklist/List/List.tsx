@@ -5,7 +5,7 @@ import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import useKebabMenu from "@/hooks/useKebabMenu";
 import { Task } from "@/lib/types/task";
-import { formatDate, formatTime } from "@/utils/date";
+import { formatDate } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
 
@@ -37,7 +37,6 @@ export default function List(props: ListProps) {
     recurringId,
     onEditTask,
     hideKebab = false,
-    ...rest
   } = props;
 
   // useKebabMenu 훅은 여기서 각 task 별로 사용
@@ -104,6 +103,7 @@ export default function List(props: ListProps) {
                   icon="kebabLarge"
                   listPosition="absolute right-0 top-full mt-5"
                   onSelect={kebab.handleDropdownSelect}
+                  align="center"
                 />
               </div>
               <Modal
@@ -132,11 +132,6 @@ export default function List(props: ListProps) {
               <span>{startDate ? formatDate(startDate) : "-"}</span>
             </div>
             <div className="w-px h-8 bg-background-tertiary" />
-            <div className="flex items-center gap-6">
-              <SVGIcon icon="iconTime" size="xxs" />
-              <span>{startDate ? formatTime(startDate) : "-"}</span>
-            </div>
-            <div className="w-px h-8 bg-background-tertiary " />
             <div className="flex items-center gap-6">
               <SVGIcon icon="iconRepeat" size="xxs" />
               <span>{getFrequencyText(frequency)}</span>

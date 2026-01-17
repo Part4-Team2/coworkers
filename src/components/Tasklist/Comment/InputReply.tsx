@@ -45,7 +45,9 @@ export default function InputReply({ taskId, onCreate }: InputReplyProps) {
 
       // 입력창 초기화
       setCommentText("");
-    } catch (err) {
+
+      toast.success("댓글이 등록되었습니다.");
+    } catch {
       toast.error("댓글 생성 중 오류가 발생했습니다.");
     }
   };
@@ -63,7 +65,7 @@ export default function InputReply({ taskId, onCreate }: InputReplyProps) {
             setCommentText(e.target.value);
           }
         }}
-        className="flex-1 resize-none field-sizing-content placeholder-text-default text-text-primary text-md font-regular"
+        className="flex-1 resize-none field-sizing-content placeholder-text-default text-text-primary text-md font-regular outline-none focus:outline-none"
       ></textarea>
       <button type="submit" disabled={!isActive}>
         <SVGIcon icon={isActive ? "btnEnterActive" : "btnEnterDefault"} />
