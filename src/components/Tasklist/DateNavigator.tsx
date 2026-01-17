@@ -6,11 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 
-export default function DateNavigatorContainer({
-  baseDate,
-}: {
-  baseDate: string;
-}) {
+export default function DateNavigator({ baseDate }: { baseDate: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -24,7 +20,7 @@ export default function DateNavigatorContainer({
   const updateDate = (date: Date) => {
     const params = new URLSearchParams(searchParams);
     params.set("date", formatForQuery(date));
-    router.push(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handlePrev = () => updateDate(addDays(currentDate, -1));

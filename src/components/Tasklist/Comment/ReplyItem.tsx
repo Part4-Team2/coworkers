@@ -8,6 +8,7 @@ import Dropdown from "../../Common/Dropdown/Dropdown";
 import { CommentResponse } from "@/lib/types/comment";
 import { useSearchParams } from "next/navigation";
 import { deleteComment, patchComment } from "@/lib/api/comment";
+import { toast } from "react-toastify";
 
 type CommentItemProps = {
   comment: CommentResponse;
@@ -37,7 +38,7 @@ export default function ReplyItem({
       });
 
       if (!res.success) {
-        alert(res.error);
+        toast.error("댓글 수정에 실패했습니다.");
         onUpdate(comment.id, comment.content); // rollback
       }
     },
@@ -49,7 +50,7 @@ export default function ReplyItem({
       if (res.success) {
         onRemove(comment.id); // 부모 상태 업데이트
       } else {
-        alert(res.error);
+        toast.error("댓글 삭제에 실패했습니다.");
       }
     },
     deleteModalTitle: "해당 댓글을 정말 삭제하시겠어요?",

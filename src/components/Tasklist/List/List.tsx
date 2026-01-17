@@ -4,20 +4,21 @@ import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import { Modal } from "@/components/Common/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import useKebabMenu from "@/hooks/useKebabMenu";
-import { TaskListItem } from "@/types/task";
+import { Task } from "@/lib/types/task";
 import { formatDate, formatTime } from "@/utils/date";
 import { getFrequencyText } from "@/utils/frequency";
 import clsx from "clsx";
 
-export interface ListProps extends TaskListItem {
+export interface ListProps extends Task {
   onClick?: () => void;
   isToggle?: boolean;
   onToggle?: (id: number) => void;
   variant?: "simple" | "detailed";
-  onUpdateTask?: (taskId: number, updates: Partial<TaskListItem>) => void;
+  onUpdateTask?: (taskId: number, updates: Partial<Task>) => void;
   onDeleteTask?: (task: { id: number; recurringId: number }) => void;
   onEditTask?: (taskId: number) => void;
   hideKebab?: boolean;
+  startDate?: string;
 }
 
 export default function List(props: ListProps) {
@@ -29,7 +30,7 @@ export default function List(props: ListProps) {
     variant,
     commentCount,
     frequency,
-    date,
+    startDate,
     onClick,
     onUpdateTask,
     onDeleteTask,
@@ -128,12 +129,12 @@ export default function List(props: ListProps) {
           <div className="flex items-center gap-10 text-text-default text-xs font-regular">
             <div className="flex items-center gap-6">
               <SVGIcon icon="calendar" size="xxs" />
-              <span>{date ? formatDate(date) : "-"}</span>
+              <span>{startDate ? formatDate(startDate) : "-"}</span>
             </div>
             <div className="w-px h-8 bg-background-tertiary" />
             <div className="flex items-center gap-6">
               <SVGIcon icon="iconTime" size="xxs" />
-              <span>{date ? formatTime(date) : "-"}</span>
+              <span>{startDate ? formatTime(startDate) : "-"}</span>
             </div>
             <div className="w-px h-8 bg-background-tertiary " />
             <div className="flex items-center gap-6">

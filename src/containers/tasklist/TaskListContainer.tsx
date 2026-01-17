@@ -1,322 +1,452 @@
 "use client";
 
-import List from "@/components/Tasklist/List/List";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { getGroup, GroupDetailResponse } from "@/lib/api/group";
+import { createTaskList, getTaskList } from "@/lib/api/tasklist";
 import { useEffect, useMemo, useState } from "react";
+import List from "@/components/Tasklist/List/List";
+import DateNavigator from "@/components/Tasklist/DateNavigator";
 import TaskDetailsContainer from "./tasks/TaskDetailsContainer";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import TaskCreateModal, {
+  CreateTaskForm,
+} from "@/components/Tasklist/TaskCreateModal";
+import TaskCreateButton from "../../components/Tasklist/TaskCreateButton";
+import { GetTaskListResponse, Task } from "@/lib/types/task";
 import {
-  deleteTasks,
-  getSpecificTask,
-  getTasks,
-  patchTask,
+  createTasks,
+  deleteTask,
+  deleteTaskRecurring,
+  updateTask,
 } from "@/lib/api/task";
-import TaskCreateModal from "@/components/Tasklist/TaskCreateModal";
-import { TaskDetail } from "@/types/task";
+import ListCreateButton from "@/components/Tasklist/ListCreateButton";
+import TabList from "@/components/Tasklist/Tab/TabList";
+import { toast } from "react-toastify";
 
-interface TaskListProps {
-  groupId: number;
-  listId: string;
-  baseDate: string;
+interface TaskListPageContainerProps {
+  groupId: string;
+  selectedTaskListId: string;
+  selectedDate?: string;
 }
 
-interface TaskWithToggle extends TaskDetail {
-  isToggle: boolean; // doneAt나 doneBy 기반 UI 토글
-}
-
-export default function TaskListContainer({
+export default function TaskListPageContainer({
   groupId,
-  listId,
-  baseDate,
-}: TaskListProps) {
+  selectedTaskListId,
+  selectedDate,
+}: TaskListPageContainerProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [tasks, setTasks] = useState<TaskWithToggle[]>([]);
+  const [taskLists, setTaskLists] = useState<GroupDetailResponse["taskLists"]>(
+    []
+  );
+  const [selectedTaskListData, setSelectedTaskListData] =
+    useState<GetTaskListResponse | null>(null); // 선택된 것
+  const [editTaskId, setEditTaskId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-  const [editTask, setEditTask] = useState<TaskDetail | undefined>();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // 탭 바뀔 때 마다 API 호출
-  useEffect(() => {
-    fetchTasks();
-  }, [groupId, listId, baseDate]);
-
-  const fetchTasks = async () => {
-    setLoading(true);
-    try {
-      const response = await getTasks(groupId, Number(listId), baseDate);
-
-      if (response && "error" in response) {
-        setTasks([]);
-      } else {
-        setTasks(
-          (response ?? []).map((task: TaskDetail) => ({
-            ...task,
-            isToggle: !!task.doneAt || (task.doneBy?.length ?? 0) > 0,
-          }))
-        );
-      }
-    } catch {
-      setTasks([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const openTaskId = searchParams.get("task");
-  const openTask = useMemo(
-    () => tasks.find((task) => task.id.toString() === openTaskId),
-    [tasks, openTaskId]
+  const openTask = selectedTaskListData?.tasks.find(
+    (task) => task.id.toString() === openTaskId
   );
+
+  const editingTask = useMemo(() => {
+    return selectedTaskListData?.tasks.find((t) => t.id === editTaskId) ?? null;
+  }, [selectedTaskListData, editTaskId]);
 
   // 사이드바 열릴 때 배경 스크롤 방지
   useEffect(() => {
-    document.body.style.overflow = openTask ? "hidden" : "";
+    if (openTask) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+
     return () => {
-      document.body.style.overflow = "";
+      document.body.classList.remove("no-scroll");
     };
   }, [openTask]);
+  // 리스트 페이지 헤더 날짜(date가 있으면 해당날짜, 없으면 "오늘")
+  const baseDate = selectedDate ?? new Date().toISOString();
 
+  // 1. 초기 로드: 모든 TaskList 가져오기
+  useEffect(() => {
+    async function loadTaskLists() {
+      try {
+        const response = await getGroup(groupId); // 이 API 필요!
+        if (response.success) {
+          setTaskLists(response.data.taskLists);
+        } else {
+          toast.error("리스트를 가져오는 중 오류가 발생했습니다.");
+        }
+      } catch (e) {
+        toast.error("리스트를 가져오는 중 오류가 발생했습니다.");
+      }
+      setLoading(false);
+    }
+    loadTaskLists();
+  }, [groupId]);
+
+  // 2. 선택된 TaskList 변경시 상세 데이터 가져오기
+  useEffect(() => {
+    if (!selectedTaskListId) return;
+
+    async function loadSelectedTaskList() {
+      try {
+        const date = selectedDate || new Date().toISOString().split("T")[0];
+        const response = await getTaskList(groupId, selectedTaskListId, {
+          date,
+        });
+
+        if (response.success) {
+          setSelectedTaskListData(response.data);
+        } else {
+          toast.error("할 일 불러오는 중 오류가 발생했습니다.");
+        }
+      } catch (e) {
+        toast.error("할 일 불러오는 중 오류가 발생했습니다.");
+      }
+    }
+
+    loadSelectedTaskList();
+  }, [groupId, selectedTaskListId, selectedDate]);
+
+  // Task 클릭 핸들러 - 상세보기용
   const handleTaskClick = (taskId: number) => {
     const params = new URLSearchParams(searchParams);
     params.set("task", taskId.toString());
-    router.push(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handleCloseSidebar = () => {
     const params = new URLSearchParams(searchParams);
     params.delete("task");
-    router.push(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
-  const handleToggle = async (id: number) => {
-    // 현재 task의 done 상태 확인
-    const currentTask = tasks.find((task) => task.id === id);
-    if (!currentTask) return;
+  // Task 완료 토글
+  const handleTaskToggle = async (taskId: number) => {
+    if (!selectedTaskListData) return;
 
-    const newDoneState = !currentTask.isToggle;
-
-    // 낙관적 업데이트 (UI 먼저 변경)
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === id ? { ...task, isToggle: newDoneState } : task
-      )
+    const targetTask = selectedTaskListData.tasks.find(
+      (task) => task.id === taskId
     );
+    if (!targetTask) return;
+
+    const willBeDone = !targetTask.doneAt;
+
+    // 낙관적 업데이트
+    setSelectedTaskListData({
+      ...selectedTaskListData,
+      tasks: selectedTaskListData.tasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              doneAt: task.doneAt ? null : new Date().toISOString(),
+            }
+          : task
+      ),
+    });
 
     try {
-      // API 호출
-      const result = await patchTask(groupId, Number(listId), id, {
-        done: newDoneState,
-      });
-
-      if ("error" in result) {
-        // 에러 발생 시 원래 상태로 롤백
-        setTasks((prevTasks) =>
-          prevTasks.map((task) =>
-            task.id === id ? { ...task, isToggle: currentTask.isToggle } : task
-          )
-        );
-        alert(result.message);
-        return;
+      const response = await updateTask(
+        groupId,
+        selectedTaskListId,
+        String(taskId),
+        {
+          done: willBeDone,
+        }
+      );
+      if (!response.success) {
+        toast.error("완료 상태 변경 중 오류가 발생했습니다.");
       }
-
-      // 성공 시 서버 응답으로 업데이트
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === id
-            ? {
-                ...task,
-                ...result,
-                isToggle: !!result.doneAt || (task.doneBy?.length ?? 0) > 0,
-              }
-            : task
-        )
-      );
-    } catch (err) {
-      // 네트워크 에러 시 롤백
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === id ? { ...task, isToggle: currentTask.isToggle } : task
-        )
-      );
-      console.error(err);
-      alert("할 일 상태 변경에 실패했습니다.");
+    } catch {
+      toast.error("완료 상태 변경 중 오류가 발생했습니다.");
     }
   };
 
-  const handleUpdateTask = async (
-    taskId: number,
-    updates: Partial<TaskDetail>
-  ) => {
+  // Task 업데이트
+  const handleUpdateTask = async (taskId: number, updates: Partial<Task>) => {
+    if (!selectedTaskListData) return;
+
+    // 낙관적 업데이트
+    setSelectedTaskListData({
+      ...selectedTaskListData,
+      tasks: selectedTaskListData.tasks.map((task) =>
+        task.id === taskId ? { ...task, ...updates } : task
+      ),
+    });
+
     try {
-      const result = await patchTask(groupId, Number(listId), taskId, updates);
-
-      if ("error" in result) {
-        alert(result.message);
-        return;
-      }
-
-      setTasks((prev) =>
-        prev.map((t) => (t.id === taskId ? { ...t, ...result } : t))
+      const response = await updateTask(
+        groupId,
+        selectedTaskListId,
+        String(taskId),
+        updates
       );
-    } catch (err) {
-      console.error(err);
-      alert("업데이트 중 오류가 발생했습니다.");
-    }
-  };
-
-  const handleOpenEditModal = async (taskId: number) => {
-    const detail = await getSpecificTask(groupId, Number(listId), taskId);
-
-    if ("error" in detail) {
-      alert(detail.message);
-      return;
+      if (!response.success) {
+        toast.error("할 일 수정 중 오류가 발생했습니다.");
+      }
+    } catch {
+      toast.error("할 일 수정 중 오류가 발생했습니다.");
     }
 
-    setEditTask(detail);
-    setIsModalOpen(true);
+    setEditTaskId(null);
   };
 
+  // Task 삭제
   const handleDeleteTask = async (task: {
     id: number;
     recurringId: number;
   }) => {
-    try {
-      const result = await deleteTasks(
-        groupId,
-        Number(listId),
-        task.id,
-        task.recurringId
-      );
+    if (!selectedTaskListData) return;
 
-      if ("error" in result) {
-        alert(result.message);
-        return;
+    // 낙관적 업데이트
+    setSelectedTaskListData({
+      ...selectedTaskListData,
+      tasks: selectedTaskListData.tasks.filter((t) => t.id !== task.id),
+    });
+
+    try {
+      let response;
+      if (task.recurringId) {
+        response = await deleteTaskRecurring(
+          groupId,
+          selectedTaskListId,
+          String(task.id),
+          String(task.recurringId)
+        );
+      } else {
+        response = await deleteTask(
+          groupId,
+          selectedTaskListId,
+          String(task.id)
+        );
       }
 
-      setTasks((prev) => prev.filter((t) => t.id !== task.id));
-    } catch (err) {
-      console.error(err);
-      alert("삭제 중 오류가 발생했습니다.");
+      if (!response.success) {
+        toast.error("할 일 삭제 중 오류가 발생했습니다.");
+      }
+    } catch {
+      toast.error("할 일 삭제 중 오류가 발생했습니다.");
     }
-  };
 
-  // 삭제 핸들러 추가
-  const handleTaskDeleted = (taskId: number, rollback?: boolean) => {
-    // 1. UI에서 삭제
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
-
-    // 2. URL에서 task 파라미터 제거
     const params = new URLSearchParams(searchParams);
     params.delete("task");
     router.push(`${pathname}?${params.toString()}`);
+  };
 
-    // 3. API 실패 시 rollback
-    if (rollback) {
-      fetchTasks();
+  // Task 편집 (모달 등)
+  const handleEditTask = (taskId: number) => {
+    setEditTaskId(taskId);
+  };
+
+  // handleCreateTask 함수만 수정
+  const handleCreateTask = async (form: CreateTaskForm) => {
+    if (!selectedTaskListData) return;
+
+    // ✅ 날짜와 시간을 올바르게 병합
+    const year = form.startDate.getFullYear();
+    const month = form.startDate.getMonth();
+    const date = form.startDate.getDate();
+    const hours = form.startTime.getHours();
+    const minutes = form.startTime.getMinutes();
+
+    // 로컬 시간으로 Date 객체 생성
+    const localDateTime = new Date(year, month, date, hours, minutes, 0, 0);
+
+    const createPayload = (() => {
+      const basePayload = {
+        name: form.name,
+        description: form.description,
+        // ✅ 로컬 시간을 UTC로 자동 변환하여 전송
+        startDate: localDateTime.toISOString(),
+      };
+
+      switch (form.frequencyType) {
+        case "MONTHLY":
+          return {
+            ...basePayload,
+            frequencyType: "MONTHLY" as const,
+            monthDay: form.monthDay!,
+          };
+        case "WEEKLY":
+          return {
+            ...basePayload,
+            frequencyType: "WEEKLY" as const,
+            weekDays: form.weekDays!,
+          };
+        case "DAILY":
+          return {
+            ...basePayload,
+            frequencyType: "DAILY" as const,
+          };
+        case "ONCE":
+          return {
+            ...basePayload,
+            frequencyType: "ONCE" as const,
+          };
+      }
+    })();
+
+    const response = await createTasks(
+      groupId,
+      selectedTaskListId,
+      createPayload
+    );
+
+    if (!response.success) {
+      toast.error("할 일 생성에 실패했습니다.");
+      return;
+    }
+
+    const targetDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+    const currentDate = selectedDate || new Date().toISOString().split("T")[0];
+
+    const params = new URLSearchParams(searchParams);
+
+    if (targetDate !== currentDate) {
+      params.set("date", targetDate);
+      router.push(`${pathname}?${params.toString()}`);
+    } else {
+      const refreshResponse = await getTaskList(groupId, selectedTaskListId, {
+        date: targetDate,
+      });
+
+      if (refreshResponse.success) {
+        setSelectedTaskListData({
+          ...refreshResponse.data,
+          tasks: refreshResponse.data.tasks,
+        });
+      }
     }
   };
 
-  if (loading) return <div className="text-center p-40">로딩 중...</div>;
+  const handleCreateList = async (name: string) => {
+    if (!name.trim()) return;
+
+    // 낙관적 업데이트
+    setTaskLists((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        name,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        groupId: Number(groupId),
+        displayIndex: prev.length,
+        tasks: [],
+      },
+    ]);
+
+    try {
+      const response = await createTaskList(groupId, name);
+      if (!response.success) {
+        toast.error("할 일 목록 생성 중 오류가 발생했습니다.");
+      }
+    } catch {
+      toast.error("할 일 목록 생성 중 오류가 발생했습니다.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="relative max-w-[1200px] mx-auto my-0 sm:px-24 px-16">
+        <div className="text-xl font-bold mt-40">로딩중...</div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div>
-        {tasks.length === 0 ? (
-          <div className="text-text-default text-center mx-auto my-0 p-100">
-            아직 할 일이 없습니다 <br /> 할 일을 추가해보세요.
+    <div className="relative max-w-[1200px] mx-auto my-0 sm:px-24 px-16 mb-80">
+      <div className="flex flex-col gap-24">
+        <div className="text-xl font-bold mt-40">할 일</div>
+
+        <div className="flex justify-between">
+          <DateNavigator baseDate={baseDate} />
+          <ListCreateButton onCreate={handleCreateList} />
+        </div>
+        <div className="h-20">
+          <div className="overflow-x-auto custom-scrollbar">
+            <TabList tabs={taskLists} />
           </div>
-        ) : (
-          <div className="flex flex-col gap-16">
-            {tasks.map((task) => (
-              <List
-                key={task.id}
-                id={task.id}
-                name={task.name}
-                isToggle={task.isToggle}
-                onToggle={handleToggle}
-                variant="detailed"
-                commentCount={task.commentCount}
-                frequency={task.frequency}
-                date={task.date}
-                displayIndex={task.displayIndex}
-                recurringId={task.recurringId}
-                onClick={() => handleTaskClick(task.id)}
-                onDeleteTask={handleDeleteTask}
-                onUpdateTask={handleUpdateTask}
-                onEditTask={handleOpenEditModal}
-              />
-            ))}
+        </div>
+        <main className="flex-1">
+          {selectedTaskListData && (
+            <div className="flex flex-col gap-16">
+              {selectedTaskListData.tasks.length === 0 ? (
+                <div className="text-text-default text-center mx-auto my-0 p-100">
+                  아직 할 일이 없습니다 <br /> 할 일을 추가해보세요.
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-8">
+                    {selectedTaskListData.tasks.map((task) => (
+                      <List
+                        {...task}
+                        key={task.id}
+                        onClick={() => handleTaskClick(task.id)}
+                        isToggle={!!task.doneAt}
+                        onToggle={handleTaskToggle}
+                        variant="detailed"
+                        onUpdateTask={handleUpdateTask}
+                        onDeleteTask={handleDeleteTask}
+                        onEditTask={handleEditTask}
+                        startDate={task.date}
+                      />
+                    ))}
+
+                    <TaskCreateModal
+                      isOpen={editTaskId !== null}
+                      onClose={() => setEditTaskId(null)}
+                      taskToEdit={editingTask}
+                      onSubmit={(form) => {
+                        if (editTaskId) {
+                          handleUpdateTask(editTaskId, form); // PATCH
+                        } else {
+                          handleCreateTask(form); // POST
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {openTask && (
+                    <div
+                      onClick={handleCloseSidebar}
+                      className="fixed inset-0 bg-black/30 z-50"
+                    >
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="fixed right-0 top-0 h-full w-full sm:w-[600px] bg-background-secondary shadow-xl overflow-y-auto"
+                      >
+                        <TaskDetailsContainer
+                          task={openTask}
+                          onClose={handleCloseSidebar}
+                          onToggleDone={(id) => handleTaskToggle(id)}
+                          onTaskUpdated={(update) =>
+                            handleUpdateTask(update.id, update)
+                          }
+                          onTaskDeleted={(id) =>
+                            handleDeleteTask({
+                              id,
+                              recurringId: openTask.recurringId,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </main>
+        {!openTask && (
+          <div className="fixed bottom-50 z-50 right-[max(1.5rem,calc(50%-600px+1.5rem))]">
+            <TaskCreateButton onCreateTask={handleCreateTask} />
           </div>
         )}
       </div>
-
-      <TaskCreateModal
-        groupId={groupId.toString()}
-        taskListId={listId}
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditTask(undefined);
-        }}
-        taskToEdit={editTask}
-        onTaskUpdated={(updatedTask) => {
-          setTasks((prev) =>
-            prev.map((t) =>
-              t.id === updatedTask.id
-                ? {
-                    ...t,
-                    ...updatedTask,
-                    isToggle:
-                      !!updatedTask.doneAt || (t.doneBy?.length ?? 0) > 0,
-                  }
-                : t
-            )
-          );
-        }}
-        onTaskCreated={(newTask) => {
-          setTasks((prev) => {
-            const next = [{ ...newTask, isToggle: false }, ...prev];
-            return next;
-          });
-        }}
-      />
-
-      {openTask && (
-        <div
-          onClick={handleCloseSidebar}
-          className="fixed inset-0 bg-black/30 z-50"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="fixed right-0 top-0 h-full w-full sm:w-[600px] bg-background-secondary shadow-xl overflow-y-auto"
-          >
-            <TaskDetailsContainer
-              task={openTask}
-              groupId={groupId}
-              taskListId={Number(listId)}
-              onClose={handleCloseSidebar}
-              onTaskUpdated={(updatedTask) => {
-                setTasks((prev) =>
-                  prev.map((t) =>
-                    t.id === updatedTask.id
-                      ? {
-                          ...t,
-                          ...updatedTask,
-                          isToggle:
-                            !!updatedTask.doneAt ||
-                            (updatedTask.doneBy?.length ?? 0) > 0,
-                        }
-                      : t
-                  )
-                );
-              }}
-              onTaskDeleted={handleTaskDeleted}
-            />
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 }
