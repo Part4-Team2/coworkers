@@ -9,6 +9,7 @@ import Modal from "@/components/Common/Modal/Modal";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { useForm } from "react-hook-form";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { postImage } from "@/lib/api/image";
 import { patchUser, deleteUser, patchUserPassword } from "@/lib/api/user";
 import { useRouter } from "next/navigation";
@@ -39,7 +40,13 @@ export default function MyPageContainer({
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string>("");
   const [passwordChangeError, setPasswordChangeError] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate: mutateName, isLoading: isSubmittingName } = useApiMutation();
+  const { mutate: mutatePassword, isLoading: isSubmittingPassword } =
+    useApiMutation();
+  const { mutate: mutateWithdraw, isLoading: isSubmittingWithdraw } =
+    useApiMutation();
+  const isSubmitting =
+    isSubmittingName || isSubmittingPassword || isSubmittingWithdraw;
 
   const {
     previewUrl,
@@ -98,35 +105,22 @@ export default function MyPageContainer({
   };
 
   const onNameSubmit = async (data: NameFormData) => {
-    if (isSubmitting) return;
-
     setNameError("");
 
-    try {
-      setIsSubmitting(true);
-
+    await mutateName(async () => {
       let uploadedImageUrl: string | null = null;
 
       // 새 이미지가 선택된 경우 업로드
       if (selectedFile) {
-        try {
-          const imageResponse = await postImage(selectedFile);
-          if (!imageResponse.success) {
-            const errorMessage =
-              imageResponse.error || "이미지 업로드에 실패했습니다.";
-            setNameError(errorMessage);
-            showErrorToast(errorMessage);
-            setIsSubmitting(false);
-            return;
-          }
-          uploadedImageUrl = imageResponse.data.url;
-        } catch {
-          const errorMessage = "이미지 업로드에 실패했습니다.";
+        const imageResponse = await postImage(selectedFile);
+        if (!imageResponse.success) {
+          const errorMessage =
+            imageResponse.error || "이미지 업로드에 실패했습니다.";
           setNameError(errorMessage);
           showErrorToast(errorMessage);
-          setIsSubmitting(false);
-          return;
+          throw new Error(errorMessage);
         }
+        uploadedImageUrl = imageResponse.data.url;
       }
 
       // 이름이 변경되었거나 이미지가 업로드된 경우 업데이트
@@ -143,12 +137,11 @@ export default function MyPageContainer({
         }
 
         const response = await patchUser(updateData);
-        if ("error" in response) {
-          const errorMessage = response.message || "업데이트에 실패했습니다.";
+        if (!response.success) {
+          const errorMessage = response.error || "업데이트에 실패했습니다.";
           setNameError(errorMessage);
           showErrorToast(errorMessage);
-          setIsSubmitting(false);
-          return;
+          throw new Error(errorMessage);
         }
 
         // 성공 시 이미지 상태 초기화
@@ -159,14 +152,15 @@ export default function MyPageContainer({
         // 성공 피드백 및 데이터 갱신
         showSuccessToast("프로필이 업데이트되었습니다.");
         router.refresh(); // 서버에서 최신 데이터 가져오기
+        return response;
       }
-    } catch {
-      const errorMessage = "업데이트에 실패했습니다. 다시 시도해주세요.";
-      setNameError(errorMessage);
-      showErrorToast(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+    }).catch(() => {
+      if (!nameError) {
+        const errorMessage = "업데이트에 실패했습니다. 다시 시도해주세요.";
+        setNameError(errorMessage);
+        showErrorToast(errorMessage);
+      }
+    });
   };
 
   // 엔터 키 핸들러
@@ -178,61 +172,57 @@ export default function MyPageContainer({
   };
 
   const onPasswordChangeSubmit = async (data: PasswordChangeFormData) => {
-    if (isSubmitting) return;
-
     setPasswordChangeError("");
     const requestData: UpdatePasswordBody = {
       passwordConfirmation: data.newPasswordConfirmation,
       password: data.newPassword,
     };
-    try {
-      setIsSubmitting(true);
+
+    await mutatePassword(async () => {
       const response = await patchUserPassword(requestData);
 
-      if ("error" in response) {
-        const errorMessage =
-          response.message || "비밀번호 변경에 실패했습니다.";
+      if (!response.success) {
+        const errorMessage = response.error || "비밀번호 변경에 실패했습니다.";
         setPasswordChangeError(errorMessage);
         showErrorToast(errorMessage);
-        setIsSubmitting(false);
-        return;
+        throw new Error(errorMessage);
       }
 
       // 성공 시 모달 닫기
       showSuccessToast("비밀번호가 변경되었습니다.");
       handleClose();
-    } catch {
-      const errorMessage = "비밀번호 변경에 실패했습니다. 다시 시도해주세요.";
-      setPasswordChangeError(errorMessage);
-      showErrorToast(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    }).catch(() => {
+      if (!passwordChangeError) {
+        const errorMessage = "비밀번호 변경에 실패했습니다. 다시 시도해주세요.";
+        setPasswordChangeError(errorMessage);
+        showErrorToast(errorMessage);
+      }
+    });
   };
 
   const handleWithdraw = async () => {
-    if (isSubmitting) return;
-    try {
-      setIsSubmitting(true);
+    await mutateWithdraw(async () => {
       const response = await deleteUser();
 
-      if ("error" in response) {
-        const errorMessage = response.message || "회원 탈퇴에 실패했습니다.";
+      if (!response.success) {
+        const errorMessage = response.error || "회원 탈퇴에 실패했습니다.";
         setNameError(errorMessage);
         showErrorToast(errorMessage);
-        return;
+        throw new Error(errorMessage);
       }
 
       // 성공 시 로그인 페이지로 리다이렉트 (쿠키 삭제 후)
       showSuccessToast("회원 탈퇴가 완료되었습니다.");
       router.replace("/login");
-    } catch {
-      const errorMessage = "회원 탈퇴에 실패했습니다. 다시 시도해주세요.";
-      setNameError(errorMessage);
-      showErrorToast(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    }).catch(() => {
+      if (!nameError) {
+        const errorMessage = "회원 탈퇴에 실패했습니다. 다시 시도해주세요.";
+        setNameError(errorMessage);
+        showErrorToast(errorMessage);
+      }
+    });
   };
 
   return (
@@ -402,8 +392,9 @@ export default function MyPageContainer({
         primaryButton={{
           label: "변경하기",
           onClick: handleSubmitPassword(onPasswordChangeSubmit),
-          disabled: isSubmitting || hasPasswordErrors || isPasswordEmpty,
-          loading: isSubmitting,
+          disabled:
+            isSubmittingPassword || hasPasswordErrors || isPasswordEmpty,
+          loading: isSubmittingPassword,
         }}
         secondaryButton={{
           label: "닫기",

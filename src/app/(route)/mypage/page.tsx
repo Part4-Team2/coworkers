@@ -20,9 +20,9 @@ export default async function MyPage() {
 
   return (
     <MyPageContainer
-      initialImage={userData.image}
-      initialNickname={userData.nickname}
-      initialEmail={userData.email}
+      initialImage={userData.data.image}
+      initialNickname={userData.data.nickname}
+      initialEmail={userData.data.email}
     />
   );
 }

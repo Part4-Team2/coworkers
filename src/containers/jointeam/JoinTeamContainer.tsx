@@ -7,6 +7,7 @@ import Button from "@/components/Common/Button/Button";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { postGroupAcceptInvitation } from "@/lib/api/group";
 import { showErrorToast, showSuccessToast } from "@/utils/error";
 
@@ -16,9 +17,8 @@ interface JoinTeamFormData {
 
 export default function JoinTeamContainer({ email }: { email: string }) {
   const router = useRouter();
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [joinTeamError, setJoinTeamError] = useState<string>("");
+  const { mutate, isLoading: isSubmitting } = useApiMutation();
   const {
     register,
     handleSubmit,
@@ -30,20 +30,17 @@ export default function JoinTeamContainer({ email }: { email: string }) {
   });
 
   const onSubmit = async (data: JoinTeamFormData) => {
-    if (isSubmitting) return;
     setJoinTeamError("");
-    setIsSubmitting(true);
 
     // URL에서 token 쿼리 파라미터 추출
     let token = "";
     try {
       const url = new URL(data.teamLink);
       token = url.searchParams.get("token") || "";
-    } catch (error) {
+    } catch {
       const errorMessage = "올바른 URL 형식이 아닙니다.";
       setJoinTeamError(errorMessage);
       showErrorToast(errorMessage);
-      setIsSubmitting(false);
       return;
     }
 
@@ -51,7 +48,6 @@ export default function JoinTeamContainer({ email }: { email: string }) {
       const errorMessage = "토큰이 포함된 링크가 아닙니다.";
       setJoinTeamError(errorMessage);
       showErrorToast(errorMessage);
-      setIsSubmitting(false);
       return;
     }
 
@@ -60,7 +56,7 @@ export default function JoinTeamContainer({ email }: { email: string }) {
       token: token,
     };
 
-    try {
+    await mutate(async () => {
       const response = await postGroupAcceptInvitation(requestData);
       if ("error" in response) {
         const errorMessage =
@@ -68,17 +64,18 @@ export default function JoinTeamContainer({ email }: { email: string }) {
           "초대 링크가 만료되었거나 유효하지 않습니다. 다시 시도해주세요.";
         setJoinTeamError(errorMessage);
         showErrorToast(errorMessage);
-        return;
+        throw new Error(errorMessage);
       }
       showSuccessToast("팀 참여에 성공했습니다.");
       router.push(`/${response.groupId}`);
-    } catch (error) {
-      const errorMessage = "팀 참여에 실패했습니다. 다시 시도해주세요.";
-      setJoinTeamError(errorMessage);
-      showErrorToast(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    }).catch(() => {
+      if (!joinTeamError) {
+        const errorMessage = "팀 참여에 실패했습니다. 다시 시도해주세요.";
+        setJoinTeamError(errorMessage);
+        showErrorToast(errorMessage);
+      }
+    });
   };
 
   return (

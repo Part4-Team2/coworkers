@@ -9,10 +9,8 @@ import {
   ArticleComment,
 } from "@/types/articleComment";
 import { fetchApi } from "@/utils/api";
-
-export type ApiResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+import { REVALIDATE_TIME } from "@/constants/revalidate";
+import { ApiResult } from "@/lib/types/api";
 
 interface GetArticlesProps {
   page?: number;
@@ -46,7 +44,7 @@ export async function getArticles({
     if (keyword) params.set("keyword", keyword);
 
     const response = await fetchApi(`${BASE_URL}/articles?${params}`, {
-      next: { revalidate: 60 },
+      next: { revalidate: REVALIDATE_TIME.ARTICLE },
     });
 
     if (!response.ok) {
@@ -76,7 +74,7 @@ export async function getArticle({
   try {
     const response = await fetchApi(`${BASE_URL}/articles/${articleId}`, {
       method: "GET",
-      next: { revalidate: 60 },
+      next: { revalidate: REVALIDATE_TIME.ARTICLE },
     });
 
     if (!response.ok) {
@@ -205,7 +203,7 @@ export async function getArticleComments({
     const response = await fetchApi(
       `${BASE_URL}/articles/${articleId}/comments?${params}`,
       {
-        next: { revalidate: 30 },
+        next: { revalidate: REVALIDATE_TIME.ARTICLE_COMMENT },
       }
     );
 

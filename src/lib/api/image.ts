@@ -2,10 +2,7 @@
 
 import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/lib/api";
-
-export type ApiResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+import { ApiResult } from "@/lib/types/api";
 
 interface ImageUploadResponse {
   url: string;
