@@ -12,7 +12,7 @@ function BestArticleSection() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchBestArticles = async () => {
+  const fetchBestArticles = async (ignore: { current: boolean }) => {
     try {
       const res = await getArticles({
         page: 1,
@@ -20,16 +20,22 @@ function BestArticleSection() {
         orderBy: "like",
       });
 
+      if (ignore.current) return;
       setArticles(res.list);
     } catch (error) {
+      if (ignore.current) return;
       console.error("베스트 게시글 불러오기 오류", error);
     } finally {
-      setIsLoading(false);
+      if (!ignore.current) setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchBestArticles();
+    const ignore = { current: false };
+    fetchBestArticles(ignore);
+    return () => {
+      ignore.current = true;
+    };
   }, []);
 
   if (isLoading) {

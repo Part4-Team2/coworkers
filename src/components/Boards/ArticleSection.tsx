@@ -67,7 +67,9 @@ function ArticleSection({
   if (articles.length === 0) {
     return (
       <div className="flex justify-center items-center">
-        &quot;{keyword}&quot; 검색 결과가 없습니다.
+        {keyword
+          ? `&quot;${keyword}&quot; 검색 결과가 없습니다.`
+          : "게시글이 없습니다."}
       </div>
     );
   }

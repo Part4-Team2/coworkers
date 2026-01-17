@@ -35,6 +35,7 @@ function BoardInput({ value, onChange, onSubmit }: BoardInputProps) {
           onChange={onChange}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
+              e.preventDefault();
               onSubmit();
             }
           }}

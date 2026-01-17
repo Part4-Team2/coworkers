@@ -5,7 +5,7 @@ import Button from "../Common/Button/Button";
 import Comment from "./Comment";
 import CommentSkeleton from "../Common/Skeleton/CommentSkeleton";
 import InputBox from "../Common/Input/InputBox";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useHeaderStore } from "@/store/headerStore";
 import { GetArticleComments } from "@/types/articleComment";
@@ -41,23 +41,6 @@ function CommentSection({
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // 스크롤 감지하는 함수입니다.
-  useEffect(() => {
-    if (!bottomRef.current) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          fetchMoreComments();
-        }
-      },
-      { threshold: 1 }
-    );
-
-    observer.observe(bottomRef.current);
-    return () => observer.disconnect();
-  }, [cursor, hasNext]);
-
   // 댓글 작성 후 버튼을 누르면 처리되는 함수입니다.
   const handleCommentSubmit = async () => {
     // 비로그인이면 로그인 페이지로 이동합니다.
@@ -82,20 +65,8 @@ function CommentSection({
     }
   };
 
-  // 댓글 달면 갱신된 댓글 리스트를 갖고옵니다.
-  const fetchComments = async () => {
-    const data = await getArticleComments({
-      articleId,
-      limit: COMMENT_LIMIT,
-    });
-
-    setCommentList(data.list);
-    setCursor(data.nextCursor);
-    setHasNext(!!data.nextCursor);
-  };
-
   // 아래로 스크롤 한 경우 새로운 댓글을 갖고옵니다.
-  const fetchMoreComments = async () => {
+  const fetchMoreComments = useCallback(async () => {
     if (!cursor || isLoading) {
       return;
     }
@@ -114,14 +85,14 @@ function CommentSection({
         const filtered = res.list.filter((c) => !existingIds.has(c.id));
         return [...prev, ...filtered];
       });
-      setCursor(res.nextCursor ?? null);
+      setCursor(res.nextCursor ?? undefined);
       setHasNext(!!res.nextCursor);
     } catch (error) {
       console.error("댓글 불러오기 실패", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [cursor, isLoading, articleId]);
 
   // 댓글 삭제하면 삭제한 상태로 렌더링합니다.
   const deleteCommentClick = async (deleteId: number) => {
@@ -135,6 +106,23 @@ function CommentSection({
       console.error("삭제하기 오류", error);
     }
   };
+
+  // 스크롤 감지하는 함수입니다.
+  useEffect(() => {
+    if (!bottomRef.current || !hasNext) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNext) {
+          fetchMoreComments();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    observer.observe(bottomRef.current);
+    return () => observer.disconnect();
+  }, [cursor, hasNext, fetchMoreComments]);
 
   // 등록된 댓글 개수에 따라 나오는 UI가 다릅니다.
   const renderComment = () => {
