@@ -53,9 +53,9 @@ export default function MyPageContainer({
   const {
     register: registerName,
     handleSubmit: handleSubmitName,
-    formState: { errors: nameErrors },
+    formState: { errors: nameErrors, isDirty: isNameDirty },
     trigger: triggerName,
-    watch: watchName,
+    getValues: getNameValues,
   } = useForm<NameFormData>({
     mode: "onBlur",
     defaultValues: {
@@ -63,10 +63,9 @@ export default function MyPageContainer({
     },
   });
 
-  const currentName = watchName("name");
-
   // 변경사항이 있는지 확인
-  const hasNameChanged = currentName !== initialNickname;
+  const hasNameChanged =
+    isNameDirty && getNameValues("name") !== initialNickname;
   const hasImageChanged =
     selectedFile !== null ||
     (previewUrl && previewUrl !== (initialImage || undefined));
@@ -76,22 +75,21 @@ export default function MyPageContainer({
     register: registerPassword,
     handleSubmit: handleSubmitPassword,
     formState: { errors: passwordErrors },
-    watch: watchPassword,
+    getValues: getPasswordValues,
     trigger: triggerPassword,
     reset: resetPassword,
   } = useForm<PasswordChangeFormData>({
     mode: "onBlur",
   });
 
-  const newPassword = watchPassword("newPassword");
-  const newPasswordConfirmation = watchPassword("newPasswordConfirmation");
-
   // 비밀번호 변경 모달에서 에러가 있는지 확인
   const hasPasswordErrors =
     !!passwordErrors.newPassword || !!passwordErrors.newPasswordConfirmation;
 
   // 비밀번호 필드가 비어있는지 확인
-  const isPasswordEmpty = !newPassword || !newPasswordConfirmation;
+  const isPasswordEmpty =
+    !getPasswordValues("newPassword") ||
+    !getPasswordValues("newPasswordConfirmation");
 
   const handleClose = () => {
     setOpenModal(null);
@@ -393,7 +391,8 @@ export default function MyPageContainer({
             ...registerPassword("newPasswordConfirmation", {
               required: "비밀번호 확인을 입력해주세요.",
               validate: (value) =>
-                value === newPassword || "비밀번호가 일치하지 않습니다.",
+                value === getPasswordValues("newPassword") ||
+                "비밀번호가 일치하지 않습니다.",
               onBlur: () => triggerPassword("newPasswordConfirmation"),
             }),
             message: passwordErrors.newPasswordConfirmation?.message,

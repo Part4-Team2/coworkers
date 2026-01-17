@@ -29,13 +29,11 @@ export default function SignupContainer() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
+    getValues,
     trigger,
   } = useForm<SignupFormData>({
     mode: "onBlur",
   });
-
-  const password = watch("password");
 
   const onSubmit = async (data: SignupFormData) => {
     if (isSubmitting) return;
@@ -186,7 +184,8 @@ export default function SignupContainer() {
               {...register("confirmPassword", {
                 required: "비밀번호 확인을 입력해주세요.",
                 validate: (value: string) =>
-                  value === password || "비밀번호가 일치하지 않습니다.",
+                  value === getValues("password") ||
+                  "비밀번호가 일치하지 않습니다.",
               })}
             />
           </div>

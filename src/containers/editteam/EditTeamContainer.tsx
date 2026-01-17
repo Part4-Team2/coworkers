@@ -61,11 +61,11 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     trigger,
     setError,
     reset,
-    watch,
+    getValues,
   } = useForm<EditTeamFormData>({
     mode: "onBlur",
     defaultValues: {
@@ -73,10 +73,8 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
     },
   });
 
-  const currentTeamName = watch("teamName");
-
   // 변경사항이 있는지 확인
-  const hasNameChanged = currentTeamName !== initialTeamName;
+  const hasNameChanged = isDirty && getValues("teamName") !== initialTeamName;
   const hasImageChanged =
     selectedFile !== null ||
     (previewUrl && previewUrl !== (initialTeamImage || undefined));
