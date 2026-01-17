@@ -66,6 +66,11 @@ export default function TaskCreateModal({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
 
+  // 모달이 닫힐 때 DatePicker 상태 초기화
+  useEffect(() => {
+    if (!isOpen) setShowDatePicker(false);
+  }, [isOpen]);
+
   // 생성 모드로 모달이 열릴 때 초기화
   useEffect(() => {
     if (isOpen && !taskToEdit) {
