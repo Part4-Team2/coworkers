@@ -1,20 +1,98 @@
 "use client";
 
 import clsx from "clsx";
+import { Article } from "@/types/article";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getArticles } from "@/lib/api/boards";
 import ButtonFloating from "../../../components/Common/Button/ButtonFloating";
 import BoardInput from "../../../components/Boards/BoardInput";
 import BestArticleSection from "@/components/Boards/BestArticleSection";
 import ArticleSection from "@/components/Boards/ArticleSection";
 
+const PAGE_SIZE = 6;
+const ORDER_BY = ["recent", "like"] as const;
+type OrderBy = (typeof ORDER_BY)[number];
+
 function BoardClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const page = Number(searchParams.get("page") ?? 1);
+  // 음수이거나 0보다 낮은 숫자일 때 1로 리턴합니다.
+  const rawpage = Number(searchParams.get("page"));
+  const page = Number.isInteger(rawpage) && rawpage > 0 ? rawpage : 1;
+  // recent, like 아닌 이상한 값이면 recent로 고정합니다.
+  const rawOrderBy = searchParams.get("orderBy");
+  const orderBy = ORDER_BY.includes(rawOrderBy as OrderBy)
+    ? (rawOrderBy as OrderBy)
+    : "recent";
   const keyword = searchParams.get("keyword") ?? "";
 
-  const [inputVal, setInputVal] = useState("");
+  const [inputVal, setInputVal] = useState(keyword);
+  const [totalPage, setTotalPage] = useState(0);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState<Error | null>(null);
+
+  // 키워드를 동기화하는 함수입니다.
+  useEffect(() => {
+    setInputVal(keyword);
+  }, [keyword]);
+
+  // 게시글을 불러오는 함수입니다.
+  useEffect(() => {
+    if (totalPage > 0 && page > totalPage) return;
+    let ignore = false;
+
+    const loadArticles = async () => {
+      setIsLoading(true);
+      setIsError(null);
+
+      try {
+        const res = await getArticles({
+          page,
+          pageSize: PAGE_SIZE,
+          orderBy,
+          keyword: keyword || undefined,
+        });
+        if (ignore) return;
+        setArticles(res.list);
+        setTotalPage(Math.ceil(res.totalCount / PAGE_SIZE));
+      } catch (error) {
+        if (ignore) return;
+        setIsError(
+          error instanceof Error ? error : new Error("게시글 불러오기 실패")
+        );
+        setArticles([]);
+        setTotalPage(0);
+        console.error("게시글 불러오기 실패", error);
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    };
+    loadArticles();
+    return () => {
+      ignore = true;
+    };
+  }, [page, orderBy, keyword]);
+
+  // 페이지가 전체 페이지를 초과하는 경우 마지막 페이지로 대체됩니다.
+  useEffect(() => {
+    if (totalPage > 0 && page > totalPage) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("page", String(totalPage));
+      params.set("orderBy", orderBy);
+
+      router.replace(`/boards?${params.toString()}`);
+    }
+  }, [page, totalPage, searchParams, router, orderBy]);
+
+  // 페이지 바뀔 때 작동하는 함수입니다.
+  const handlePageChange = (nextPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(nextPage));
+    params.set("orderBy", orderBy);
+    router.push(`/boards?${params.toString()}`);
+  };
 
   // 글쓰기 버튼 누를시 글쓰기 페이지로 이동하는 함수입니다.
   const handleWriteClick = () => {
@@ -33,31 +111,29 @@ function BoardClient() {
     }
 
     params.set("page", "1");
+    params.set("orderBy", "recent");
     router.push(`/boards?${params.toString()}`);
   };
 
   return (
     // Page Wrapper
     <div
-      className={clsx(
-        "min-h-screen bg-background-primary",
-        "px-16 sm:px-24 lg:px-0"
-      )}
+      className={clsx("min-h-screen bg-background-primary", "px-16 sm:px-24")}
     >
       {/* content wrapper */}
       <main className="max-w-1200 mx-auto py-40">
         <section className="flex flex-col gap-24 sm:gap-32 lg:gap-40">
           <div className="text-text-primary text-2xl">자유게시판</div>
           {/* 검색 영역 */}
-          <div className="flex gap-8 lg:justify-between">
+          <div className="flex max-w-1200 gap-8 lg:justify-between">
             <BoardInput
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
             />
             <button
               className={clsx(
-                "w-full max-w-100",
-                "hover:bg-background-tertiary bg-background-secondary py-16 px-30",
+                "w-full min-w-0 max-w-100",
+                "hover:bg-background-tertiary bg-background-secondary",
                 "rounded-xl border border-text-primary/10",
                 "text-text-primary text-base cursor-pointer"
               )}
@@ -70,7 +146,16 @@ function BoardClient() {
           <BestArticleSection />
           <div className="border-b border-b-border-primary/10"></div>
           {/* 게시글 */}
-          <ArticleSection keyword={keyword} page={page} />
+          <ArticleSection
+            articles={articles}
+            keyword={keyword}
+            page={page}
+            totalPage={totalPage}
+            orderBy={orderBy}
+            isLoading={isLoading}
+            isError={isError}
+            onPageChange={handlePageChange}
+          />
         </section>
         <div className="fixed right-24 bottom-61 z-30">
           <ButtonFloating

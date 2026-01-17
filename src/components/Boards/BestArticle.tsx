@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import Link from "next/link";
-import Avatar from "@/components/Common/Avatar/Avatar";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import ArticleImage from "./ArticleImage";
 
@@ -9,7 +8,6 @@ interface BestArticleProps {
   title: string;
   createdAt: string;
   nickname: string;
-  avatarImageUrl?: string;
   articleImageUrl?: string;
   likeCount: number;
 }
@@ -20,7 +18,6 @@ function BestArticle({
   title,
   createdAt,
   nickname,
-  avatarImageUrl,
   articleImageUrl,
   likeCount,
 }: BestArticleProps) {
@@ -29,7 +26,7 @@ function BestArticle({
       <div
         className={clsx(
           "bg-background-secondary hover:bg-background-tertiary",
-          "w-343 sm:w-340 lg:w-387 h-178 sm:h-220",
+          "w-full h-178 sm:h-220 min-w-0",
           "pt-12 px-24 pb-16",
           "border border-text-primary/10 rounded-xl"
         )}
@@ -43,7 +40,7 @@ function BestArticle({
             </div>
             <div className="flex flex-col gap-12">
               <div className="flex justify-between items-center">
-                <div className="text-2lg text-text-secondary overflow-hidden text-ellipsis line-clamp-2">
+                <div className="text-2lg text-text-secondary overflow-hidden text-ellipsis line-clamp-1">
                   {title}
                 </div>
                 {articleImageUrl && <ArticleImage image={articleImageUrl} />}
@@ -57,11 +54,6 @@ function BestArticle({
           <div className="flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-12">
-                <Avatar
-                  imageUrl={avatarImageUrl}
-                  altText={`${nickname} 프로필`}
-                  size="large"
-                />
                 <span
                   className={clsx(
                     "max-w-100 overflow-hidden text-ellipsis whitespace-nowrap"

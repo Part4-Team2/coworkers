@@ -1,5 +1,4 @@
 import clsx from "clsx";
-import Avatar from "../Common/Avatar/Avatar";
 import Dropdown from "../Common/Dropdown/Dropdown";
 import { useHeaderStore } from "@/store/headerStore";
 
@@ -10,7 +9,6 @@ interface CommentProps {
   createdAt: string;
   writerId: number;
   nickname: string;
-  avatarImageUrl?: string;
   onDelete: (id: number) => void;
 }
 
@@ -22,7 +20,6 @@ function Comment({
   createdAt,
   writerId,
   nickname,
-  avatarImageUrl,
   onDelete,
 }: CommentProps) {
   const userId = useHeaderStore((state) => state.userId);
@@ -67,10 +64,9 @@ function Comment({
           )}
         </div>
         <div className="flex items-center gap-16 text-sm">
-          <Avatar imageUrl={avatarImageUrl} altText="profile" size="large" />
           <span className="text-text-primary">{nickname}</span>
           <span className="text-slate-700">|</span>
-          <span className="text-slate-400">{createdAt}</span>
+          <span className="text-slate-400">{createdAt.slice(0, 10)}</span>
         </div>
       </div>
     </div>

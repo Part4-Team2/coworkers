@@ -1,7 +1,6 @@
 "use client";
 
 import clsx from "clsx";
-import Avatar from "../Common/Avatar/Avatar";
 import SVGIcon from "../Common/SVGIcon/SVGIcon";
 import Dropdown from "../Common/Dropdown/Dropdown";
 import { useRouter } from "next/navigation";
@@ -12,11 +11,21 @@ interface Props {
   article: Article;
   commentCount: number;
   currentUserId: number | null;
+  likeCount: number;
+  isLike: boolean;
+  toggleLike: () => void;
 }
 
 const ARTICLEDATA = ["수정하기", "삭제하기"];
 
-function ArticleHeader({ article, commentCount, currentUserId }: Props) {
+function ArticleHeader({
+  article,
+  commentCount,
+  currentUserId,
+  likeCount,
+  isLike,
+  toggleLike,
+}: Props) {
   const articleId = article.id;
   const router = useRouter();
   const isAuthor = currentUserId === article.writer.id;
@@ -71,11 +80,10 @@ function ArticleHeader({ article, commentCount, currentUserId }: Props) {
         {/* 작성자, 게시글 생성일자 */}
         <div className="flex gap-16 items-center">
           <div className="flex gap-12 items-center">
-            <Avatar imageUrl={undefined} altText="none" size="large" />
             <span className="text-text-primary">{article.writer.nickname}</span>
           </div>
           <div className="text-text-primary/10">|</div>
-          <div className="text-slate-400">{article.createdAt}</div>
+          <div className="text-slate-400">{article.createdAt.slice(0, 10)}</div>
         </div>
         {/* 좋아요/댓글 개수 표시 */}
         <div className="flex gap-16">
@@ -83,11 +91,16 @@ function ArticleHeader({ article, commentCount, currentUserId }: Props) {
             <SVGIcon icon="comment" size={14} />
             <span>{commentCount}</span>
           </div>
-          <div className="flex gap-4 items-center cursor-pointer">
-            <SVGIcon icon="heart" size={14} />
-            <span>
-              {article.likeCount > 9999 ? "9999+" : article.likeCount}
-            </span>
+          <div
+            className="flex gap-4 items-center cursor-pointer"
+            onClick={toggleLike}
+          >
+            <SVGIcon
+              icon="heart"
+              size={14}
+              className={clsx(isLike ? "fill-gray-500" : "")}
+            />
+            <span>{likeCount > 9999 ? "9999+" : likeCount}</span>
           </div>
         </div>
       </div>

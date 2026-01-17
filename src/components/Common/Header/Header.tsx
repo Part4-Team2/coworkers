@@ -16,8 +16,8 @@ const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로�
 
 const shouldFetchUrls = [
   "/teamlist",
-  "mypage",
-  "addteam",
+  "/mypage",
+  "/addteam",
   /^\/\d+$/,
   /^\/\d+\/edit$/,
 ];
@@ -177,7 +177,7 @@ function Header() {
                   className={clsx("hidden sm:block")}
                   onClick={() => router.push("/addteam")}
                 >
-                  + 팀 추가하기
+                  팀 추가하기
                 </div>
               )}
             </div>
