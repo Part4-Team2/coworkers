@@ -65,12 +65,22 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
     trigger,
     setError,
     reset,
+    watch,
   } = useForm<EditTeamFormData>({
     mode: "onBlur",
     defaultValues: {
       teamName: initialTeamName,
     },
   });
+
+  const currentTeamName = watch("teamName");
+
+  // 변경사항이 있는지 확인
+  const hasNameChanged = currentTeamName !== initialTeamName;
+  const hasImageChanged =
+    selectedFile !== null ||
+    (previewUrl && previewUrl !== (initialTeamImage || undefined));
+  const hasChanges = hasNameChanged || hasImageChanged;
 
   // currentTeam이 업데이트되면 form 값 초기화
   useEffect(() => {
@@ -191,6 +201,7 @@ export default function EditTeamContainer({ teamId }: EditTeamContainerProps) {
               variant="solid"
               size="large"
               type="submit"
+              disabled={isSubmitting || !hasChanges}
               loading={isSubmitting}
             />
           </div>
