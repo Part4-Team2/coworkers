@@ -36,7 +36,6 @@ function Header() {
   const [isSideOpen, setIsSideOpen] = useState<boolean>(false);
 
   const isLogin = useHeaderStore((s) => s.isLogin);
-  const nickname = useHeaderStore((s) => s.nickname);
   const teams = useHeaderStore((s) => s.teams);
   const activeTeam = useHeaderStore((s) => s.activeTeam);
 

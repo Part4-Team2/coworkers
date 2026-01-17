@@ -3,8 +3,7 @@ import ArticleClient from "@/components/Boards/ArticleClient";
 import { notFound } from "next/navigation";
 import { getArticleComments, getArticle } from "@/lib/api/boards";
 
-// UX 요구 때문에 임시로 100개 갖고오게 설정, 추후에 댓글이 많아지면 무한 스크롤로 쉽게 바꾸기 위해 열어둔 상태입니다.
-const COMMENT_LIMIT = 100;
+const COMMENT_LIMIT = 3;
 
 async function ArticlePage({
   params,
@@ -21,7 +20,6 @@ async function ArticlePage({
   try {
     [article, comments] = await Promise.all([
       getArticle({ articleId: id }),
-      // 지금 UX 요구 때문에 임시로 100개 갖고오게 설정, 추후에 댓글이 많아지면 무한 스크롤로 쉽게 바꾸기 위해 열어둔 상태입니다.
       getArticleComments({ articleId: id, limit: COMMENT_LIMIT }),
     ]);
   } catch (error) {
