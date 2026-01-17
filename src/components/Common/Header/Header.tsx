@@ -10,6 +10,7 @@ import Dropdown from "../Dropdown/Dropdown";
 import SVGIcon from "../SVGIcon/SVGIcon";
 import SideHeaderMobile from "./SideHeader/SideHeaderMobile";
 import SideHeaderDesktop from "./SideHeader/SideHeaderDesktop";
+import { showErrorToast, showSuccessToast } from "@/utils/error";
 
 // 유저 프로필을 누르면 나오는 드롭다운 리스트입니다.
 const ACCOUNTLIST = [
@@ -107,10 +108,10 @@ function Header() {
       useHeaderStore.persist.clearStorage();
       clearUser();
       setIsSideOpen(false);
+      showSuccessToast("로그아웃에 성공했습니다.");
       router.push("/");
     } catch (error) {
-      console.error("로그아웃 실패:", error);
-      // 추후에 토스트 같은 걸로 사용자에게 피드백 제공하면 좋을 것 같습니다.
+      showErrorToast("로그아웃에 실패했습니다.");
     }
   };
 
@@ -130,7 +131,12 @@ function Header() {
   };
 
   return (
-    <div className={"bg-background-secondary"}>
+    <div
+      className={clsx(
+        "fixed top-0 left-0 right-0 z-100",
+        "bg-background-secondary"
+      )}
+    >
       <div
         className={clsx(
           "flex justify-between",
