@@ -19,7 +19,7 @@ export default function TaskCreateButton({
     try {
       await onCreateTask(form); // 부모의 handleCreateTask 호출
       setIsModalOpen(false);
-    } catch (err) {
+    } catch {
       toast.error("할일 생성에 실패했습니다.");
     }
   };

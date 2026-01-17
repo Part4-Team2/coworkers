@@ -20,12 +20,12 @@ export default function ListCreateButton({
     <div>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="text-brand-primary flex items-center gap-5"
+        className="text-brand-primary flex items-center gap-5 text-md md:text-base whitespace-nowrap"
       >
         <SVGIcon
           icon="plus"
           size="xxs"
-          className="[--icon-stroke:theme(colors.brand.primary)]"
+          className="[--icon-stroke:var(--color-brand-primary)] shrink-0"
         />
         새로운 목록 추가하기
       </button>

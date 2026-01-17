@@ -14,6 +14,7 @@ interface DropdownProps {
   value?: string;
   icon?: IconMapTypes;
   background?: "primary" | "secondary";
+  align?: "left" | "center";
 
   // 해당 props는 위치를 조절할 수 있게 됩니다.
   listPosition?: string;
@@ -28,6 +29,7 @@ function Dropdown({
   icon = "toggle",
   listPosition = "top-full",
   background = "secondary",
+  align = "left",
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -69,6 +71,7 @@ function Dropdown({
         value={value}
         size={size}
         position={listPosition}
+        align={align}
         onSelect={(v) => {
           onSelect(v);
           closeDropdown();

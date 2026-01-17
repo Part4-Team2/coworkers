@@ -1,7 +1,7 @@
 "use server";
 
 import { fetchApi } from "@/utils/api";
-import { ApiResult } from "./group";
+import { ApiResult } from "@/lib/types/api";
 import { BASE_URL } from ".";
 import {
   CreateTaskRequestBody,
@@ -11,7 +11,11 @@ import {
   Task,
   UpdateTaskRequestBody,
 } from "../types/task";
+import { revalidatePath } from "next/cache";
 
+/**
+ * 할 일 생성
+ */
 export async function createTasks(
   groupId: string,
   taskListId: string,
@@ -47,7 +51,9 @@ export async function createTasks(
   }
 }
 
-/* 사용안함 */
+/**
+ * 할 일 목록 조회 (사용안함)
+ */
 export async function getTasks(
   groupId: string,
   taskListId: string,
@@ -79,7 +85,9 @@ export async function getTasks(
   }
 }
 
-/* 사용안함 */
+/**
+ * 할 일 상세 정보 조회 (사용안함)
+ */
 export async function getTask(
   groupId: string,
   taskListId: string,
@@ -108,6 +116,9 @@ export async function getTask(
       error: "서버 오류가 발생했습니다.",
     };
   }
+  /**
+   * 할 일 수정 (개별)
+   */
 }
 
 export async function updateTask(
@@ -136,12 +147,21 @@ export async function updateTask(
     }
 
     const result = (await response.json()) as Task;
+
+    // 할 일 완료/취소 시 캐시 무효화
+    if (data.done !== undefined) {
+      revalidatePath("/myhistory");
+    }
+
     return { success: true, data: result };
   } catch {
     return {
       success: false,
       error: "서버 오류가 발생했습니다.",
     };
+    /**
+     * 할 일 삭제 (개별)
+     */
   }
 }
 
@@ -177,7 +197,10 @@ export async function deleteTask(
   }
 }
 
-// 반복할일 id (task 객체의 recurringId 필드, 반복설정으로 생성된 할일이 아닌, 반복설정 자체를 삭제)
+/**
+ * 반복 할 일 삭제
+ * task 객체의 recurringId 필드를 사용하여 반복설정 자체를 삭제
+ */
 export async function deleteTaskRecurring(
   groupId: string,
   taskListId: string,

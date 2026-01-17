@@ -33,7 +33,7 @@ export default function DateNavigator({ baseDate }: { baseDate: string }) {
 
   return (
     <div className="flex gap-12 items-center relative">
-      <div className="text-lg font-medium">
+      <div className="text-lg font-medium whitespace-nowrap">
         {formatListHeaderDate(baseDate)}
       </div>
       <div className="flex gap-4">
@@ -50,7 +50,7 @@ export default function DateNavigator({ baseDate }: { baseDate: string }) {
 
       {showPicker && (
         <div className="absolute top-full mt-8 z-50">
-          <div className="bg-background-secondary rounded-xl p-16 border-1 border-interaction-hover">
+          <div className="bg-background-secondary rounded-xl p-16 border-interaction-hover">
             <DatePicker
               selected={currentDate}
               onChange={handleSelect}

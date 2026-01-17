@@ -7,7 +7,7 @@ import useKebabMenu from "@/hooks/useKebabMenu";
 import Dropdown from "../../Common/Dropdown/Dropdown";
 import { CommentResponse } from "@/lib/types/comment";
 import { useSearchParams } from "next/navigation";
-import { deleteComment, patchComment } from "@/lib/api/comment";
+import { deleteComment, updateComment } from "@/lib/api/comment";
 import { toast } from "react-toastify";
 
 type CommentItemProps = {
@@ -33,13 +33,13 @@ export default function ReplyItem({
 
       kebab.handleCancelEdit();
 
-      const res = await patchComment(taskId, String(comment.id), {
-        content: newContent,
-      });
+      const res = await updateComment(taskId, String(comment.id), newContent);
 
       if (!res.success) {
         toast.error("댓글 수정에 실패했습니다.");
         onUpdate(comment.id, comment.content); // rollback
+      } else {
+        toast.success("댓글이 수정되었습니다.");
       }
     },
     onDelete: async () => {
@@ -49,6 +49,7 @@ export default function ReplyItem({
 
       if (res.success) {
         onRemove(comment.id); // 부모 상태 업데이트
+        toast.success("댓글이 삭제되었습니다.");
       } else {
         toast.error("댓글 삭제에 실패했습니다.");
       }
@@ -64,7 +65,7 @@ export default function ReplyItem({
             value={kebab.content}
             onChange={(e) => kebab.setContent(e.target.value)}
             autoFocus
-            className="flex-1 resize-none field-sizing-content placeholder-text-default text-text-primary text-md font-regular"
+            className="flex-1 resize-none field-sizing-content placeholder-text-default text-text-primary text-md font-regular outline-none focus:outline-none"
           />
         ) : (
           <div>{comment.content}</div>
@@ -80,6 +81,7 @@ export default function ReplyItem({
                 icon="kebabSmall"
                 listPosition="absolute right-0 top-full mt-5"
                 onSelect={kebab.handleDropdownSelect}
+                align="center"
               />
             </div>
 

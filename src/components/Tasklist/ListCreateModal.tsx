@@ -42,7 +42,7 @@ export default function ListCreateModal({
       onSubmit(name.trim());
       onClose();
       reset();
-    } catch (error) {
+    } catch {
       toast.error("할일 목록 생성에 실패했습니다.");
     } finally {
       setLoading(false);

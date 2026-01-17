@@ -6,11 +6,9 @@ import { TaskListResponse } from "@/lib/types/tasklist";
 
 interface TabsProps {
   tabs: TaskListResponse[];
-  isAction?: boolean;
-  onClick?: (tabId: number) => void;
 }
 
-export default function TabList({ tabs, onClick, isAction }: TabsProps) {
+export default function TabList({ tabs }: TabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
