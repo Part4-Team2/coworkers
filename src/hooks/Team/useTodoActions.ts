@@ -6,7 +6,7 @@ import {
   createTaskList,
   updateTaskList,
   deleteTaskList,
-} from "@/lib/api/group";
+} from "@/lib/api/tasklist";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 import { Todo } from "@/types/todo";
 import { showSuccessToast, showErrorToast } from "@/utils/error";

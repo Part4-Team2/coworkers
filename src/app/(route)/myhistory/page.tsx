@@ -28,7 +28,9 @@ export default async function MyHistoryPage() {
             마이 히스토리
           </h1>
 
-          <DoneListContainer initialData={historyData} />
+          <DoneListContainer
+            initialData={historyData.data ?? { tasksDone: [] }}
+          />
         </div>
       </div>
     </div>

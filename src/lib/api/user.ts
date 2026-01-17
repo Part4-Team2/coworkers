@@ -212,7 +212,8 @@ export async function getUserHistory() {
       };
     }
 
-    return (await response.json()) as UserHistory;
+    const responseData = (await response.json()) as UserHistory;
+    return { success: true, data: responseData };
   } catch {
     return {
       success: false,
