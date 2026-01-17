@@ -3,7 +3,9 @@
 import clsx from "clsx";
 import Button from "../Common/Button/Button";
 import Comment from "./Comment";
+import CommentSkeleton from "../Common/Skeleton/CommentSkeleton";
 import InputBox from "../Common/Input/InputBox";
+import { useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useHeaderStore } from "@/store/headerStore";
 import { GetArticleComments } from "@/types/articleComment";
@@ -21,6 +23,8 @@ interface Pageprops {
   onCommentDelete: () => void;
 }
 
+const COMMENT_LIMIT = 3;
+
 function CommentSection({
   articleId,
   comments,
@@ -29,11 +33,13 @@ function CommentSection({
 }: Pageprops) {
   const isLogin = useHeaderStore((set) => set.isLogin);
   const router = useRouter();
+  const bottomRef = useRef<HTMLDivElement | null>(null); // 아래 스크롤 감지
 
   const [commentList, setCommentList] = useState(comments.list);
   const [cursor, setCursor] = useState<number | undefined>(comments.nextCursor);
-  const [hasNext, setHasNext] = useState(!!comments.nextCursor); // cursor 존재 여부로 다음 댓글 fetching합니다.
+  const [hasNext, setHasNext] = useState(!!comments.nextCursor);
   const [content, setContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // 댓글 작성 후 버튼을 누르면 처리되는 함수입니다.
   const handleCommentSubmit = async () => {
@@ -43,47 +49,50 @@ function CommentSection({
       return;
     }
 
-    if (!content.trim()) return; // 댓글 내용 없으면 바로 리턴.
+    if (!content.trim()) {
+      alert("댓글 최소 1글자 이상 입력해야합니다.");
+      return;
+    } // 댓글 내용 없으면 바로 리턴.
 
     try {
-      await postComment(articleId, { content });
+      const newComment = await postComment(articleId, { content });
+      setCommentList((prev) => [newComment, ...prev]);
+
       setContent("");
       onCommentAdd();
-      await fetchComments();
     } catch (error) {
       console.log("게시글 올리기 오류:", error);
     }
   };
 
-  // 댓글 달면 갱신된 댓글 리스트를 갖고옵니다.
-  const fetchComments = async () => {
-    const data = await getArticleComments({
-      articleId,
-      limit: 3,
-    });
-
-    setCommentList(data.list);
-    setCursor(data.nextCursor);
-    setHasNext(!!data.nextCursor);
-  };
-
-  // 댓글이 3개 넘는 경우에 새로운 댓글을 갖고옵니다.
-  const fetchMoreComments = async () => {
-    if (!cursor) {
-      setHasNext(false);
+  // 아래로 스크롤 한 경우 새로운 댓글을 갖고옵니다.
+  const fetchMoreComments = useCallback(async () => {
+    if (cursor === undefined || isLoading) {
       return;
     }
 
-    const res = await getArticleComments({
-      articleId,
-      limit: 3,
-      cursor,
-    });
+    setIsLoading(true);
 
-    setCommentList((prev) => [...prev, ...res.list]);
-    setCursor(res.nextCursor);
-    if (!res.nextCursor) setHasNext(false);
-  };
+    try {
+      const res = await getArticleComments({
+        articleId,
+        limit: COMMENT_LIMIT,
+        cursor,
+      });
+      setCommentList((prev) => {
+        const existingIds = new Set(prev.map((c) => c.id));
+        // Id 중복되는 호출을 거르는 필터입니다.
+        const filtered = res.list.filter((c) => !existingIds.has(c.id));
+        return [...prev, ...filtered];
+      });
+      setCursor(res.nextCursor ?? undefined);
+      setHasNext(!!res.nextCursor);
+    } catch (error) {
+      console.error("댓글 불러오기 실패", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [cursor, isLoading, articleId]);
 
   // 댓글 삭제하면 삭제한 상태로 렌더링합니다.
   const deleteCommentClick = async (deleteId: number) => {
@@ -97,6 +106,23 @@ function CommentSection({
       console.error("삭제하기 오류", error);
     }
   };
+
+  // 스크롤 감지하는 함수입니다.
+  useEffect(() => {
+    if (!bottomRef.current || !hasNext) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNext) {
+          fetchMoreComments();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    observer.observe(bottomRef.current);
+    return () => observer.disconnect();
+  }, [cursor, hasNext, fetchMoreComments]);
 
   // 등록된 댓글 개수에 따라 나오는 UI가 다릅니다.
   const renderComment = () => {
@@ -147,17 +173,10 @@ function CommentSection({
       <div className="border-b border-b-text-primary/10"></div>
       {/* 등록된 댓글 전시 영역 */}
       <div>{renderComment()}</div>
-      {/* 댓글 더 갖고오기 버튼 */}
-      {hasNext && (
-        <div className={clsx("flex justify-center")}>
-          <button
-            className={clsx("cursor-pointer")}
-            onClick={fetchMoreComments}
-          >
-            ...더 보기
-          </button>
-        </div>
-      )}
+      {/* 댓글 로딩 시 스켈레톤이 나옵니다 */}
+      {isLoading && <CommentSkeleton />}
+      {/* 무한 페이지 */}
+      <div ref={bottomRef} />
     </section>
   );
 }

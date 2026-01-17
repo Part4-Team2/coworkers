@@ -37,21 +37,16 @@ function Comment({
       className={clsx(
         "bg-background-secondary hover:bg-background-tertiary",
         "max-w-1200 w-full p-16 sm:px-20 sm:py-24",
-        "h-113 sm:h-123",
+        "min-h-123 relative",
         "border border-text-primary/10 rounded-xl"
       )}
     >
       <div className={clsx("flex flex-col gap-32")}>
-        <div className={clsx("flex justify-between items-center")}>
-          <span
-            className={clsx(
-              "text-base text-text-primary",
-              "overflow-hidden text-ellipsis line-clamp-1"
-            )}
-          >
-            {content}
-          </span>
-          {isAuthor && (
+        <span className={clsx("text-base text-text-primary", "break-all")}>
+          {content}
+        </span>
+        {isAuthor && (
+          <div className={clsx("absolute top-5 right-5")}>
             <Dropdown
               options={WRITEOPTIONS}
               onSelect={handleSelect}
@@ -61,8 +56,10 @@ function Comment({
               icon="kebabLarge"
               listPosition="top-full right-0"
             />
-          )}
-        </div>
+          </div>
+        )}
+        {/* <div className={clsx("flex justify-between items-center")}>
+        </div> */}
         <div className="flex items-center gap-16 text-sm">
           <span className="text-text-primary">{nickname}</span>
           <span className="text-slate-700">|</span>

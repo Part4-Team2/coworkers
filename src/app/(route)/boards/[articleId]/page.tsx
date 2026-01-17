@@ -3,7 +3,7 @@ import ArticleClient from "@/components/Boards/ArticleClient";
 import { notFound } from "next/navigation";
 import { getArticleComments, getArticle } from "@/lib/api/boards";
 
-const PAGE_LIMIT = 3;
+const COMMENT_LIMIT = 3;
 
 async function ArticlePage({
   params,
@@ -20,7 +20,7 @@ async function ArticlePage({
   try {
     [article, comments] = await Promise.all([
       getArticle({ articleId: id }),
-      getArticleComments({ articleId: id, limit: PAGE_LIMIT }),
+      getArticleComments({ articleId: id, limit: COMMENT_LIMIT }),
     ]);
   } catch (error) {
     console.log("게시글 불러오기 실패", error);

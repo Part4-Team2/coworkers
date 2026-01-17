@@ -129,6 +129,7 @@ function BoardClient() {
             <BoardInput
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
+              onSubmit={handleSearchClick}
             />
             <button
               className={clsx(

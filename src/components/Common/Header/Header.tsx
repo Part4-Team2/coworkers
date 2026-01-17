@@ -12,7 +12,13 @@ import SideHeaderMobile from "./SideHeader/SideHeaderMobile";
 import SideHeaderDesktop from "./SideHeader/SideHeaderDesktop";
 
 // 유저 프로필을 누르면 나오는 드롭다운 리스트입니다.
-const ACCOUNTLIST = ["마이 히스토리", "계정 설정", "팀 참여", "로그아웃"];
+const ACCOUNTLIST = [
+  "마이 히스토리",
+  "계정 설정",
+  "팀 목록",
+  "팀 참여",
+  "로그아웃",
+];
 
 const shouldFetchUrls = [
   "/teamlist",
@@ -30,7 +36,6 @@ function Header() {
   const [isSideOpen, setIsSideOpen] = useState<boolean>(false);
 
   const isLogin = useHeaderStore((s) => s.isLogin);
-  const nickname = useHeaderStore((s) => s.nickname);
   const teams = useHeaderStore((s) => s.teams);
   const activeTeam = useHeaderStore((s) => s.activeTeam);
 
@@ -115,6 +120,8 @@ function Header() {
       router.push("/myhistory");
     } else if (value === "계정 설정") {
       router.push("/mypage");
+    } else if (value === "팀 목록") {
+      router.push("/teamlist");
     } else if (value === "팀 참여") {
       router.push("/jointeam");
     } else {
@@ -202,7 +209,7 @@ function Header() {
 
         {/* 로그인 상태면 아래 내용이 mount 됩니다. */}
         {isLogin ? (
-          <div className="flex items-center gap-8">
+          <div className="flex items-center">
             <div className={clsx("cursor-pointer flex items-center")}>
               <Dropdown
                 options={ACCOUNTLIST}
@@ -212,13 +219,6 @@ function Header() {
                 icon="user"
                 listPosition="top-full right-0"
               />
-            </div>
-            <div
-              className={clsx(
-                "max-w-100 overflow-hidden text-ellipsis whitespace-nowrap"
-              )}
-            >
-              {nickname}
             </div>
           </div>
         ) : (
