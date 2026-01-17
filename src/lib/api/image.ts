@@ -3,7 +3,17 @@
 import { fetchApi } from "@/utils/api";
 import { BASE_URL } from "@/lib/api";
 
-export async function postImage(image: File) {
+export type ApiResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: string };
+
+interface ImageUploadResponse {
+  url: string;
+}
+
+export async function postImage(
+  image: File
+): Promise<ApiResult<ImageUploadResponse>> {
   try {
     const formData = new FormData();
     formData.append("image", image);
@@ -11,22 +21,24 @@ export async function postImage(image: File) {
     const response = await fetchApi(`${BASE_URL}/images/upload`, {
       method: "POST",
       body: formData,
-      // POST 요청은 캐싱하지 않음 (이미지 업로드는 상태 변경 작업)
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({
+        message: "이미지 업로드에 실패했습니다.",
+      }));
       return {
-        error: true,
-        message: error.message || "이미지 업로드에 실패했습니다.",
+        success: false,
+        error: error.message || "이미지 업로드에 실패했습니다.",
       };
     }
 
-    return (await response.json()) as { url: string };
-  } catch (error) {
+    const data = (await response.json()) as ImageUploadResponse;
+    return { success: true, data };
+  } catch {
     return {
-      error: true,
-      message: "서버 오류가 발생했습니다.",
+      success: false,
+      error: "서버 오류가 발생했습니다.",
     };
   }
 }

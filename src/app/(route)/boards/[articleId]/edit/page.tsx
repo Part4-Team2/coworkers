@@ -9,6 +9,13 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { patchArticle, getArticle } from "@/lib/api/boards";
 import { postImage } from "@/lib/api/image";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+
+interface ArticleFormData {
+  title: string;
+  content: string;
+}
 
 // 게시글을 수정할 수 있는 페이지입니다.
 function EditArticle() {
@@ -17,10 +24,20 @@ function EditArticle() {
   const params = useParams<{ articleId: string }>();
   const articleId = Number(params.articleId);
 
-  // 로딩 state는 로딩페이지 같은거 있을 때 활용하면 좋을듯
-  // const [loading, setLoading] = useState(true);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<ArticleFormData>({
+    mode: "onChange",
+    defaultValues: {
+      title: "",
+      content: "",
+    },
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
   const [articleImagePreview, setArticleImagePreview] = useState<string | null>(
     null
   );
@@ -36,9 +53,9 @@ function EditArticle() {
   };
 
   // 게시글 작성하고 등록하면 작동하는 함수입니다.
-  const handleSubmitClick = async () => {
-    console.log("게시글 올라갑니다");
-    if (!title.trim() || !content.trim()) return;
+  const onSubmit = async (data: ArticleFormData) => {
+    if (isLoading) return;
+    setIsLoading(true);
 
     try {
       // 이미 기존 사진이 있는 경우 그대로 갑니다.
@@ -47,17 +64,32 @@ function EditArticle() {
       // 만약 게시글 사진을 바꾸는 경우 해당 분기점을 거칩니다.
       if (articleImageFile) {
         const res = await uploadImage(articleImageFile);
-        if ("url" in res) {
-          imageUrl = res.url;
+        if (res.success) {
+          imageUrl = res.data.url;
         } else {
-          console.error("이미지 업로드 오류", res.message);
+          console.error("이미지 업로드 오류", res.error);
+          toast.error(res.error);
+          return;
         }
       }
 
-      await patchArticle(articleId, { content, title, image: imageUrl });
-      router.push("/boards");
+      const result = await patchArticle(articleId, {
+        content: data.content,
+        title: data.title,
+        image: imageUrl,
+      });
+
+      if (result.success) {
+        toast.success("게시글이 수정되었습니다!");
+        router.push("/boards");
+      } else {
+        toast.error(result.error);
+      }
     } catch (error) {
-      console.log("게시글 작성 오류", error);
+      console.log("게시글 수정 오류", error);
+      toast.error("게시글 수정에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -67,20 +99,27 @@ function EditArticle() {
 
     const fetchArticle = async () => {
       try {
-        const article = await getArticle({ articleId });
-        setTitle(article.title);
-        setContent(article.content);
-        setArticleImagePreview(article.image ?? null);
+        const result = await getArticle({ articleId });
+
+        if (result.success) {
+          const article = result.data;
+          setValue("title", article.title);
+          setValue("content", article.content);
+          setArticleImagePreview(article.image ?? null);
+        } else {
+          console.error("게시글 불러오기 실패:", result.error);
+          toast.error(result.error);
+        }
       } catch (error) {
         console.error(error);
-        alert("게시글 갖고오기 오류, 다시 자유게시판으로 돌아갑니다."); // 오류 처리는 나중에 toast로 대체 예정
+        toast.error("게시글을 불러올 수 없습니다.");
         router.replace("/boards");
         return;
       }
     };
 
     fetchArticle();
-  }, [articleId, router]);
+  }, [articleId, router, setValue]);
 
   return (
     // Page Wrapper
@@ -89,14 +128,19 @@ function EditArticle() {
       <div
         className={clsx(
           "max-w-1200 mx-auto py-56 text-text-primary",
-          "px-20 lg:px-0"
+          "px-16 sm:px-24"
         )}
       >
         <main className="flex flex-col gap-40">
           <section className="flex justify-between items-center">
             <span className="text-xl">게시글 수정하기</span>
             <div className="hidden sm:block">
-              <Button label="등록" width="184px" onClick={handleSubmitClick} />
+              <Button
+                label="등록"
+                width="184px"
+                onClick={handleSubmit(onSubmit)}
+                loading={isLoading}
+              />
             </div>
           </section>
           <div className="border-b border-b-text-primary/10"></div>
@@ -108,9 +152,23 @@ function EditArticle() {
             <Input
               placeholder="제목을 입력해주세요."
               width="1200"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              {...register("title", {
+                required: "제목을 입력해주세요.",
+                minLength: {
+                  value: 1,
+                  message: "제목은 최소 1글자 이상이어야 합니다.",
+                },
+                maxLength: {
+                  value: 50,
+                  message: "제목은 최대 50글자까지 입력 가능합니다.",
+                },
+              })}
             />
+            {errors.title && (
+              <p className="text-status-danger text-sm">
+                {errors.title.message}
+              </p>
+            )}
           </section>
           {/* 내용 영역 */}
           <section className="flex flex-col gap-16">
@@ -120,10 +178,24 @@ function EditArticle() {
             <InputBox
               placeholder="내용을 입력해주세요."
               maxHeight="240px"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+              {...register("content", {
+                required: "내용을 입력해주세요.",
+                minLength: {
+                  value: 1,
+                  message: "내용은 최소 1글자 이상이어야 합니다.",
+                },
+                maxLength: {
+                  value: 1000,
+                  message: "내용은 최대 1000글자까지 입력 가능합니다.",
+                },
+              })}
               full
             />
+            {errors.content && (
+              <p className="text-status-danger text-sm">
+                {errors.content.message}
+              </p>
+            )}
           </section>
           {/* 이미지 영역 */}
           <section className="flex flex-col gap-16">
@@ -140,8 +212,13 @@ function EditArticle() {
               }}
             />
           </section>
-          <div className="flex justify-center sm:hidden">
-            <Button label="등록" onClick={handleSubmitClick} />
+          <div className="sm:hidden">
+            <Button
+              label="등록"
+              onClick={handleSubmit(onSubmit)}
+              full
+              loading={isLoading}
+            />
           </div>
         </main>
       </div>

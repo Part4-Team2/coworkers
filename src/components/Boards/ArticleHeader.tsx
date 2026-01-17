@@ -58,9 +58,11 @@ function ArticleHeader({
   return (
     <>
       {/* 게시글 제목 영역 */}
-      <div className={clsx("flex justify-between")}>
-        <span className="text-2lg">{article.title}</span>
-        <span>
+      <div className={clsx("flex justify-between gap-16")}>
+        <span className="flex-1 min-w-0 text-2lg break-all">
+          {article.title}
+        </span>
+        <span className="shrink-0">
           {isAuthor && (
             <Dropdown
               options={ARTICLEDATA}

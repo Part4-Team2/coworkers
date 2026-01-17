@@ -14,7 +14,14 @@ const PAGE_SIZE = 6;
 const ORDER_BY = ["recent", "like"] as const;
 type OrderBy = (typeof ORDER_BY)[number];
 
-function BoardClient() {
+interface BoardClientProps {
+  initialData?: {
+    list: Article[];
+    totalCount: number;
+  };
+}
+
+function BoardClient({ initialData }: BoardClientProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   // 음수이거나 0보다 낮은 숫자일 때 1로 리턴합니다.
@@ -30,7 +37,7 @@ function BoardClient() {
   const [inputVal, setInputVal] = useState(keyword);
   const [totalPage, setTotalPage] = useState(0);
   const [articles, setArticles] = useState<Article[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState<Error | null>(null);
 
   // 키워드를 동기화하는 함수입니다.
@@ -38,8 +45,19 @@ function BoardClient() {
     setInputVal(keyword);
   }, [keyword]);
 
+  // initialData가 있으면 즉시 설정
+  useEffect(() => {
+    if (initialData) {
+      setArticles(initialData.list);
+      setTotalPage(Math.ceil(initialData.totalCount / PAGE_SIZE));
+      setIsLoading(false);
+    }
+  }, [initialData]);
+
   // 게시글을 불러오는 함수입니다.
   useEffect(() => {
+    // initialData가 있으면 클라이언트에서 fetch 하지 않음
+    if (initialData) return;
     if (totalPage > 0 && page > totalPage) return;
     let ignore = false;
 
@@ -55,8 +73,13 @@ function BoardClient() {
           keyword: keyword || undefined,
         });
         if (ignore) return;
-        setArticles(res.list);
-        setTotalPage(Math.ceil(res.totalCount / PAGE_SIZE));
+
+        if (res.success) {
+          setArticles(res.data.list);
+          setTotalPage(Math.ceil(res.data.totalCount / PAGE_SIZE));
+        } else {
+          throw new Error(res.error);
+        }
       } catch (error) {
         if (ignore) return;
         setIsError(
@@ -73,7 +96,7 @@ function BoardClient() {
     return () => {
       ignore = true;
     };
-  }, [page, orderBy, keyword]);
+  }, [page, orderBy, keyword, totalPage, initialData]);
 
   // 페이지가 전체 페이지를 초과하는 경우 마지막 페이지로 대체됩니다.
   useEffect(() => {
@@ -121,7 +144,7 @@ function BoardClient() {
       className={clsx("min-h-screen bg-background-primary", "px-16 sm:px-24")}
     >
       {/* content wrapper */}
-      <main className="max-w-1200 mx-auto py-40">
+      <main className="max-w-1200 mx-auto pt-40">
         <section className="flex flex-col gap-24 sm:gap-32 lg:gap-40">
           <div className="text-text-primary text-2xl">자유게시판</div>
           {/* 검색 영역 */}

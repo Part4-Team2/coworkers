@@ -105,8 +105,13 @@ export const useHeaderStore = create<HeaderStoreState>()(
     }),
     {
       name: "header-store",
-      // 새로 고침해도 activeTeam가 유지됩니다.
+      // 새로 고침해도 유저 정보가 유지됩니다.
       partialize: (state) => ({
+        userId: state.userId,
+        isLogin: state.isLogin,
+        nickname: state.nickname,
+        profileImage: state.profileImage,
+        teams: state.teams,
         activeTeam: state.activeTeam,
       }),
       // SSR/CSR 불일치 방지
@@ -115,7 +120,6 @@ export const useHeaderStore = create<HeaderStoreState>()(
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.isHydrated = true;
-          state.fetchUser(); // hydration 완료 마킹 후 fetch
         }
       },
     }

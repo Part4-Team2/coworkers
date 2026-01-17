@@ -3,7 +3,6 @@
 import clsx from "clsx";
 import Button from "../Common/Button/Button";
 import Comment from "./Comment";
-import CommentSkeleton from "../Common/Skeleton/CommentSkeleton";
 import InputBox from "../Common/Input/InputBox";
 import { useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -15,6 +14,12 @@ import {
   deleteComment,
 } from "@/lib/api/boards";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+
+interface CommentFormData {
+  content: string;
+}
 
 interface Pageprops {
   articleId: number;
@@ -35,33 +40,55 @@ function CommentSection({
   const router = useRouter();
   const bottomRef = useRef<HTMLDivElement | null>(null); // 아래 스크롤 감지
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<CommentFormData>({
+    mode: "onChange",
+    defaultValues: {
+      content: "",
+    },
+  });
+
   const [commentList, setCommentList] = useState(comments.list);
   const [cursor, setCursor] = useState<number | undefined>(comments.nextCursor);
   const [hasNext, setHasNext] = useState(!!comments.nextCursor);
-  const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 댓글 작성 후 버튼을 누르면 처리되는 함수입니다.
-  const handleCommentSubmit = async () => {
+  const onSubmit = async (data: CommentFormData) => {
+    // 중복 클릭 방지
+    if (isSubmitting) return;
+
     // 비로그인이면 로그인 페이지로 이동합니다.
     if (!isLogin) {
       router.push("/login");
       return;
     }
 
-    if (!content.trim()) {
-      alert("댓글 최소 1글자 이상 입력해야합니다.");
-      return;
-    } // 댓글 내용 없으면 바로 리턴.
+    setIsSubmitting(true);
 
     try {
-      const newComment = await postComment(articleId, { content });
-      setCommentList((prev) => [newComment, ...prev]);
+      const result = await postComment(articleId, {
+        content: data.content,
+      });
 
-      setContent("");
-      onCommentAdd();
+      if (result.success) {
+        setCommentList((prev) => [result.data, ...prev]);
+        reset();
+        onCommentAdd();
+        toast.success("등록되었습니다!");
+      } else {
+        toast.error(result.error);
+      }
     } catch (error) {
-      console.log("게시글 올리기 오류:", error);
+      console.log("댓글 등록 오류:", error);
+      toast.error("댓글 등록에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -79,14 +106,18 @@ function CommentSection({
         limit: COMMENT_LIMIT,
         cursor,
       });
-      setCommentList((prev) => {
-        const existingIds = new Set(prev.map((c) => c.id));
-        // Id 중복되는 호출을 거르는 필터입니다.
-        const filtered = res.list.filter((c) => !existingIds.has(c.id));
-        return [...prev, ...filtered];
-      });
-      setCursor(res.nextCursor ?? undefined);
-      setHasNext(!!res.nextCursor);
+
+      if (res.success) {
+        setCommentList((prev) => {
+          const existingIds = new Set(prev.map((c) => c.id));
+          const filtered = res.data.list.filter((c) => !existingIds.has(c.id));
+          return [...prev, ...filtered];
+        });
+        setCursor(res.data.nextCursor ?? undefined);
+        setHasNext(!!res.data.nextCursor);
+      } else {
+        console.error("댓글 불러오기 실패:", res.error);
+      }
     } catch (error) {
       console.error("댓글 불러오기 실패", error);
     } finally {
@@ -97,11 +128,17 @@ function CommentSection({
   // 댓글 삭제하면 삭제한 상태로 렌더링합니다.
   const deleteCommentClick = async (deleteId: number) => {
     try {
-      await deleteComment(deleteId);
-      setCommentList((prev) =>
-        prev.filter((comment) => comment.id !== deleteId)
-      );
-      onCommentDelete();
+      const result = await deleteComment(deleteId);
+
+      if (result.success) {
+        setCommentList((prev) =>
+          prev.filter((comment) => comment.id !== deleteId)
+        );
+        onCommentDelete();
+      } else {
+        console.error("삭제하기 오류:", result.error);
+        toast.error(result.error);
+      }
     } catch (error) {
       console.error("삭제하기 오류", error);
     }
@@ -157,24 +194,42 @@ function CommentSection({
       {/* 댓글 작성 영역 */}
       <div className="flex flex-col gap-24">
         <div className="text-text-primary text-xl">댓글달기</div>
-        <div>
+        <div className="flex flex-col gap-8">
           <InputBox
             placeholder="댓글을 입력해주세요"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+            {...register("content", {
+              required: "댓글을 입력해주세요.",
+              minLength: {
+                value: 1,
+                message: "댓글은 최소 1글자 이상 입력해야합니다.",
+              },
+              maxLength: {
+                value: 200,
+                message: "댓글은 최대 200글자까지 입력 가능합니다.",
+              },
+            })}
             width="1200px"
             maxHeight="104px"
           />
+          {errors.content && (
+            <p className="text-status-danger text-sm">
+              {errors.content.message}
+            </p>
+          )}
         </div>
         <div className="self-end">
-          <Button label="등록" onClick={handleCommentSubmit} width="184px" />
+          <Button
+            label="등록"
+            onClick={handleSubmit(onSubmit)}
+            size="xSmall"
+            className="w-74 sm:w-184 sm:h-46 sm:text-lg"
+            loading={isSubmitting}
+          />
         </div>
       </div>
       <div className="border-b border-b-text-primary/10"></div>
       {/* 등록된 댓글 전시 영역 */}
       <div>{renderComment()}</div>
-      {/* 댓글 로딩 시 스켈레톤이 나옵니다 */}
-      {isLoading && <CommentSkeleton />}
       {/* 무한 페이지 */}
       <div ref={bottomRef} />
     </section>

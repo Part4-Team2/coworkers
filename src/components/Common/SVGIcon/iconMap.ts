@@ -1,4 +1,5 @@
 import AlertIcon from "@/assets/icon/3/alert.svg";
+import EditIcon from "@/assets/icon/edit.svg";
 import GearIcon from "@/assets/icon/3/gear.svg";
 import GnbMenuIcon from "@/assets/icon/3/gnb-menu.svg";
 import IconCalendarIcon from "@/assets/icon/4/icon-calendar.svg";
@@ -58,6 +59,7 @@ import LoadingIcon from "@/assets/icon/loading.svg";
 export const IconMap = {
   alert: AlertIcon,
   arrowLeft: ArrowLeftIcon,
+  edit: EditIcon,
   arrowRight: ArrowRightIcon,
   calendar: CalendarIcon,
   check: CheckIcon,
