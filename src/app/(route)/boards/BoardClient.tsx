@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { getArticles } from "@/lib/api/boards";
 import ButtonFloating from "../../../components/Common/Button/ButtonFloating";
 import BoardInput from "../../../components/Boards/BoardInput";
+import Loading from "@/app/loading";
 import BestArticleSection from "@/components/Boards/BestArticleSection";
 import ArticleSection from "@/components/Boards/ArticleSection";
 
@@ -114,6 +115,10 @@ function BoardClient() {
     params.set("orderBy", "recent");
     router.push(`/boards?${params.toString()}`);
   };
+
+  if (isLoading || articles.length === 0) {
+    return <Loading />;
+  }
 
   return (
     // Page Wrapper
