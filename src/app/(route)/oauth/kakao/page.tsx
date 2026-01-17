@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { postSigninKakao } from "@/lib/api/auth";
 import SVGIcon from "@/components/Common/SVGIcon/SVGIcon";
 import { useHeaderStore } from "@/store/headerStore";
+import { showErrorToast, showSuccessToast } from "@/utils/error";
 
 export default function KakaoOAuthCallbackPage() {
   const fetchUser = useHeaderStore((state) => state.fetchUser);
@@ -21,7 +22,9 @@ export default function KakaoOAuthCallbackPage() {
   useEffect(() => {
     // code가 없으면 처리하지 않음
     if (!code) {
-      setError("인증 코드를 받지 못했습니다.");
+      const errorMessage = "인증 코드를 받지 못했습니다.";
+      setError(errorMessage);
+      showErrorToast(errorMessage);
       setTimeout(() => router.push("/login"), 2000);
       return;
     }
@@ -54,14 +57,20 @@ export default function KakaoOAuthCallbackPage() {
         });
 
         if ("error" in response) {
-          setError(response.message || "카카오 로그인에 실패했습니다.");
+          const errorMessage =
+            response.message || "카카오 로그인에 실패했습니다.";
+          setError(errorMessage);
+          showErrorToast(errorMessage);
           setTimeout(() => router.push("/login"), 2000);
           return;
         }
         await fetchUser();
+        showSuccessToast("카카오 로그인에 성공했습니다.");
         router.push("/");
       } catch (error) {
-        setError("로그인 처리 중 오류가 발생했습니다.");
+        const errorMessage = "로그인 처리 중 오류가 발생했습니다.";
+        setError(errorMessage);
+        showErrorToast(errorMessage);
         setTimeout(() => router.push("/login"), 2000);
       } finally {
         // 에러 발생 시에도 isProcessing 초기화 (다만 processedCodeRef는 유지하여 중복 방지)

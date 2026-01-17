@@ -9,6 +9,7 @@ import { useHeaderStore } from "@/store/headerStore";
 import { InputConfig } from "@/components/Common/Form/types";
 import { postSignup } from "@/lib/api/auth";
 import { SignUpRequestBody } from "@/lib/types/auth";
+import { showErrorToast, showSuccessToast } from "@/utils/error";
 
 interface SignupFormData {
   name: string;
@@ -49,11 +50,14 @@ export default function SignupContainer() {
       const response = await postSignup(requestData);
 
       if ("error" in response) {
-        setSignupError(response.message);
+        const errorMessage = response.message || "회원가입에 실패했습니다.";
+        setSignupError(errorMessage);
+        showErrorToast(errorMessage);
         setIsSubmitting(false);
         return;
       }
-      fetchUser();
+      await fetchUser();
+      showSuccessToast("회원가입에 성공했습니다.");
       router.push("/");
     } catch (error) {
       const errorMessage =
@@ -61,6 +65,7 @@ export default function SignupContainer() {
           ? error.message
           : "회원가입에 실패했습니다. 다시 시도해주세요.";
       setSignupError(errorMessage);
+      showErrorToast(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -128,6 +133,14 @@ export default function SignupContainer() {
             full: true,
             registerOptions: {
               required: "이메일은 필수 입력입니다.",
+              minLength: {
+                value: 1,
+                message: "이메일은 필수 입력입니다.",
+              },
+              maxLength: {
+                value: 150,
+                message: "이메일은 최대 150자까지 가능합니다.",
+              },
               pattern: {
                 value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                 message: "이메일 형식으로 작성해 주세요.",

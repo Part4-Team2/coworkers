@@ -64,7 +64,7 @@ export default function RootLayout({
         <StoreHydrationProvider>
           <ToastProvider />
           <Header />
-          {children}
+          <main className="pt-[var(--app-header-height)]">{children}</main>
           <Analytics />
           <SpeedInsights />
         </StoreHydrationProvider>
