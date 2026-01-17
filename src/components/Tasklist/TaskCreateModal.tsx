@@ -13,69 +13,84 @@ import { formatDate, formatTime } from "@/utils/date";
 import { frequencyToEnum } from "@/constants/frequency";
 import { FrequencyType } from "@/types/schemas";
 import { useForm } from "react-hook-form";
-import { patchTask, postTasks } from "@/lib/api/task";
 import { getFrequencyText } from "@/utils/frequency";
-import {
-  CreateTaskRequestBody,
-  TaskPatchResponse,
-  UpdateTaskRequestBody,
-} from "@/lib/types/task";
-import { TaskDetail } from "@/types/task";
+import { TaskForEdit } from "@/lib/types/task";
 
-interface TaskCreateModalProps {
-  groupId: string;
-  taskListId: string;
-  isOpen: boolean;
-  onClose: () => void;
-  onTaskCreated?: (newTask: TaskDetail) => void;
-  onTaskUpdated?: (updatedTask: TaskPatchResponse) => void;
-  taskToEdit?: TaskDetail;
-}
-
-interface CreateTaskForm {
+export interface CreateTaskForm {
   name: string;
   description?: string;
   startDate: Date;
   startTime: Date;
-  frequencyType: FrequencyType;
+  frequencyType: "DAILY" | "WEEKLY" | "MONTHLY" | "ONCE";
+  weekDays?: number[];
+  monthDay?: number;
+}
+interface TaskCreateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (values: CreateTaskForm) => void; // 부모가 처리
+  taskToEdit?: TaskForEdit | null; // 수정이면 Task 전달
 }
 
 const WEEK_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
 export default function TaskCreateModal({
-  groupId,
-  taskListId,
   isOpen,
   onClose,
-  onTaskCreated,
-  onTaskUpdated,
+  onSubmit,
   taskToEdit,
 }: TaskCreateModalProps) {
   const today = new Date();
   const defaultTime = new Date();
   defaultTime.setHours(9, 0, 0, 0); // fix
 
-  const { setValue, watch, handleSubmit } = useForm<CreateTaskForm>({
+  const isEditMode = !!taskToEdit;
+
+  const { setValue, watch, handleSubmit, reset } = useForm<CreateTaskForm>({
     defaultValues: {
-      name: taskToEdit?.name || "",
-      description: taskToEdit?.description || "",
-      startDate: taskToEdit ? new Date(taskToEdit.date) : today,
-      startTime: taskToEdit ? new Date(taskToEdit.date) : defaultTime,
-      frequencyType: taskToEdit?.frequency || FrequencyType.ONCE,
+      name: "",
+      description: "",
+      startDate: today,
+      startTime: defaultTime,
+      frequencyType: "ONCE",
     },
   });
 
+  const [weekDays, setWeekDays] = useState<number[]>([]);
+  const [monthDay, setMonthDay] = useState<number | undefined>(undefined);
+
+  // 생성 모드로 모달이 열릴 때 초기화
   useEffect(() => {
-    if (!taskToEdit) return;
+    if (isOpen && !taskToEdit) {
+      const freshDefaultTime = new Date();
+      freshDefaultTime.setHours(9, 0, 0, 0);
 
-    setValue("name", taskToEdit.name || "");
-    setValue("description", taskToEdit.description || "");
+      reset({
+        name: "",
+        description: "",
+        startDate: new Date(),
+        startTime: freshDefaultTime,
+        frequencyType: "ONCE",
+      });
+      setWeekDays([]);
+      setMonthDay(undefined);
+    }
+  }, [isOpen]);
 
-    const dateObj = new Date(taskToEdit.date);
-    setValue("startDate", dateObj);
-    setValue("startTime", dateObj);
-    setValue("frequencyType", taskToEdit.frequency);
-  }, [taskToEdit, setValue]);
+  // 수정 모드일 때 데이터 채우기
+  useEffect(() => {
+    if (taskToEdit) {
+      reset({
+        name: taskToEdit.name,
+        description: taskToEdit.description,
+        startDate: new Date(taskToEdit.date),
+        startTime: new Date(taskToEdit.date),
+        frequencyType: taskToEdit.frequency,
+      });
+      setWeekDays(taskToEdit.weekDays ?? []);
+      setMonthDay(taskToEdit.monthDay ?? new Date(taskToEdit.date).getDate());
+    }
+  }, [taskToEdit, reset]);
 
   const watchName = watch("name");
   const watchStartDate = watch("startDate");
@@ -85,185 +100,59 @@ export default function TaskCreateModal({
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [weekDays, setWeekDays] = useState<number[]>(() => {
-    if (taskToEdit?.frequency === FrequencyType.WEEKLY) {
-      return taskToEdit.weekDays ?? [];
-    }
-    return [];
-  });
-  const [monthDay, setMonthDay] = useState<number | undefined>(() => {
-    if (taskToEdit?.frequency === FrequencyType.MONTHLY) {
-      return taskToEdit.monthDay ?? new Date(taskToEdit.date).getDate();
-    }
-    return undefined;
-  });
 
   const timePickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        timePickerRef.current &&
-        !timePickerRef.current.contains(event.target as Node)
-      ) {
+    const close = (e: MouseEvent) => {
+      if (!timePickerRef.current?.contains(e.target as Node)) {
         setShowTimePicker(false);
       }
-    }
+    };
 
     if (showTimePicker) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("mousedown", close);
     }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", close);
   }, [showTimePicker]);
 
-  const onSubmit = async (form: CreateTaskForm) => {
-    const merged = new Date(form.startDate);
-    merged.setHours(
-      form.startTime.getHours(),
-      form.startTime.getMinutes(),
-      0,
-      0
+  const submitHandler = (form: CreateTaskForm) => {
+    // 유효성 검사
+    if (
+      form.frequencyType === "WEEKLY" &&
+      (!weekDays || weekDays.length === 0)
+    ) {
+      alert("주 반복을 선택하려면 최소 하나의 요일을 선택해주세요.");
+      return;
+    }
+
+    if (form.frequencyType === "MONTHLY" && !monthDay) {
+      alert("월 반복을 선택하려면 날짜를 선택해주세요.");
+      return;
+    }
+
+    // 날짜와 시간을 정확하게 병합
+    const year = form.startDate.getFullYear();
+    const month = form.startDate.getMonth();
+    const date = form.startDate.getDate();
+    const hours = form.startTime.getHours();
+    const minutes = form.startTime.getMinutes();
+
+    const merged = new Date(year, month, date, hours, minutes, 0, 0);
+    const utcMerged = new Date(
+      merged.getTime() - merged.getTimezoneOffset() * 60000
     );
 
-    // 수정 모드
-    if (taskToEdit) {
-      const updateBody: UpdateTaskRequestBody = {
-        name: form.name,
-        description: form.description,
-      };
-
-      const result = await patchTask(
-        Number(groupId),
-        Number(taskListId),
-        taskToEdit.id,
-        updateBody
-      );
-
-      if ("error" in result) {
-        alert(result.message);
-        return;
-      }
-
-      onTaskUpdated?.(result);
-      onClose();
-      return;
-    }
-
-    // 생성 모드
-    let body: CreateTaskRequestBody;
-
-    switch (form.frequencyType) {
-      case FrequencyType.WEEKLY:
-        if (weekDays.length === 0) {
-          alert("요일을 선택해주세요");
-          return;
-        }
-
-        body = {
-          name: form.name,
-          description: form.description,
-          startDate: merged.toISOString(),
-          frequencyType: FrequencyType.WEEKLY,
-          weekDays: weekDays,
-        };
-        break;
-
-      case FrequencyType.MONTHLY:
-        if (!monthDay) {
-          alert("날짜를 선택해주세요");
-          return;
-        }
-
-        body = {
-          name: form.name,
-          description: form.description,
-          startDate: merged.toISOString(),
-          frequencyType: FrequencyType.MONTHLY,
-          monthDay: monthDay,
-        };
-        break;
-
-      case FrequencyType.DAILY:
-        body = {
-          name: form.name,
-          description: form.description,
-          startDate: merged.toISOString(),
-          frequencyType: FrequencyType.DAILY,
-        };
-        break;
-
-      case FrequencyType.ONCE:
-        body = {
-          name: form.name,
-          description: form.description,
-          startDate: merged.toISOString(),
-          frequencyType: FrequencyType.ONCE,
-        };
-        break;
-
-      default:
-        alert("알 수 없는 반복 유형입니다.");
-        return;
-    }
-
-    const response = await postTasks(Number(groupId), Number(taskListId), body);
-
-    if (!response || "error" in response) {
-      alert(response.message || "할 일 생성 실패");
-      return;
-    }
-
-    // 낙관적 업데이트(생성된 태스크를 부모 컴포넌트에 전달)
-    if (onTaskCreated && response.recurring) {
-      const newTask: TaskDetail = {
-        id: response.recurring.id,
-        name: response.recurring.name,
-        description: response.recurring.description,
-        commentCount: 0, // 새로 생성되었으므로 0
-        frequency: form.frequencyType,
-        date: merged.toISOString(),
-        displayIndex: 0, // 새로 생성되었으므로 초기값
-        recurringId: response.recurring.id,
-        updatedAt: response.recurring.updatedAt,
-        writer: {
-          id: 0,
-          nickname: "-",
-          image: null,
-        }, // 기본값 (서버에서 안 줄 수 있음)
-        weekDays:
-          form.frequencyType === FrequencyType.WEEKLY ? weekDays : undefined,
-        monthDay:
-          form.frequencyType === FrequencyType.MONTHLY
-            ? (monthDay ?? undefined)
-            : undefined,
-      };
-
-      onTaskCreated(newTask);
-    } else {
-    }
-
-    setValue("name", "");
-    setValue("description", "");
-    setValue("frequencyType", FrequencyType.ONCE);
-    setWeekDays([]);
-    setMonthDay(undefined);
-
-    // date 초기화는 새로운 Date 로 해야 반영됨
-    const newToday = new Date();
-    const newDefaultTime = new Date();
-    newDefaultTime.setHours(9, 0, 0, 0);
-
-    setValue("startDate", newToday);
-    setValue("startTime", newDefaultTime);
+    onSubmit({
+      ...form,
+      startDate: utcMerged,
+      startTime: utcMerged,
+      weekDays,
+      monthDay,
+    });
 
     onClose();
   };
-
-  // 반복 설정은 수정하지 못하도록 막고(api 불가), 이름과 설명만 수정 가능하게
-  const isEditMode = !!taskToEdit;
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} className="px-16 py-32">
@@ -272,7 +161,6 @@ export default function TaskCreateModal({
         할 일은 실제로 행동 가능한 작업 중심으로 <br /> 작성해주시면 좋습니다.
       </div>
 
-      {/* 커스텀 콘텐츠 영역 */}
       <div className="h-[400px] overflow-y-auto custom-scrollbar">
         <form className="flex flex-col gap-24 mb-32 mr-12">
           <section>
@@ -289,6 +177,7 @@ export default function TaskCreateModal({
               }
             />
           </section>
+
           {!isEditMode && (
             <>
               <section>
@@ -335,7 +224,7 @@ export default function TaskCreateModal({
                       labelClassName="sr-only"
                       placeholder="오후 3:00"
                       readOnly
-                      value={formatTime(watchStartTime.toISOString())}
+                      value={formatTime(watchStartTime)}
                       onClick={() => {
                         setShowTimePicker(!showTimePicker);
                       }}
@@ -360,10 +249,18 @@ export default function TaskCreateModal({
                                   : "unselected"
                               }
                               onClick={() => {
-                                const newTime = new Date(watchStartTime);
-                                if (newTime.getHours() >= 12)
-                                  newTime.setHours(newTime.getHours() - 12);
-                                setValue("startTime", newTime);
+                                const newTime = new Date(
+                                  watchStartDate.getFullYear(),
+                                  watchStartDate.getMonth(),
+                                  watchStartDate.getDate(),
+                                  watchStartTime.getHours() >= 12
+                                    ? watchStartTime.getHours() - 12
+                                    : watchStartTime.getHours(),
+                                  watchStartTime.getMinutes()
+                                );
+                                setValue("startTime", newTime, {
+                                  shouldDirty: true,
+                                });
                               }}
                             />
                             <Button
@@ -376,10 +273,18 @@ export default function TaskCreateModal({
                                   : "unselected"
                               }
                               onClick={() => {
-                                const newTime = new Date(watchStartTime);
-                                if (newTime.getHours() < 12)
-                                  newTime.setHours(newTime.getHours() + 12);
-                                setValue("startTime", newTime);
+                                const newTime = new Date(
+                                  watchStartDate.getFullYear(),
+                                  watchStartDate.getMonth(),
+                                  watchStartDate.getDate(),
+                                  watchStartTime.getHours() < 12
+                                    ? watchStartTime.getHours() + 12
+                                    : watchStartTime.getHours(),
+                                  watchStartTime.getMinutes()
+                                );
+                                setValue("startTime", newTime, {
+                                  shouldDirty: true,
+                                });
                               }}
                             />
                           </div>
@@ -415,10 +320,15 @@ export default function TaskCreateModal({
                                       type="button"
                                       onClick={() => {
                                         const newTime = new Date(
-                                          watchStartTime
+                                          watchStartDate.getFullYear(),
+                                          watchStartDate.getMonth(),
+                                          watchStartDate.getDate(),
+                                          hours,
+                                          minutes
                                         );
-                                        newTime.setHours(hours, minutes, 0, 0);
-                                        setValue("startTime", newTime);
+                                        setValue("startTime", newTime, {
+                                          shouldDirty: true,
+                                        });
                                         setShowTimePicker(false);
                                       }}
                                       className={clsx(
@@ -442,6 +352,7 @@ export default function TaskCreateModal({
               </section>
             </>
           )}
+
           <section
             className={clsx(isEditMode && "pointer-events-none opacity-50")}
           >
@@ -450,11 +361,20 @@ export default function TaskCreateModal({
             </h3>
             <Dropdown
               options={Object.keys(frequencyToEnum)}
-              onSelect={(label: string) => {
-                setValue(
-                  "frequencyType",
-                  frequencyToEnum[label as keyof typeof frequencyToEnum]
-                );
+              onSelect={(label) => {
+                const enumValue =
+                  frequencyToEnum[label as keyof typeof frequencyToEnum];
+                setValue("frequencyType", enumValue);
+
+                // 선택에 따라 추가 필드 초기화
+                if (enumValue === "WEEKLY") {
+                  setWeekDays([]);
+                } else if (enumValue === "MONTHLY") {
+                  setMonthDay(watchStartDate.getDate());
+                } else {
+                  setWeekDays([]);
+                  setMonthDay(undefined);
+                }
               }}
               trigger="text"
               size="md"
@@ -472,10 +392,10 @@ export default function TaskCreateModal({
                     size="large"
                     width="44px"
                     onClick={() => {
-                      setWeekDays((prev) =>
-                        prev.includes(idx)
-                          ? prev.filter((d) => d !== idx)
-                          : [...prev, idx]
+                      setWeekDays(
+                        weekDays.includes(idx)
+                          ? weekDays.filter((d) => d !== idx)
+                          : [...weekDays, idx]
                       );
                     }}
                   />
@@ -499,6 +419,7 @@ export default function TaskCreateModal({
               </div>
             )}
           </section>
+
           <section>
             <InputBox
               label="할 일 메모"
@@ -512,10 +433,11 @@ export default function TaskCreateModal({
           </section>
         </form>
       </div>
+
       <ModalFooter
         primaryButton={{
           label: isEditMode ? "수정하기" : "만들기",
-          onClick: handleSubmit(onSubmit),
+          onClick: handleSubmit(submitHandler),
         }}
       />
     </BaseModal>
