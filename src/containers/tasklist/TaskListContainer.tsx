@@ -20,6 +20,7 @@ import {
 } from "@/lib/api/task";
 import ListCreateButton from "@/components/Tasklist/ListCreateButton";
 import TabList from "@/components/Tasklist/Tab/TabList";
+import { toast } from "react-toastify";
 
 interface TaskListPageContainerProps {
   groupId: string;
@@ -71,9 +72,15 @@ export default function TaskListPageContainer({
   // 1. 초기 로드: 모든 TaskList 가져오기
   useEffect(() => {
     async function loadTaskLists() {
-      const response = await getGroup(groupId); // 이 API 필요!
-      if (response.success) {
-        setTaskLists(response.data.taskLists);
+      try {
+        const response = await getGroup(groupId); // 이 API 필요!
+        if (response.success) {
+          setTaskLists(response.data.taskLists);
+        } else {
+          toast.error("리스트를 가져오는 중 오류가 발생했습니다.");
+        }
+      } catch (e) {
+        toast.error("리스트를 가져오는 중 오류가 발생했습니다.");
       }
       setLoading(false);
     }
@@ -85,13 +92,22 @@ export default function TaskListPageContainer({
     if (!selectedTaskListId) return;
 
     async function loadSelectedTaskList() {
-      const date = selectedDate || new Date().toISOString().split("T")[0];
-      const response = await getTaskList(groupId, selectedTaskListId, { date });
+      try {
+        const date = selectedDate || new Date().toISOString().split("T")[0];
+        const response = await getTaskList(groupId, selectedTaskListId, {
+          date,
+        });
 
-      if (response.success) {
-        setSelectedTaskListData(response.data);
+        if (response.success) {
+          setSelectedTaskListData(response.data);
+        } else {
+          toast.error("할 일 불러오는 중 오류가 발생했습니다.");
+        }
+      } catch (e) {
+        toast.error("할 일 불러오는 중 오류가 발생했습니다.");
       }
     }
+
     loadSelectedTaskList();
   }, [groupId, selectedTaskListId, selectedDate]);
 
@@ -132,9 +148,21 @@ export default function TaskListPageContainer({
       ),
     });
 
-    await updateTask(groupId, selectedTaskListId, String(taskId), {
-      done: willBeDone,
-    });
+    try {
+      const response = await updateTask(
+        groupId,
+        selectedTaskListId,
+        String(taskId),
+        {
+          done: willBeDone,
+        }
+      );
+      if (!response.success) {
+        toast.error("완료 상태 변경 중 오류가 발생했습니다.");
+      }
+    } catch {
+      toast.error("완료 상태 변경 중 오류가 발생했습니다.");
+    }
   };
 
   // Task 업데이트
@@ -149,7 +177,19 @@ export default function TaskListPageContainer({
       ),
     });
 
-    await updateTask(groupId, selectedTaskListId, String(taskId), updates);
+    try {
+      const response = await updateTask(
+        groupId,
+        selectedTaskListId,
+        String(taskId),
+        updates
+      );
+      if (!response.success) {
+        toast.error("할 일 수정 중 오류가 발생했습니다.");
+      }
+    } catch {
+      toast.error("할 일 수정 중 오류가 발생했습니다.");
+    }
 
     setEditTaskId(null);
   };
@@ -167,15 +207,28 @@ export default function TaskListPageContainer({
       tasks: selectedTaskListData.tasks.filter((t) => t.id !== task.id),
     });
 
-    if (task.recurringId) {
-      await deleteTaskRecurring(
-        groupId,
-        selectedTaskListId,
-        String(task.id),
-        String(task.recurringId)
-      );
-    } else {
-      await deleteTask(groupId, selectedTaskListId, String(task.id));
+    try {
+      let response;
+      if (task.recurringId) {
+        response = await deleteTaskRecurring(
+          groupId,
+          selectedTaskListId,
+          String(task.id),
+          String(task.recurringId)
+        );
+      } else {
+        response = await deleteTask(
+          groupId,
+          selectedTaskListId,
+          String(task.id)
+        );
+      }
+
+      if (!response.success) {
+        toast.error("할 일 삭제 중 오류가 발생했습니다.");
+      }
+    } catch {
+      toast.error("할 일 삭제 중 오류가 발생했습니다.");
     }
 
     const params = new URLSearchParams(searchParams);
@@ -242,6 +295,11 @@ export default function TaskListPageContainer({
       createPayload
     );
 
+    if (!response.success) {
+      toast.error("할 일 생성에 실패했습니다.");
+      return;
+    }
+
     if (response.success) {
       // ✅ 로컬 날짜로 targetDate 계산
       const targetDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
@@ -266,8 +324,7 @@ export default function TaskListPageContainer({
         }
       }
     } else {
-      console.error("Task 생성 실패:", response.error);
-      alert(response.error || "할 일 생성에 실패했습니다.");
+      toast.error("할 일 생성에 실패했습니다.");
     }
   };
 
@@ -288,7 +345,14 @@ export default function TaskListPageContainer({
       },
     ]);
 
-    await createTaskList(groupId, name);
+    try {
+      const response = await createTaskList(groupId, name);
+      if (!response.success) {
+        toast.error("할 일 목록 생성 중 오류가 발생했습니다.");
+      }
+    } catch {
+      toast.error("할 일 목록 생성 중 오류가 발생했습니다.");
+    }
   };
 
   if (loading) {
