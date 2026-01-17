@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { getArticles } from "@/lib/api/boards";
 import ButtonFloating from "../../../components/Common/Button/ButtonFloating";
 import BoardInput from "../../../components/Boards/BoardInput";
-import Loading from "@/app/loading";
 import BestArticleSection from "@/components/Boards/BestArticleSection";
 import ArticleSection from "@/components/Boards/ArticleSection";
 
@@ -116,10 +115,6 @@ function BoardClient() {
     router.push(`/boards?${params.toString()}`);
   };
 
-  if (isLoading || articles.length === 0) {
-    return <Loading />;
-  }
-
   return (
     // Page Wrapper
     <div
@@ -134,6 +129,7 @@ function BoardClient() {
             <BoardInput
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
+              onSubmit={handleSearchClick}
             />
             <button
               className={clsx(
