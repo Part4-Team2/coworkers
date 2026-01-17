@@ -53,7 +53,7 @@ export default function TaskCreateModal({
     handleSubmit,
     reset,
     register,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<CreateTaskForm>({
     defaultValues: {
       name: "",
@@ -62,6 +62,7 @@ export default function TaskCreateModal({
       startTime: defaultTime,
       frequencyType: "ONCE",
     },
+    mode: "onChange",
   });
 
   const [weekDays, setWeekDays] = useState<number[]>([]);
@@ -186,6 +187,7 @@ export default function TaskCreateModal({
               size="large"
               type="text"
               {...register("name", {
+                required: "제목은 필수입니다.",
                 minLength: {
                   value: 1,
                   message: "제목은 최소 1글자 이상 입력해주세요.",
@@ -470,6 +472,7 @@ export default function TaskCreateModal({
         primaryButton={{
           label: isEditMode ? "수정하기" : "만들기",
           onClick: handleSubmit(submitHandler),
+          disabled: !isValid,
         }}
       />
     </BaseModal>

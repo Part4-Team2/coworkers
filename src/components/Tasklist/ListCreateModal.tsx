@@ -5,7 +5,7 @@ import { BaseModal } from "@/components/Common/Modal";
 import ModalFooter from "@/components/Common/Modal/ModalFooter";
 import ModalHeader from "@/components/Common/Modal/ModalHeader";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
@@ -23,11 +23,17 @@ export default function ListCreateModal({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
   } = useForm<{ name: string }>({
     defaultValues: { name: "" },
+    mode: "onChange",
   });
+
+  useEffect(() => {
+    if (!isOpen) reset();
+  }, [isOpen, reset]);
+
   const [loading, setLoading] = useState(false);
 
   const onValid = async ({ name }: { name: string }) => {
@@ -81,7 +87,7 @@ export default function ListCreateModal({
         primaryButton={{
           label: loading ? "생성 중..." : "만들기",
           onClick: handleSubmit(onValid),
-          disabled: loading,
+          disabled: loading || !isValid,
         }}
       />
     </BaseModal>
