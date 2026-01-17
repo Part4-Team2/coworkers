@@ -37,12 +37,7 @@ export default function DropdownList({
         <li
           key={option}
           onClick={() => onSelect(option)}
-          className={clsx(
-            option === value
-              ? "bg-background-tertiary"
-              : "hover:bg-background-primary",
-            "cursor-pointer p-8"
-          )}
+          className={clsx("hover:bg-background-primary", "cursor-pointer p-8")}
         >
           {option}
         </li>

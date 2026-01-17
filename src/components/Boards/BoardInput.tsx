@@ -5,12 +5,13 @@ import { ChangeEvent } from "react";
 interface BoardInputProps {
   value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: () => void;
 }
 
 // 자유게시판에 쓰이는 검색바 입니다.
 // 임시로 최대 수용 글자수를 50으로 설정했습니다.
 // 추후에 어떤 방식으로 작동할지는 모르겠습니다.
-function BoardInput({ value, onChange }: BoardInputProps) {
+function BoardInput({ value, onChange, onSubmit }: BoardInputProps) {
   return (
     <div
       className={clsx(
@@ -32,6 +33,12 @@ function BoardInput({ value, onChange }: BoardInputProps) {
           aria-label="게시글 검색"
           value={value}
           onChange={onChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              onSubmit();
+            }
+          }}
           maxLength={50}
         />
       </div>

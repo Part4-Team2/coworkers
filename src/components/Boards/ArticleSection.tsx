@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import ArticleComp from "./Article";
 import ArticlePagination from "./ArticlePagination";
+import BoardListSkeleton from "../Common/Skeleton/BoardListSkeleton";
 import Dropdown from "../Common/Dropdown/Dropdown";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useHeaderStore } from "@/store/headerStore";
@@ -48,6 +49,31 @@ function ArticleSection({
     router.push(`/boards?${params.toString()}`);
   };
 
+  // 로딩중
+  if (isLoading) {
+    return <BoardListSkeleton showBestArticles={false} />;
+  }
+
+  // 게시글 에러
+  if (isError) {
+    return (
+      <div className="flex justify-center items-center">
+        게시글을 불러오지 못했습니다.
+      </div>
+    );
+  }
+
+  // 키워드 검색 실패
+  if (articles.length === 0) {
+    return (
+      <div className="flex justify-center items-center">
+        {keyword
+          ? `&quot;${keyword}&quot; 검색 결과가 없습니다.`
+          : "게시글이 없습니다."}
+      </div>
+    );
+  }
+
   return (
     <article className="flex flex-col gap-32">
       <div className="flex items-center justify-between">
@@ -73,24 +99,6 @@ function ArticleSection({
           );
         })}
       </div>
-      {/* 로딩, 페이지 보정 중 >> 이건 잠시 보류 */}
-      {/* {isLoading && <div>Skeleton</div>} */}
-
-      {/* 에러 */}
-      {!isLoading && isError && articles.length === 0 && !isLoading && (
-        <div className={clsx("flex justify-center")}>
-          게시글을 불러오지 못했습니다.
-        </div>
-      )}
-
-      {/* 검색어와 관련된 게시글이 없을 때 */}
-      {/* 느린 네트워크 상황에서 잠시 게시글 없음 문구가 뜰 수 있습니다. */}
-      {!isError && !isLoading && articles.length === 0 && (
-        <div className={clsx("flex justify-center")}>
-          &quot;{keyword}&#34;에 대한 게시글이 없습니다
-        </div>
-      )}
-
       {totalPage > 0 && (
         <div className={clsx("flex justify-center")}>
           <ArticlePagination

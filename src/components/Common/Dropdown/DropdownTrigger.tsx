@@ -33,6 +33,7 @@ export default function DropdownTrigger({
   onClick,
 }: Props) {
   const profileImage = useHeaderStore((s) => s.profileImage);
+  const profileNickname = useHeaderStore((s) => s.nickname);
 
   if (trigger === "icon") {
     return (
@@ -44,12 +45,19 @@ export default function DropdownTrigger({
 
   if (trigger === "avatar") {
     return (
-      <div className={clsx("flex justify-center")} onClick={onClick}>
+      <div className={clsx("flex items-center gap-8")} onClick={onClick}>
         <Avatar
           imageUrl={profileImage ? profileImage : undefined}
           altText="profile"
           size="large"
         />
+        <div
+          className={clsx(
+            "max-w-100 overflow-hidden text-ellipsis whitespace-nowrap"
+          )}
+        >
+          {profileNickname}
+        </div>
       </div>
     );
   }

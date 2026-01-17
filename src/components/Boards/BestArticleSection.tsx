@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import BestArticle from "./BestArticle";
+import BoardListSkeleton from "../Common/Skeleton/BoardListSkeleton";
 import { getArticles } from "@/lib/api/boards";
 import { useEffect, useState } from "react";
 import { Article } from "@/types/article";
@@ -9,18 +10,37 @@ import { Article } from "@/types/article";
 // 베스트 게시글에 올라갈 Section입니다.
 function BestArticleSection() {
   const [articles, setArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchBestArticles = async (ignore: { current: boolean }) => {
+    try {
+      const res = await getArticles({
+        page: 1,
+        pageSize: 3,
+        orderBy: "like",
+      });
+
+      if (ignore.current) return;
+      setArticles(res.list);
+    } catch (error) {
+      if (ignore.current) return;
+      console.error("베스트 게시글 불러오기 오류", error);
+    } finally {
+      if (!ignore.current) setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    getArticles({
-      page: 1,
-      pageSize: 3,
-      orderBy: "like",
-    })
-      .then((res) => setArticles(res.list))
-      .catch((error) => {
-        console.error("베스트 게시글 불러오기 오류", error);
-      });
+    const ignore = { current: false };
+    fetchBestArticles(ignore);
+    return () => {
+      ignore.current = true;
+    };
   }, []);
+
+  if (isLoading) {
+    return <BoardListSkeleton />;
+  }
 
   return (
     <article className="flex flex-col gap-56">
