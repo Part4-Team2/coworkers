@@ -12,14 +12,6 @@ import { postImage } from "@/lib/api/image";
 import { CreateArticle } from "@/types/article";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { createMetadata } from "@/components/Common/Metadata/Metadata";
-
-export const metadata = createMetadata({
-  title: "자유게시판 - 글 쓰기",
-  description: "동료들과 자유롭게 이야기를 나눠보세요.",
-  url: "/boards/writeArticle",
-  alt: "Coworkers - 자유게시판 글 쓰기",
-});
 
 interface ArticleFormData {
   title: string;
