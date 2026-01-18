@@ -21,6 +21,7 @@ import {
 import ListCreateButton from "@/components/Tasklist/ListCreateButton";
 import TabList from "@/components/Tasklist/Tab/TabList";
 import { toast } from "react-toastify";
+import { useHeaderStore } from "@/store/headerStore";
 
 interface TaskListPageContainerProps {
   groupId: string;
@@ -33,6 +34,7 @@ export default function TaskListPageContainer({
   selectedTaskListId,
   selectedDate,
 }: TaskListPageContainerProps) {
+  const isLogin = useHeaderStore((set) => set.isLogin);
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -71,6 +73,11 @@ export default function TaskListPageContainer({
 
   // 1. 초기 로드: 모든 TaskList 가져오기
   useEffect(() => {
+    // 비로그인이면 로그인 페이지로 이동합니다.
+    if (!isLogin) {
+      router.push("/login");
+      return;
+    }
     async function loadTaskLists() {
       try {
         const response = await getGroup(groupId); // 이 API 필요!
@@ -89,6 +96,11 @@ export default function TaskListPageContainer({
 
   // 2. 선택된 TaskList 변경시 상세 데이터 가져오기
   useEffect(() => {
+    // 비로그인이면 로그인 페이지로 이동합니다.
+    if (!isLogin) {
+      router.push("/login");
+      return;
+    }
     if (!selectedTaskListId) return;
 
     async function loadSelectedTaskList() {
