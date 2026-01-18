@@ -169,8 +169,9 @@ export default function TaskCreateModal({
 
       <div className="h-400 overflow-y-auto custom-scrollbar">
         <form className="flex flex-col gap-24 mb-32 mr-12">
-          <section>
+          <section className="w-full">
             <Input
+              full
               label="할 일 제목"
               labelClassName="text-lg font-medium text-text-primary mb-16"
               placeholder="할 일 제목을 입력해주세요."
@@ -204,6 +205,7 @@ export default function TaskCreateModal({
                 </h3>
                 <div className="relative" ref={datePickerRef}>
                   <Input
+                    full
                     label="시작 날짜"
                     labelClassName="sr-only"
                     placeholder={formatDate(today.toISOString())}
@@ -310,6 +312,7 @@ export default function TaskCreateModal({
 
           <section>
             <InputBox
+              full
               label="할 일 메모"
               labelClassName="text-lg font-medium text-text-primary mb-16"
               placeholder="메모를 입력해주세요."
