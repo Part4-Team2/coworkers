@@ -35,6 +35,8 @@ export default function TaskListPageContainer({
   selectedDate,
 }: TaskListPageContainerProps) {
   const isLogin = useHeaderStore((set) => set.isLogin);
+  const isHydrated = useHeaderStore((set) => set.isHydrated);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -73,6 +75,8 @@ export default function TaskListPageContainer({
 
   // 1. 초기 로드: 모든 TaskList 가져오기
   useEffect(() => {
+    // hydration 전에는 체크하지 않음
+    if (!isHydrated) return;
     // 비로그인이면 로그인 페이지로 이동합니다.
     if (!isLogin) {
       router.push("/login");
@@ -92,10 +96,12 @@ export default function TaskListPageContainer({
       setLoading(false);
     }
     loadTaskLists();
-  }, [groupId]);
+  }, [groupId, isHydrated, isLogin, router]);
 
   // 2. 선택된 TaskList 변경시 상세 데이터 가져오기
   useEffect(() => {
+    // hydration 전에는 체크하지 않음
+    if (!isHydrated) return;
     // 비로그인이면 로그인 페이지로 이동합니다.
     if (!isLogin) {
       router.push("/login");
@@ -121,7 +127,7 @@ export default function TaskListPageContainer({
     }
 
     loadSelectedTaskList();
-  }, [groupId, selectedTaskListId, selectedDate]);
+  }, [groupId, selectedTaskListId, selectedDate, isHydrated, isLogin, router]);
 
   // Task 클릭 핸들러 - 상세보기용
   const handleTaskClick = (taskId: number) => {
