@@ -135,6 +135,7 @@ function CommentSection({
           prev.filter((comment) => comment.id !== deleteId)
         );
         onCommentDelete();
+        toast.success("삭제되었습니다!");
       } else {
         console.error("삭제하기 오류:", result.error);
         toast.error(result.error);

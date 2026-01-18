@@ -218,16 +218,6 @@ function Header() {
               )}
             </div>
           )}
-          {isSideOpen && (
-            <div className="sm:hidden">
-              <SideHeaderMobile
-                isOpen={isSideOpen}
-                teams={teams}
-                wrapperRef={sideWrapperRef}
-                onClose={handleSideClose}
-              />
-            </div>
-          )}
           <div className={clsx("hidden sm:block")}>
             <Link href="/boards" className="hidden sm:block cursor-pointer">
               자유게시판
@@ -235,7 +225,16 @@ function Header() {
           </div>
         </div>
         {/* 팀명 옆 토글 버튼을 누르면 사이드바가 나옵니다 */}
-
+        {isSideOpen && (
+          <div className="sm:hidden">
+            <SideHeaderMobile
+              isOpen={isSideOpen}
+              teams={teams}
+              wrapperRef={sideWrapperRef}
+              onClose={handleSideClose}
+            />
+          </div>
+        )}
         {/* 로그인 상태면 아래 내용이 mount 됩니다. */}
         {isLogin ? (
           <div className="flex items-center">
@@ -246,7 +245,7 @@ function Header() {
                 size="md"
                 trigger="avatar"
                 icon="user"
-                listPosition="top-full right-0"
+                listPosition="top-47 right-[-15px]"
               />
             </div>
           </div>
