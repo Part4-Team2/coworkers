@@ -26,7 +26,7 @@ export default function Home() {
             "flex flex-col justify-between items-center",
             "py-84 h-640 sm:h-940 lg:h-1080",
             "bg-[url(/landing/main/size-small.webp)] sm:bg-[url(/landing/main/size-medium.webp)] lg:bg-[url(/landing/main/size-large.webp)]",
-            "bg-no-repeat bg-center bg-cover"
+            "bg-no-repeat bg-center sm:bg-cover"
           )}
         >
           <article
@@ -191,11 +191,13 @@ export default function Home() {
           className={clsx(
             "pt-230 h-1080",
             "bg-[url(/landing/bottom/size=small.webp)] sm:bg-[url(/landing/bottom/size=medium.webp)] lg:bg-[url(/landing/bottom/size=large.webp)]",
-            "bg-no-repeat bg-center bg-cover"
+            "bg-no-repeat bg-center sm:bg-cover"
           )}
         >
           <div className="flex flex-col gap-24 items-center">
-            <div className="text-4xl font-semibold">지금 바로 시작해보세요</div>
+            <div className="text-3xl sm:text-4xl font-semibold">
+              지금 바로 시작해보세요
+            </div>
             <div className="text-xl font-medium text-center">
               팀원 모두와 같은 방향, 같은 속도로 나아가는
               <br className="sm:hidden"></br> 가장 쉬운 방법
