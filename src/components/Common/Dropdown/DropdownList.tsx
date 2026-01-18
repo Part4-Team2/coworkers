@@ -42,6 +42,7 @@ export default function DropdownList({
           className={clsx(
             "hover:bg-background-primary",
             "cursor-pointer py-12 px-10",
+            "whitespace-nowrap",
             align === "center" ? "text-center" : "text-left"
           )}
         >
