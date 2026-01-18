@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getGroupInvitation, deleteMember } from "@/lib/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 import { Member as MemberType } from "@/types/member";
+import { showSuccessToast } from "@/utils/error";
 
 interface UseMemberActionsProps {
   teamId: string;
@@ -101,7 +102,7 @@ export function useMemberActions({
 
       // 클립보드에 복사
       await navigator.clipboard.writeText(inviteLink);
-      alert("초대 링크가 복사되었습니다!");
+      showSuccessToast("초대 링크가 복사되었습니다!");
       resetModalState();
     } catch (error) {
       console.error("[copyInviteLink]", error);
