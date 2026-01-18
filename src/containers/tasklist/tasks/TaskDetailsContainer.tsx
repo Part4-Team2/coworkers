@@ -71,7 +71,7 @@ export default function TaskDetailsContainer({
 
   return (
     <>
-      <div className="flex flex-col gap-16 p-40">
+      <div className="flex flex-col gap-16 pt-64 p-50">
         <SVGIcon icon="x" onClick={onClose} className="cursor-pointer" />
 
         {task.doneAt && (
