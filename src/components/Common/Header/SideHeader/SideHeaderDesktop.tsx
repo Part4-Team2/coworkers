@@ -48,7 +48,7 @@ function SideHeaderDesktop({
     <div
       ref={wrapperRef}
       className={clsx(
-        "absolute top-full right-0 z-50",
+        "absolute top-45 right-0 z-50",
         "bg-background-secondary w-218 p-16",
         "border border-text-primary/10 rounded-xl",
         isOpen
