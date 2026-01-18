@@ -21,8 +21,8 @@ export default async function MyHistoryPage() {
   const historyData = await getUserHistoryWithMeasure();
 
   return (
-    <div className="w-full min-h-screen bg-background-primary">
-      <div className="pt-24 lg:pt-40">
+    <div className="w-full bg-background-primary min-h-[calc(100vh-var(--app-header-height))]">
+      <div className="pt-24 lg:pt-40 pb-40">
         <div className="max-w-1200 mx-auto px-16 sm:px-24 lg:px-24">
           <h1 className="text-xl font-bold leading-xl text-text-primary mb-24">
             마이 히스토리

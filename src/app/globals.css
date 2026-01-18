@@ -247,6 +247,11 @@ body {
   margin: 2px !important;
 }
 
+/* teamid 페이지 드롭다운 높이 수정 */
+.teamid-page .relative > ul.absolute {
+  padding: 0 !important;
+}
+
 /* 커스텀 스크롤바 */
 
 /* Firefox */

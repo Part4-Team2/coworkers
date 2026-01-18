@@ -1,0 +1,41 @@
+diff --git a/node_modules/next/dist/client/components/use-action-queue.js b/node_modules/next/dist/client/components/use-action-queue.js
+index 0584a41..f9f2eba 100644
+--- a/node_modules/next/dist/client/components/use-action-queue.js
++++ b/node_modules/next/dist/client/components/use-action-queue.js
+@@ -39,8 +39,26 @@ function dispatchAppRouterAction(action) {
+ }
+ const __DEV__ = process.env.NODE_ENV !== 'production';
+ const promisesWithDebugInfo = __DEV__ ? new WeakMap() : null;
++
++// 🔧 Patch: use() 훅 버그 우회를 위한 useUnwrapState
++function useUnwrapState(_state) {
++    const [state, setState] = _react.default.useState(_state);
++    _react.default.useEffect(() => {
++        if ((0, _isthenable.isThenable)(_state)) {
++            _state.then(setState);
++        } else {
++            setState(_state);
++        }
++    }, [_state]);
++    return state;
++}
++
+ function useActionQueue(actionQueue) {
+     const [state, setState] = _react.default.useState(actionQueue.state);
++    
++    // 🔧 Patch: use() 대신 useUnwrapState 사용
++    const unwrappedState = useUnwrapState(state);
++    
+     // Because of a known issue that requires to decode Flight streams inside the
+     // render phase, we have to be a bit clever and assign the dispatch method to
+     // a module-level variable upon initialization. The useState hook in this
+@@ -90,7 +108,8 @@ function useActionQueue(actionQueue) {
+     }, [
+         state
+     ]);
+-    return (0, _isthenable.isThenable)(stateWithDebugInfo) ? (0, _react.use)(stateWithDebugInfo) : stateWithDebugInfo;
++    // 🔧 Patch: use() 호출 제거 - useUnwrapState로 대체
++    return unwrappedState;
+ }
+ 
+ if ((typeof exports.default === 'function' || (typeof exports.default === 'object' && exports.default !== null)) && typeof exports.default.__esModule === 'undefined') {

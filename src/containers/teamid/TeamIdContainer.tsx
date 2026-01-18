@@ -139,7 +139,7 @@ export default function TeamIdContainer({
   };
 
   return (
-    <div className="teamid-page w-full bg-background-primary min-h-screen py-24">
+    <div className="teamid-page w-full bg-background-primary min-h-[calc(100vh-var(--app-header-height))] py-24">
       <div className="max-w-1200 mx-auto px-16 lg:px-24">
         {/* 팀 헤더 - 공통 Header 아래 24px 위치 */}
         <div className="mb-24">
