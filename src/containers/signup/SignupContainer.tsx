@@ -58,15 +58,6 @@ export default function SignupContainer() {
       showSuccessToast("회원가입에 성공했습니다.");
       router.push("/");
       return response;
-    }).catch((error) => {
-      if (!signupError) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "회원가입에 실패했습니다. 다시 시도해주세요.";
-        setSignupError(errorMessage);
-        showErrorToast(errorMessage);
-      }
     });
   };
 

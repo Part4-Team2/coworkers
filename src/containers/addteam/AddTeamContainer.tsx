@@ -78,13 +78,6 @@ export default function AddTeamContainer() {
       showSuccessToast("팀 생성에 성공했습니다.");
       router.push(`/${response.id}`);
       return response;
-    }).catch(() => {
-      // mutate에서 이미 에러 처리가 되지만, 추가 에러 메시지 표시
-      if (!addTeamError) {
-        const errorMessage = "팀 생성에 실패했습니다. 다시 시도해주세요.";
-        setAddTeamError(errorMessage);
-        showErrorToast(errorMessage);
-      }
     });
   };
 

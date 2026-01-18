@@ -87,14 +87,6 @@ export default function LoginContainer() {
       showSuccessToast("로그인에 성공했습니다.");
       router.push("/");
       return response;
-    }).catch(() => {
-      if (!loginError) {
-        const errorMessage = "이메일 혹은 비밀번호를 확인해주세요.";
-        setError("email", { type: "manual", message: "" });
-        setError("password", { type: "manual", message: "" });
-        setLoginError(errorMessage);
-        showErrorToast(errorMessage);
-      }
     });
   };
 
