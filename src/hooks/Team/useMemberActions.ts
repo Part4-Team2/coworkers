@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { getGroupInvitation, deleteMember } from "@/lib/api/group";
 import { MODAL_TYPES, type ModalState } from "./useModalState";
 import { Member as MemberType } from "@/types/member";
-import { showSuccessToast } from "@/utils/error";
+import { showSuccessToast, showErrorToast } from "@/utils/error";
 
 interface UseMemberActionsProps {
   teamId: string;
@@ -77,10 +77,12 @@ export function useMemberActions({
       navigator.clipboard
         .writeText(modalState.selectedMember.email)
         .then(() => {
-          alert("이메일이 복사되었습니다!");
+          showSuccessToast("이메일이 복사되었습니다!");
           resetModalState();
         })
-        .catch(() => alert("이메일 복사에 실패했습니다. 다시 시도해주세요."));
+        .catch(() =>
+          showErrorToast("이메일 복사에 실패했습니다. 다시 시도해주세요.")
+        );
     }
   }, [modalState.selectedMember, resetModalState]);
 

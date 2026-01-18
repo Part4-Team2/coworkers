@@ -6,6 +6,7 @@ import Dropdown from "../Common/Dropdown/Dropdown";
 import { useRouter } from "next/navigation";
 import { deleteArticle } from "@/lib/api/boards";
 import { Article } from "@/types/article";
+import { showSuccessToast, showErrorToast } from "@/utils/error";
 
 interface Props {
   article: Article;
@@ -34,13 +35,17 @@ function ArticleHeader({
   const handleDeleteArticle = async ({ articleId }: { articleId: number }) => {
     try {
       // 현재 삭제 버튼을 누르면 재차 확인없이 바로 API 호출합니다.
-      await deleteArticle(articleId);
+      const result = await deleteArticle(articleId);
+      if (!result.success) {
+        showErrorToast(result.error || "게시글 삭제에 실패했습니다.");
+        return;
+      }
       // API call 성공하면 자유게시판으로 이동합니다.
-      alert("삭제 성공, 자유게시판으로 이동합니다.");
+      showSuccessToast("삭제 성공, 자유게시판으로 이동합니다.");
       router.push("/boards");
     } catch (error) {
       console.error(error);
-      alert("삭제 중 오류 발생");
+      showErrorToast("삭제 중 오류가 발생했습니다.");
     }
   };
 
