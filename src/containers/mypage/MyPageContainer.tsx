@@ -154,12 +154,6 @@ export default function MyPageContainer({
         router.refresh(); // 서버에서 최신 데이터 가져오기
         return response;
       }
-    }).catch(() => {
-      if (!nameError) {
-        const errorMessage = "업데이트에 실패했습니다. 다시 시도해주세요.";
-        setNameError(errorMessage);
-        showErrorToast(errorMessage);
-      }
     });
   };
 
@@ -192,12 +186,6 @@ export default function MyPageContainer({
       showSuccessToast("비밀번호가 변경되었습니다.");
       handleClose();
       return response;
-    }).catch(() => {
-      if (!passwordChangeError) {
-        const errorMessage = "비밀번호 변경에 실패했습니다. 다시 시도해주세요.";
-        setPasswordChangeError(errorMessage);
-        showErrorToast(errorMessage);
-      }
     });
   };
 
@@ -216,12 +204,6 @@ export default function MyPageContainer({
       showSuccessToast("회원 탈퇴가 완료되었습니다.");
       router.replace("/login");
       return response;
-    }).catch(() => {
-      if (!nameError) {
-        const errorMessage = "회원 탈퇴에 실패했습니다. 다시 시도해주세요.";
-        setNameError(errorMessage);
-        showErrorToast(errorMessage);
-      }
     });
   };
 

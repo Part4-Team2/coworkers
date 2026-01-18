@@ -69,12 +69,6 @@ export default function JoinTeamContainer({ email }: { email: string }) {
       showSuccessToast("팀 참여에 성공했습니다.");
       router.push(`/${response.groupId}`);
       return response;
-    }).catch(() => {
-      if (!joinTeamError) {
-        const errorMessage = "팀 참여에 실패했습니다. 다시 시도해주세요.";
-        setJoinTeamError(errorMessage);
-        showErrorToast(errorMessage);
-      }
     });
   };
 

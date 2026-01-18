@@ -309,6 +309,7 @@ export async function postLike(articleId: number): Promise<ApiResult<void>> {
     }
 
     revalidatePath(`/boards/${articleId}`);
+    revalidatePath("/boards");
     return { success: true, data: undefined };
   } catch {
     return {
@@ -336,6 +337,7 @@ export async function deleteLike(articleId: number): Promise<ApiResult<void>> {
     }
 
     revalidatePath(`/boards/${articleId}`);
+    revalidatePath("/boards");
     return { success: true, data: undefined };
   } catch {
     return {
