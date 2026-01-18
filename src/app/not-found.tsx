@@ -1,17 +1,9 @@
-"use client";
-
 import clsx from "clsx";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Button from "@/components/Common/Button/Button";
 
 // 404 페이지 입니다. 문구는 추후에 필요에 따라 변경 가능합니다.
 function NotFound() {
-  const Router = useRouter();
-
-  const handleHomeClick = () => {
-    Router.push("/");
-  };
-
   return (
     // Page Wrapper
     <div className="min-h-screen">
@@ -33,11 +25,9 @@ function NotFound() {
               없습니다.
             </span>
           </div>
-          <Button
-            label="홈으로 돌아가기"
-            variant="gradient"
-            onClick={handleHomeClick}
-          />
+          <Link href="/" replace>
+            <Button label="홈으로 돌아가기" variant="gradient" />
+          </Link>
         </section>
       </main>
     </div>
