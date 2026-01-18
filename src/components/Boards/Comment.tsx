@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import Dropdown from "../Common/Dropdown/Dropdown";
+import SVGIcon from "../Common/SVGIcon/SVGIcon";
 import { useHeaderStore } from "@/store/headerStore";
 
 // 댓글을 display하는 컴포넌트 입니다.
@@ -12,8 +12,6 @@ interface CommentProps {
   onDelete: (id: number) => void;
 }
 
-const WRITEOPTIONS = ["삭제하기"];
-
 function Comment({
   commentId,
   content,
@@ -24,11 +22,9 @@ function Comment({
 }: CommentProps) {
   const userId = useHeaderStore((state) => state.userId);
   const isAuthor = userId === writerId;
-  // 삭제하기 버튼 누를 시 작동하는 함수입니다.
-  const handleSelect = async (value: string) => {
-    console.log(`${commentId} 댓글 삭제하기`);
-    if (value !== "삭제하기") return;
 
+  // 삭제하기 버튼 누를 시 작동하는 함수입니다.
+  const handleDelete = async () => {
     await onDelete(commentId);
   };
 
@@ -46,16 +42,11 @@ function Comment({
           {content}
         </span>
         {isAuthor && (
-          <div className={clsx("absolute top-5 right-5")}>
-            <Dropdown
-              options={WRITEOPTIONS}
-              onSelect={handleSelect}
-              size="md"
-              trigger="icon"
-              value={WRITEOPTIONS[0]}
-              icon="kebabLarge"
-              listPosition="top-full right-0"
-            />
+          <div
+            className={clsx("absolute top-5 right-5 cursor-pointer")}
+            onClick={handleDelete}
+          >
+            <SVGIcon icon="x" size={20} />
           </div>
         )}
         {/* <div className={clsx("flex justify-between items-center")}>
