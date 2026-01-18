@@ -200,20 +200,15 @@ export default function TaskListPageContainer({
         updates
       );
 
-      console.log("updateTask response:", response);
-
       if (!response.success) {
-        console.log("updateTask failed:", response.error);
         // Rollback
         setSelectedTaskListData(originalData);
         toast.error("할 일 수정 중 오류가 발생했습니다.");
         return;
       }
 
-      console.log("updateTask success!");
       toast.success("할 일이 수정되었습니다.");
     } catch (error) {
-      console.log("updateTask catch error:", error);
       // Rollback
       setSelectedTaskListData(originalData);
       toast.error("할 일 수정 중 오류가 발생했습니다.");
@@ -286,13 +281,6 @@ export default function TaskListPageContainer({
     // form.startDate는 이미 병합된 로컬 시간
     const localDateTime = form.startDate;
 
-    console.log("=== 할일 생성 데이터 전송 ===");
-    console.log(
-      "1. 사용자가 선택한 시간:",
-      localDateTime.toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
-    );
-    console.log("2. UTC로 변환된 시간:", localDateTime.toISOString());
-
     const createPayload = (() => {
       const basePayload = {
         name: form.name,
@@ -327,15 +315,11 @@ export default function TaskListPageContainer({
       }
     })();
 
-    console.log("3. API 전송 데이터:", JSON.stringify(createPayload, null, 2));
-
     const response = await createTasks(
       groupId,
       selectedTaskListId,
       createPayload
     );
-
-    console.log("4. 백엔드 응답:", JSON.stringify(response, null, 2));
 
     if (!response.success) {
       toast.error("할 일 생성에 실패했습니다.");
@@ -363,21 +347,7 @@ export default function TaskListPageContainer({
         date: targetDate,
       });
 
-      console.log("=== 할일 목록 새로고침 ===");
-
       if (refreshResponse.success) {
-        console.log("5. 백엔드에서 받은 할일 데이터:");
-        refreshResponse.data.tasks.forEach((task, index) => {
-          console.log(`  할일 ${index + 1}: ${task.name}`);
-          console.log(`    - 백엔드 date 필드: ${task.date}`);
-          console.log(
-            `    - Date 객체로 변환: ${new Date(task.date).toISOString()}`
-          );
-          console.log(
-            `    - 한국 시간으로 표시: ${new Date(task.date).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`
-          );
-        });
-
         setSelectedTaskListData({
           ...refreshResponse.data,
           tasks: refreshResponse.data.tasks,
