@@ -1,6 +1,14 @@
 import { trace } from "@opentelemetry/api";
 import { getArticles } from "@/lib/api/boards";
 import BoardClient from "./BoardClient";
+import { createMetadata } from "@/components/Common/Metadata/Metadata";
+
+export const metadata = createMetadata({
+  title: "자유게시판",
+  description: "동료들과 자유롭게 이야기를 나눠보세요.",
+  url: "/boards",
+  alt: "Coworkers - 자유게시판",
+});
 
 interface BoardPageProps {
   searchParams: Promise<{
