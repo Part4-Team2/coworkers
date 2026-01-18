@@ -92,7 +92,6 @@ export default function TaskCreateModal({
         name: taskToEdit.name,
         description: taskToEdit.description,
         startDate: new Date(taskToEdit.date),
-        frequencyType: taskToEdit.frequency,
       });
       setWeekDays(taskToEdit.weekDays ?? []);
       setMonthDay(taskToEdit.monthDay ?? new Date(taskToEdit.date).getDate());
