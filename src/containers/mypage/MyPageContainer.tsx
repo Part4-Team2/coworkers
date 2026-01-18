@@ -15,6 +15,7 @@ import { patchUser, deleteUser, patchUserPassword } from "@/lib/api/user";
 import { useRouter } from "next/navigation";
 import { UpdatePasswordBody } from "@/lib/types/user";
 import { showErrorToast, showSuccessToast } from "@/utils/error";
+import { useHeaderStore } from "@/store/headerStore";
 
 interface NameFormData {
   name: string;
@@ -37,6 +38,7 @@ export default function MyPageContainer({
   initialEmail,
 }: MyPageContainerProps) {
   const router = useRouter();
+  const fetchUser = useHeaderStore((s) => s.fetchUser);
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string>("");
   const [passwordChangeError, setPasswordChangeError] = useState<string>("");
@@ -151,6 +153,8 @@ export default function MyPageContainer({
 
         // 성공 피드백 및 데이터 갱신
         showSuccessToast("프로필이 업데이트되었습니다.");
+        // 헤더 스토어 업데이트
+        await fetchUser();
         router.refresh(); // 서버에서 최신 데이터 가져오기
         return response;
       }
